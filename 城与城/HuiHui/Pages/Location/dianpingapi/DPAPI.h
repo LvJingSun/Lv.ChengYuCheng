@@ -1,0 +1,35 @@
+//
+//  DPAPI.h
+//  apidemo
+//
+//  Created by ZhouHui on 13-1-28.
+//  Copyright (c) 2013年 Dianping. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "DPRequest.h"
+
+#define kDPAppKey             @"1762031016"
+#define kDPAppSecret          @"16b97a20b4ba4785b44975ba884deb70"
+
+#ifndef kDPAppKey
+#error
+#endif
+
+#ifndef kDPAppSecret
+#error
+#endif
+
+@interface DPAPI : NSObject
+
+- (DPRequest*)requestWithURL:(NSString *)url
+					  params:(NSMutableDictionary *)params
+					delegate:(id<DPRequestDelegate>)delegate;
+
+- (DPRequest *)requestWithURL:(NSString *)url
+				 paramsString:(NSString *)paramsString
+					 delegate:(id<DPRequestDelegate>)delegate;
+
+-(void)cancleAPI;
+
+@end

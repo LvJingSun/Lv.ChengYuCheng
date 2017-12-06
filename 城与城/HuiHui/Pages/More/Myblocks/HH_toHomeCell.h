@@ -1,0 +1,67 @@
+//
+//  HH_toHomeCell.h
+//  HuiHui
+//
+//  Created by mac on 15-7-23.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface HH_toHomeCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *m_name;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_phone;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_address;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_tipLabel;
+
+
+
+@end
+
+
+@interface HH_toHomeTimeCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *m_time;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_title;
+
+@end
+
+
+
+@interface HH_toHomePayCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *m_payType;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_title;
+
+@end
+
+
+@interface HH_toHomeSpecialCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UITextField *m_textField;
+
+@property (weak, nonatomic) IBOutlet UIImageView *m_backImgV;
+
+
+
+@end
+
+
+@interface HH_toHomeYouhuiCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *m_yhDescription;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_yhDescriptionZeng;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_jian;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_yhJian;
+
+
+@end

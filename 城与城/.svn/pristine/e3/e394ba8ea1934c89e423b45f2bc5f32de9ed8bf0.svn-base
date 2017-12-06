@@ -1,0 +1,2785 @@
+//
+//  HomeViewController.m
+//  HuiHui
+//
+//  Created by mac on 14-7-25.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//
+
+#import "HomeViewController.h"
+
+#import "all_merchantViewController.h"
+
+#import "CategoryViewController.h"
+
+#import "Ca_productListViewController.h"
+
+#import "CommonUtil.h"
+
+#import "SVProgressHUD.h"
+
+#import "AppHttpClient.h"
+
+#import "SaleProductDetailViewController.h"
+
+#import "SaleProductListViewController.h"
+
+#import "LocationCell.h"
+
+#import "UIImageView+AFNetworking.h"
+
+#import "WebViewController.h"
+
+#import "ProductDetailViewController.h"
+
+#import "StartViewController.h"
+
+//#import "SC_productViewController.h"
+
+#import "HH_SearchViewController.h"
+
+#import "CtriphotelViewController.h"
+
+#import "FlightsViewController.h"
+
+#import "hh_tianchengViewController.h"
+
+#import "DScale_productListViewController.h"
+
+#import "QuanquanListViewController.h"
+
+#import "Sec_webViewController.h"
+
+#import "HotelChooseViewController.h"
+
+#import "TrainwebViewController.h"
+
+#import "MyCardViewController.h"
+
+#import "HH_MactMenuViewController.h"
+
+#import "HH_CardPayCell.h"
+
+#import "HH_TakeOrderViewController.h"
+
+
+static const CGFloat kDefaultPlayLocationInterval = 600.0;
+
+@interface HomeViewController ()
+
+@property (weak, nonatomic) IBOutlet PullTableView  *m_tableView;
+@property (strong, nonatomic) IBOutlet UIView       *m_headerView;
+@property (strong, nonatomic) IBOutlet UIView       *m_footerView;
+@property (weak, nonatomic) IBOutlet UIButton       *m_moreBtn;
+@property (weak, nonatomic) IBOutlet UIScrollView   *m_scollerView;
+
+@property (strong, nonatomic) NSMutableArray    *m_city;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_diandanBtn;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_vipBtn;
+// 显示地址的label
+@property (weak, nonatomic) IBOutlet UILabel *m_address;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_address1;
+
+// 按钮的点击事件
+- (void)btn1Clicked:(id)sender;
+- (void)btn5Clicked:(id)sender;
+
+// 查看更多商品触发的事件
+- (IBAction)morebtnClicked:(id)sender;
+
+// 各个分类点击触发的事件
+- (IBAction)category_Clicked:(id)sender;
+// 点单按钮触发的事件
+- (IBAction)m_menuClicked:(id)sender;
+// 会员卡按钮触发的事件
+- (IBAction)m_vipCardClicked:(id)sender;
+
+@end
+
+@implementation HomeViewController
+
+@synthesize m_BMK_mapView;
+
+@synthesize m_search;
+
+@synthesize m_infoList;
+
+@synthesize isClick;
+
+@synthesize m_AdUpAdList;
+
+@synthesize m_dic;
+
+@synthesize m_timer;
+
+@synthesize m_productList;
+
+@synthesize m_categoryList;
+
+@synthesize m_xiaImagV;
+@synthesize m_city;
+
+@synthesize m_dazhongList;
+
+@synthesize m_showTypeString;
+
+@synthesize m_menuList;
+
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        
+        dbhelp = [[DBHelper alloc]init];
+        
+        m_infoList = [[NSMutableArray alloc]initWithCapacity:0];
+
+        m_AdUpAdList = [[NSMutableArray alloc]initWithCapacity:0];
+        
+        m_productList = [[NSMutableArray alloc]initWithCapacity:0];
+        
+        m_dic = [[NSDictionary alloc]init];
+        
+        m_categoryList = [[NSMutableArray alloc]initWithCapacity:0];
+        
+        isClick = NO;
+
+        searchHelper = [[SearchRecordsHelper alloc]init];
+        
+        m_city = [[NSMutableArray alloc]initWithCapacity:0];
+        
+        m_dazhongList = [[NSMutableArray alloc]initWithCapacity:0];
+        
+        m_menuList = [[NSMutableArray alloc]initWithCapacity:0];
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    m_city = [dbhelp queryCity];
+    
+    titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(105, 6, 150, 30)];
+    titleLabel.font = [UIFont systemFontOfSize:16.0f];//[UIFont fontWithName:@"Helvetica-Bold" size:20.0f];//fontWithName:@"Helvetica-Bold" size:22.0f];
+    titleLabel.textColor = [UIColor whiteColor];
+
+    [titleLabel setShadowOffset:CGSizeMake(0, 0)];
+    [titleLabel setShadowColor:[UIColor colorWithRed:0x41/255.0f green:0x41/255.0f blue:0x41/255.0f alpha:1.0f]]; //[UIColor whiteColor]];
+    titleLabel.backgroundColor = [UIColor clearColor];
+    titleLabel.textAlignment = NSTextAlignmentCenter;
+    
+    
+    if ([[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]] isEqualToString:@"(null)"]||[[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]] isEqualToString:@""]) {
+        titleLabel.text = @"本地";
+    }else{
+        titleLabel.text = [CommonUtil getValueByKey:kSelectAddress];
+    }
+    
+    [titleLabel sizeToFit];
+//    self.navigationItem.titleView = titleLabel;
+    
+    //=========
+    
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 200, 30)];
+    view.backgroundColor = [UIColor colorWithRed:26/255.f green:140/255.f blue:254/255.f alpha:1.0];
+    
+    view.layer.cornerRadius = 15.0f;
+    
+    
+    
+    // 图片显示
+    UIImageView *imagV = [[UIImageView alloc]initWithFrame:CGRectMake(12, 8, 12, 14)];
+    imagV.image = [UIImage imageNamed:@"hh_search_home.png"];
+    
+    [view addSubview:imagV];
+    
+    // label显示
+    UILabel *l_label = [[UILabel alloc]initWithFrame:CGRectMake(32, 0, 120, 30)];
+    l_label.text = @"请输入商品名称";
+    l_label.font = [UIFont systemFontOfSize:12.0f];
+    l_label.textColor = [UIColor whiteColor];
+    l_label.backgroundColor = [UIColor clearColor];
+    [view addSubview:l_label];
+    
+    // 按钮
+    UIButton *l_btn = [UIButton buttonWithType:UIButtonTypeCustom];
+    l_btn.frame = CGRectMake(0, 0, 160, 30);
+    l_btn.backgroundColor = [UIColor clearColor];
+    [l_btn addTarget:self action:@selector(searchClicked) forControlEvents:UIControlEventTouchUpInside];
+    [view addSubview:l_btn];
+    
+    
+    
+    self.navigationItem.titleView = view;
+
+    //=========
+
+    
+//    // 设置坐标
+//    self.m_diandanBtn.frame = CGRectMake((WindowSizeWidth - 30) / 2 + 20, self.m_diandanBtn.frame.origin.y, (WindowSizeWidth - 30) / 2 , self.m_diandanBtn.frame.size.height);
+//
+//    
+//    self.m_vipBtn.frame = CGRectMake(self.m_vipBtn.frame.origin.x, self.m_vipBtn.frame.origin.y, (WindowSizeWidth - 30) / 2 , self.m_vipBtn.frame.size.height);
+
+    
+    
+    [self setRightButtonWithTitle:@"商户" action:@selector(rightClicked)];
+    
+    self.m_address.alpha = 0.5f;
+    
+    
+//    [self setRightButtonWithNormalImage:@"xq_shop.png" action:@selector(rightClicked)];
+    
+    
+    // 搜索
+//    [self setRightButtonWithTitle:@"搜索" action:@selector(rightClicked)];
+//    [self setRightButtonWithNormalImage:@"bd_02.png" action:@selector(rightClicked)];
+    
+    // 初始化pageControl
+    CGRect pageControlFrame = CGRectMake(0, 90, WindowSizeWidth, 10);
+    self.m_pageControl = [[GrayPageControl alloc]initWithFrame:pageControlFrame];
+    self.m_pageControl.backgroundColor = [UIColor clearColor];//背景
+    self.m_pageControl.inactiveImage = [UIImage imageNamed:@"white.png"];
+    self.m_pageControl.activeImage = [UIImage imageNamed:@"blue.png"];
+    self.m_pageControl.userInteractionEnabled = NO;
+//    self.m_pageControl.numberOfPages = self.m_AdUpAdList.count;
+    self.m_pageControl.currentPage = 0;
+    
+    
+    // 在状态栏位置添加label，使其背景色为黑色
+    if ( isIOS7 ) {
+        
+        UILabel *l_label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 20)];
+        l_label.backgroundColor = RGBACKTAB;
+        l_label.tag = 10392;
+        [self.tabBarController.navigationController.view addSubview:l_label];
+        
+    }
+    
+    self.m_tableView.hidden = YES;
+    self.m_tableView.tableFooterView = self.m_footerView;
+    
+    // 设置导航栏的左按钮 =========
+    UIView *view1 = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 60, 44)];
+    view1.backgroundColor = [UIColor clearColor];
+    
+    UIImageView *imgV = [[UIImageView alloc]initWithFrame:CGRectMake(45, 15, 16, 16)];
+    imgV.image = [UIImage imageNamed:@"baiXia.png"];
+    
+    self.m_xiaImagV = imgV;
+    
+    UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(3, 12, 50, 20)];
+    //    label.text = @"苏州";
+    label.font = [UIFont systemFontOfSize:14.0f];
+    label.textColor = [UIColor whiteColor];
+    label.backgroundColor = [UIColor clearColor];
+    self.m_cityNameLabel = label;
+    
+    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+    btn.frame = CGRectMake(0, 0, 80, 44);
+    btn.backgroundColor = [UIColor clearColor];
+    [btn addTarget:self action:@selector(chooseCity) forControlEvents:UIControlEventTouchUpInside];
+    
+    //
+    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(20, 12, 20, 20)];
+    indicator.backgroundColor = [UIColor clearColor];
+    
+    [indicator startAnimating];
+    self.m_activity = indicator;
+    
+    [view1 addSubview:imgV];
+    
+    [view1 addSubview:self.m_cityNameLabel];
+    
+    [view1 addSubview:btn];
+        
+    // 赋值，用于定位成功后按钮可点击
+    self.m_leftBtn = btn;
+    
+    UIBarButtonItem *_barButton = [[UIBarButtonItem alloc] initWithCustomView:view1];
+    [self.navigationItem setLeftBarButtonItem:_barButton];
+    
+    if ([[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectCityName]] isEqualToString:@"(null)"]) {
+        [CommonUtil addValue:@"苏州" andKey:kSelectCityName];
+        [CommonUtil addValue:@"" andKey:kHomeDistrict];
+        [CommonUtil addValue:@"1" andKey:kSelectCityId];
+
+        // 保存起来用于景区列表显示
+        [CommonUtil addValue:@"苏州" andKey:kSceneryCityName];
+        [CommonUtil addValue:@"31.354779" andKey:kSceneryLatitude];
+        [CommonUtil addValue:@"120.561860" andKey:kSceneryLongitude];
+        
+        
+    }
+
+    NSString *district = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kHomeDistrict]];
+    
+    // 赋值-左上角的城市名称显示
+    if ( [district isEqualToString:@"(null)"] ) {
+        
+        self.m_cityNameLabel.text = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectCityName]];
+
+    }else if ( [district isEqualToString:@""] ) {
+        
+        self.m_cityNameLabel.text = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectCityName]];
+        
+    }else{
+        
+        self.m_cityNameLabel.text = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kHomeDistrict]];
+
+    }
+    
+
+    
+    [self.m_tableView setDelegate:self];
+    [self.m_tableView setDataSource:self];
+    [self.m_tableView setPullDelegate:self];
+    self.m_tableView.pullBackgroundColor = [UIColor whiteColor];
+    self.m_tableView.useRefreshView = YES;
+    self.m_tableView.useLoadingMoreView = NO;
+    
+    
+    // 请求数据
+    [self homeRequestSubmit];
+
+    // 判断文件路径里面是否包含这个文件
+    NSFileManager *fm = [NSFileManager defaultManager];
+
+    // 读取plist里面的数据 - 默认网络不好时先从plist里面读取数据
+//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+
+    NSString *documentDirectory = [paths objectAtIndex:0];
+    
+    NSString *finalPath = [documentDirectory stringByAppendingPathComponent:@"categoryList.plist"];
+    
+    if ( [fm fileExistsAtPath:finalPath] ) {
+        self.m_categoryList = [[NSArray arrayWithContentsOfFile:finalPath] mutableCopy];
+    }
+    
+    
+    // 初始化地图
+    BMKMapView *mapView = [[BMKMapView alloc]init];
+    self.m_BMK_mapView = mapView;
+    _locService = [[BMKLocationService alloc]init];
+    m_search = [[BMKGeoCodeSearch alloc]init];
+    
+    
+    // 大众点评的城市列表数据-用于匹配定位成功后的城市数据的判断-用于请求大众点评的数据
+    NSString *finalPath1 = [documentDirectory stringByAppendingPathComponent:@"DzdpCityList.plist"];
+    
+    if ( [fm fileExistsAtPath:finalPath1] ) {
+        
+        self.m_dazhongList  = [[NSArray arrayWithContentsOfFile:finalPath1] mutableCopy];
+        
+    }
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    if ( !isClick ) {
+        if ( isIOS7 ) {
+            self.navigationController.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+        } else{
+            self.navigationController.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height - 49);
+        }
+        
+    }else{
+        if ( isIOS7 ) {
+            self.navigationController.view.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+        }
+    }
+    
+    isClick = NO;
+    
+    if (self.m_tableView.hidden == YES ) {
+        self.m_tableView.hidden = NO;
+        [self.m_tableView reloadData];
+    }
+
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(HomeStartLocation)
+                                                 name:UIApplicationDidBecomeActiveNotification object:nil];
+    
+    NSTimeInterval timeInterval = [[NSDate date]
+                                   timeIntervalSinceDate:[CommonUtil getValueByKey:@"kDefaultPlayLocationInterval"]];
+    if (timeInterval > kDefaultPlayLocationInterval&&[[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:HomeIslocation]] isEqualToString:@"YES"]) {
+        [self.m_BMK_mapView viewWillAppear];
+        [self HomeStartLocation];
+    }
+
+    [CommonUtil addValue:@"YES" andKey:HomeIslocation];
+
+}
+
+-(void)HomeStartLocation
+{
+    if (m_BMK_mapView.showsUserLocation) {
+        return;
+    }
+    [_locService startUserLocationService];
+    m_BMK_mapView.showsUserLocation = NO;//先关闭显示的定位图层
+    m_BMK_mapView.userTrackingMode = BMKUserTrackingModeFollow;//设置定位的状态
+    m_BMK_mapView.showsUserLocation = YES;//显示定位图层
+    self.m_BMK_mapView.delegate = self; // 此处记得不用的时候需要置nil，否则影响内存的释放
+    _locService.delegate = self;
+    self.m_search.delegate = self;
+}
+
+
+- (void)didUpdateUserLocation:(BMKUserLocation *)userLocation;
+{
+
+    CLLocationCoordinate2D pt = (CLLocationCoordinate2D){0, 0};
+    pt = (CLLocationCoordinate2D){userLocation.location.coordinate.latitude, userLocation.location.coordinate.longitude};
+    BMKReverseGeoCodeOption *reverseGeocodeSearchOption = [[BMKReverseGeoCodeOption alloc]init];
+    reverseGeocodeSearchOption.reverseGeoPoint = pt;
+    [self.m_search reverseGeoCode:reverseGeocodeSearchOption];
+
+}
+
+
+- (void) onGetReverseGeoCodeResult:(BMKGeoCodeSearch *)searcher result:(BMKReverseGeoCodeResult *)result errorCode:(BMKSearchErrorCode)error
+{
+    
+    if (error == 0) {
+        
+        NSString *cityName = [NSString stringWithFormat:@"%@",result.addressDetail.city];
+        if (![cityName isEqualToString:@""]) {
+            
+            NSString *OldCity = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectCityName]];
+            NSString *OldAdd = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]];
+            
+            NSString *NowCity = [cityName substringWithRange:NSMakeRange(0, cityName.length - 1)];
+            NSString *NowAdd = [NSString stringWithFormat:@"%@%@",result.addressDetail.streetName,result.addressDetail.streetNumber];
+            
+            
+            if (!([OldCity isEqualToString:NowCity]&&[OldAdd isEqualToString:NowAdd])) {
+                
+                [CommonUtil addValue:[NSString stringWithFormat:@"%f",result.location.latitude] andKey:kLatitudeKey];
+                [CommonUtil addValue:[NSString stringWithFormat:@"%f",result.location.longitude] andKey:kLongitudeKey];
+                [CommonUtil addValue:NowCity andKey:kSelectCityName];
+                
+                
+                // 用于首页城市名称的显示-左上角(包含市或者县的话则显示出来)
+                if ( [result.addressDetail.district  rangeOfString:@"市"].location != NSNotFound || [result.addressDetail.district  rangeOfString:@"县"].location != NSNotFound ) {
+                    
+                    [CommonUtil addValue:[NSString stringWithFormat:@"%@",result.addressDetail.district] andKey:kHomeDistrict];
+                    
+                    // 赋值
+                    self.m_cityNameLabel.text = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kHomeDistrict]];
+
+                    
+                    
+                }else{
+                    
+                    [CommonUtil addValue:@"" andKey:kHomeDistrict];
+                    
+                    // 赋值
+                    self.m_cityNameLabel.text = NowCity;
+                    
+                }
+                
+                
+                [CommonUtil addValue:NowAdd andKey:kSelectAddress];
+                [CommonUtil addValue:[NSString stringWithFormat:@"%@",result.address] andKey:kALLSelectAddress];
+                
+                // 用于首页当前位置所显示
+                [CommonUtil addValue:[NSString stringWithFormat:@"%@",result.address] andKey:kHomeCityAddress];
+                
+                // 保存起来用于景区列表显示
+                [CommonUtil addValue:NowCity andKey:kSceneryCityName];
+                [CommonUtil addValue:[NSString stringWithFormat:@"%f",result.location.latitude] andKey:kSceneryLatitude];
+                [CommonUtil addValue:[NSString stringWithFormat:@"%f",result.location.longitude] andKey:kSceneryLongitude];
+            }
+            
+//            self.m_cityNameLabel.text = NowCity;
+            
+            
+            [self ChangeAddress:NowCity andAdd:NowAdd];
+            
+            
+
+        }
+
+    }
+    
+    
+
+
+    [_locService stopUserLocationService];
+    _locService.delegate = nil;
+    self.m_search.delegate = nil;
+    m_BMK_mapView.showsUserLocation = NO;
+    self.m_BMK_mapView.delegate = nil; // 不用时，置nil
+
+}
+
+//定位失败
+- (void)mapView:(BMKMapView *)mapView didFailToLocateUserWithError:(NSError *)error{
+    
+    self.m_search.delegate = nil;
+    self.m_BMK_mapView.delegate = nil;
+    m_BMK_mapView.showsUserLocation = NO;
+    _locService.delegate = nil;
+    
+}
+
+-(void)ChangeAddress:(NSString *)City andAdd:(NSString *)Add
+{
+    self.m_cityNameLabel.text = City;
+    // 根据城市获取到对应的城市Id
+    for (NSDictionary *dic in m_city) {
+        NSString *string = [dic objectForKey:@"name"];
+        if ( [string isEqualToString:City] ) {
+            [CommonUtil addValue:[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]] andKey:kSelectCityId];
+            break;
+        }
+    }
+    
+//    if ([[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]] isEqualToString:@"(null)"]||[[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]] isEqualToString:@""]) {
+//        titleLabel.text = @"本地";
+//    }else{
+//        titleLabel.text = [CommonUtil getValueByKey:kSelectAddress];
+//    }
+//    [titleLabel sizeToFit];
+//    self.navigationItem.titleView = titleLabel;
+    [CommonUtil addValue:[NSDate date] andKey:@"kDefaultPlayLocationInterval"];
+    [self homeRequestSubmit];
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+//    [self.m_BMK_mapView viewWillDisappear];
+//    self.m_BMK_mapView.delegate = nil; // 不用时，置nil
+//    _locService.delegate = nil;
+//    self.m_search.delegate = nil;
+//    m_BMK_mapView.showsUserLocation = NO;
+    
+
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)rightClicked{
+   
+    isClick = YES;
+    
+    // 进入全部商户的页面
+    all_merchantViewController *VC = [[all_merchantViewController alloc]initWithNibName:@"all_merchantViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:YES];
+
+    // 进入搜索的页面
+//    HH_SearchViewController *VC = [[HH_SearchViewController alloc]initWithNibName:@"HH_SearchViewController" bundle:nil];
+//    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+- (void)searchClicked{
+    
+    // 进入搜索的页面
+    HH_SearchViewController *VC = [[HH_SearchViewController alloc]initWithNibName:@"HH_SearchViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+- (void)chooseCity{
+    
+    isClick = YES;
+    
+    // 进入城市列表
+    HH_cityListViewController *VC = [[HH_cityListViewController alloc]initWithNibName:@"HH_cityListViewController" bundle:nil];
+    VC.m_typeString = @"2";
+    VC.delegate = self;
+    [self.navigationController pushViewController:VC animated:YES];
+
+}
+
+#pragma mark - UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 3;
+    
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    
+    if ( section == 0 ) {
+        
+        return 1;
+        
+    } else if ( section == 1 ){
+        
+        NSString *leftImgString = [self.m_dic objectForKey:@"AdMidLeftImg"];
+        
+        if (leftImgString.length != 0 && self.m_infoList.count != 0 ) {
+            
+            return 2;
+            
+        }else{
+            
+            if (leftImgString.length == 0&&self.m_infoList.count==0) {
+                
+            return 0;
+                
+            }else{
+                
+            return 1;
+                
+            }
+            
+        }
+        
+    }
+    
+    /*else if ( section == 2 ){
+        
+        return 1;
+        
+    }*/
+    
+    else{
+        
+        if ( [self.m_showTypeString isEqualToString:@"1"] ) {
+            
+            return self.m_menuList.count;
+
+        }else{
+            
+             return self.m_productList.count;
+        }
+        
+    }
+
+
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    
+    if ( section == 0 ) {
+        
+        UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 2, WindowSizeWidth, 15)];
+        view.backgroundColor = [UIColor clearColor];
+        
+        UIImageView *imagV = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, WindowSizeWidth, 15)];
+        imagV.backgroundColor = [UIColor blackColor];
+        imagV.alpha = 0.6;
+        [view addSubview:imagV];
+        
+        NSString *current = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kHomeCityAddress]];
+        
+        // 定位到的具体地理位置
+        UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(5, 0, 300, 15)];
+        
+        // 如果定位的地址为空时默认为苏州市的地址
+        if ( current.length == 0 || [current isEqualToString:@"(null)"] ) {
+            
+            label.text = @"定位未成功 默认为:苏州";
+
+        }else{
+            
+            label.text = [NSString stringWithFormat:@"您当前位置:%@",current];
+
+        }
+        
+        label.font = [UIFont systemFontOfSize:10.0f];
+        label.textColor = [UIColor whiteColor];
+        
+        [view addSubview:label];
+        
+        return view;
+        
+//        return nil;
+
+        
+    }else if ( section == 2 ) {
+        
+        if ( [self.m_showTypeString isEqualToString:@"1"] ) {
+            
+            return nil;
+            
+        }else{
+            
+            UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 25)];
+            view.backgroundColor = [UIColor colorWithRed:240/255.0 green:240/255.0 blue:240/255.0 alpha:1.0];
+            
+            UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(10, 0, 300, 25)];
+            label.text = @"每日精选";
+            label.font = [UIFont systemFontOfSize:12.0f];
+            label.textColor = [UIColor colorWithRed:158/255.0 green:158/255.0 blue:158/255.0 alpha:1.0];
+            
+            [view addSubview:label];
+            
+            return view;
+        }
+        
+        
+    }
+
+    
+    return nil;
+    
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    
+    if (section == 0) {
+        
+         return 15;
+        
+    }else if (section == 2) {
+    
+        if ( [self.m_showTypeString isEqualToString:@"1"] ) {
+            
+            return 0.0f;
+            
+        }else{
+            
+            return 25;
+
+        }
+
+    
+    }
+    
+   return 0;
+
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    
+    if ( indexPath.section == 0 ) {
+        
+        static NSString *cellIdentifier = @"CategoryCellIdentifier";
+        
+        CategoryCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        
+        if ( cell == nil ) {
+            
+            NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+            
+            cell = (CategoryCell *)[nib objectAtIndex:2];
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+        }
+        
+        
+//        if ( self.m_categoryList.count != 0 ) {
+//            
+//            // 设置cell上面的分类的图片
+////            [cell setBtnImage:self.m_categoryList];
+//            
+//            // 按钮添加触发的事件
+//            cell.m_btn1.tag = 0;
+//            cell.m_btn2.tag = 1;
+//            cell.m_btn3.tag = 2;
+//            cell.m_btn4.tag = 3;
+//            
+//            [cell.m_btn1 addTarget:self action:@selector(btn1Clicked:) forControlEvents:UIControlEventTouchUpInside];
+//            [cell.m_btn2 addTarget:self action:@selector(btn1Clicked:) forControlEvents:UIControlEventTouchUpInside];
+//            [cell.m_btn3 addTarget:self action:@selector(btn1Clicked:) forControlEvents:UIControlEventTouchUpInside];
+//            [cell.m_btn4 addTarget:self action:@selector(btn1Clicked:) forControlEvents:UIControlEventTouchUpInside];
+//            [cell.m_btn5 addTarget:self action:@selector(btn5Clicked:) forControlEvents:UIControlEventTouchUpInside];
+//        }
+        
+        // 设置坐标
+        cell.m_diandanBtn.frame = CGRectMake((WindowSizeWidth - 30) / 2 + 20, cell.m_diandanBtn.frame.origin.y, (WindowSizeWidth - 30) / 2 , cell.m_diandanBtn.frame.size.height);
+        
+        cell.m_vipBtn.frame = CGRectMake(cell.m_vipBtn.frame.origin.x, cell.m_vipBtn.frame.origin.y, (WindowSizeWidth - 30) / 2 , cell.m_vipBtn.frame.size.height);
+
+        
+        [cell.m_diandanBtn addTarget:self action:@selector(m_menuClicked:) forControlEvents:UIControlEventTouchUpInside];
+        
+        [cell.m_vipBtn addTarget:self action:@selector(m_vipCardClicked:) forControlEvents:UIControlEventTouchUpInside];
+
+        
+        
+        return cell;
+        
+    }else if ( indexPath.section == 1 ){
+        
+        NSString *leftImgString = [self.m_dic objectForKey:@"AdMidLeftImg"];
+        
+        if (leftImgString.length != 0&&self.m_infoList.count != 0 ) {
+            
+            
+            if ( indexPath.row == 0 ) {
+                
+                static NSString *cellIdentifier = @"HomeCellIdentifier";
+                
+                HomeCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+                
+                if ( cell == nil ) {
+                    
+                    NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+                    
+                    cell = (HomeCell *)[nib objectAtIndex:0];
+                    
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    
+                }
+                
+                
+                cell.hidden = NO;
+                
+                // 赋值图片
+                [cell setImageView:self.m_dic];
+                
+                // 添加按钮事件
+                [cell.m_btn1 addTarget:self action:@selector(leftBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                
+                [cell.m_btn2 addTarget:self action:@selector(rightBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                
+                
+                return cell;
+                
+            }
+            
+            else if( indexPath.row == 1 ){
+                
+                static NSString *cellIdentifier = @"HomeAdvCellIdentifier";
+                
+                HomeAdvCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+                
+                if ( cell == nil ) {
+                    
+                    NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+                    
+                    cell = (HomeAdvCell *)[nib objectAtIndex:1];
+                    
+                }
+                
+                
+                cell.hidden = NO;
+                cell.delegate = self;
+                
+                if ( self.m_infoList.count != 0 ) {
+                    
+                    // 赋值图片 - 诲抢图片显示
+                    [cell setImage:self.m_infoList];
+                }
+               
+                
+                return cell;
+            }
+            
+        }
+        
+        else{
+            
+            if (leftImgString.length == 0&&self.m_infoList.count==0) {
+                
+                UITableViewCell *cell = nil;
+                
+//                cell = [self ProductTableView:tableView cellForRowAtIndexPath:indexPath];
+                
+                return cell;
+                
+            }
+            
+            else {
+                
+                if (leftImgString.length!=0) {
+                    
+                    if ( indexPath.row == 0 ) {
+                        
+                        static NSString *cellIdentifier = @"HomeCellIdentifier";
+                        
+                        HomeCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+                        
+                        if ( cell == nil ) {
+                            
+                            NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+                            
+                            cell = (HomeCell *)[nib objectAtIndex:0];
+                            
+                            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                            
+                        }
+                        
+                        
+                        cell.hidden = NO;
+                        
+                        // 赋值图片
+                        [cell setImageView:self.m_dic];
+                        
+                        // 添加按钮事件
+                        [cell.m_btn1 addTarget:self action:@selector(leftBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                        
+                        [cell.m_btn2 addTarget:self action:@selector(rightBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                        
+                        
+                        return cell;
+                        
+                    }
+                    else if (indexPath.row==1){
+                        
+                        
+                        UITableViewCell *cell = nil;
+                        
+//                        cell = [self ProductTableView:tableView cellForRowAtIndexPath:indexPath];
+                        
+                        return cell;
+                    }
+                }
+                
+                else{
+                    
+                    if( indexPath.row == 0 ){
+                        
+                        static NSString *cellIdentifier = @"HomeAdvCellIdentifier";
+                        
+                        HomeAdvCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+                        
+                        if ( cell == nil ) {
+                            
+                            NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+                            
+                            cell = (HomeAdvCell *)[nib objectAtIndex:1];
+                            
+                        }
+                        
+                        
+                        cell.hidden = NO;
+                        cell.delegate = self;
+                        // 赋值图片
+                        [cell setImage:self.m_infoList];
+                        
+                        
+                        return cell;
+                    }
+                    else if (indexPath.row==1){
+                        
+                        
+                        UITableViewCell *cell = nil;
+                        
+//                        cell = [self ProductTableView:tableView cellForRowAtIndexPath:indexPath];
+                        
+                        return cell;
+                    }
+                    
+                }
+                
+            }
+            
+        }
+
+        
+    }
+    
+   /* else if ( indexPath.section == 2 ){
+
+        // 机票酒店显示的cell
+        
+        static NSString *cellIdentifier = @"HHFlightsHotelCellIdentifier";
+        
+        HHFlightsHotelCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        
+        if ( cell == nil ) {
+            
+            NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+            
+            cell = (HHFlightsHotelCell *)[nib objectAtIndex:3];
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+        }
+
+        // 按钮添加点击事件
+        [cell.m_hotelBtn addTarget:self action:@selector(hotelClicked) forControlEvents:UIControlEventTouchUpInside];
+        
+        [cell.m_flightsBtn addTarget:self action:@selector(flightsClicked) forControlEvents:UIControlEventTouchUpInside];
+        
+//        [cell.m_merchantBtn addTarget:self action:@selector(merchantClicked) forControlEvents:UIControlEventTouchUpInside];
+        
+        [cell.m_merchantBtn addTarget:self action:@selector(quanquanClicked) forControlEvents:UIControlEventTouchUpInside];
+//        
+//        [cell.m_brandBtn addTarget:self action:@selector(brandClicked) forControlEvents:UIControlEventTouchUpInside];
+        
+        [cell.m_brandBtn addTarget:self action:@selector(secneryClicked) forControlEvents:UIControlEventTouchUpInside];
+        
+        
+        [cell.m_hotel1Btn addTarget:self action:@selector(bookHotelClicked) forControlEvents:UIControlEventTouchUpInside];
+        
+        [cell.m_cardBtn addTarget:self action:@selector(cardClicked) forControlEvents:UIControlEventTouchUpInside];
+        
+        
+        
+        return cell;
+        
+    }*/
+    
+    else{
+        
+        // 根据不同的类型进行不同的操作
+        if ( [self.m_showTypeString isEqualToString:@"1"] ) {
+            
+            
+            UITableViewCell *cell = nil;
+            
+            cell = [self menuTableView:tableView cellForRowAtIndexPath:indexPath];
+            
+            return cell;
+            
+        }else{
+            
+            UITableViewCell *cell = nil;
+            
+            cell = [self ProductTableView:tableView cellForRowAtIndexPath:indexPath];
+            
+            return cell;
+            
+        }
+        
+     
+    }
+    
+    /*{
+        
+        if (indexPath.row == 0 ||indexPath.row == 1)
+        {
+            
+            NSString *leftImgString = [self.m_dic objectForKey:@"AdMidLeftImg"];
+
+            if (leftImgString.length != 0&&self.m_infoList.count != 0 ) {
+                
+                
+                if ( indexPath.row == 0 ) {
+                    
+                    static NSString *cellIdentifier = @"HomeCellIdentifier";
+                    
+                    HomeCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+                    
+                    if ( cell == nil ) {
+                        
+                        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+                        
+                        cell = (HomeCell *)[nib objectAtIndex:0];
+                        
+                        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                        
+                    }
+                    
+                    
+                    cell.hidden = NO;
+                    
+                    // 赋值图片
+                    [cell setImageView:self.m_dic];
+                    
+                    // 添加按钮事件
+                    [cell.m_btn1 addTarget:self action:@selector(leftBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                    
+                    [cell.m_btn2 addTarget:self action:@selector(rightBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                    
+                    
+                    return cell;
+                    
+                }
+                
+                else if( indexPath.row == 1 ){
+                    
+                    static NSString *cellIdentifier = @"HomeAdvCellIdentifier";
+                    
+                    HomeAdvCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+                    
+                    if ( cell == nil ) {
+                        
+                        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+                        
+                        cell = (HomeAdvCell *)[nib objectAtIndex:1];
+                        
+                    }
+                    
+                    
+                    cell.hidden = NO;
+                    cell.delegate = self;
+                    // 赋值图片
+                    [cell setImage:self.m_infoList];
+                    
+                    return cell;
+                }
+                
+            }
+            
+            else{
+                
+                if (leftImgString.length == 0&&self.m_infoList.count==0) {
+                    
+                    UITableViewCell *cell = nil;
+                    
+                    cell = [self ProductTableView:tableView cellForRowAtIndexPath:indexPath];
+                    
+                    return cell;
+                }
+                
+                else {
+                    
+                    if (leftImgString.length!=0) {
+                        
+                        if ( indexPath.row == 0 ) {
+                            
+                            static NSString *cellIdentifier = @"HomeCellIdentifier";
+                            
+                            HomeCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+                            
+                            if ( cell == nil ) {
+                                
+                                NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+                                
+                                cell = (HomeCell *)[nib objectAtIndex:0];
+                                
+                                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                                
+                            }
+                            
+                            
+                            cell.hidden = NO;
+                            
+                            // 赋值图片
+                            [cell setImageView:self.m_dic];
+                            
+                            // 添加按钮事件
+                            [cell.m_btn1 addTarget:self action:@selector(leftBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                            
+                            [cell.m_btn2 addTarget:self action:@selector(rightBtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+                            
+                            
+                            return cell;
+                            
+                        }
+                        else if (indexPath.row==1){
+                            
+                            
+                            UITableViewCell *cell = nil;
+                            
+                            cell = [self ProductTableView:tableView cellForRowAtIndexPath:indexPath];
+                            
+                            return cell;
+                        }
+                    }
+                    
+                    else{
+                        
+                        if( indexPath.row == 0 ){
+                            
+                            static NSString *cellIdentifier = @"HomeAdvCellIdentifier";
+                            
+                            HomeAdvCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+                            
+                            if ( cell == nil ) {
+                                
+                                NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HomeCell" owner:self options:nil];
+                                
+                                cell = (HomeAdvCell *)[nib objectAtIndex:1];
+                                
+                            }
+                            
+                            
+                            cell.hidden = NO;
+                            cell.delegate = self;
+                            // 赋值图片
+                            [cell setImage:self.m_infoList];
+                            
+                            
+                            return cell;
+                        }
+                        else if (indexPath.row==1){
+                            
+                            
+                            UITableViewCell *cell = nil;
+                            
+                            cell = [self ProductTableView:tableView cellForRowAtIndexPath:indexPath];
+                            
+                            return cell;
+                        }
+                        
+                    }
+                    
+                }
+                
+            }
+            
+            
+        }else{
+            
+            UITableViewCell *cell = nil;
+            
+            cell = [self ProductTableView:tableView cellForRowAtIndexPath:indexPath];
+            
+            return cell;
+        }
+    }*/
+
+    return nil;
+}
+
+- (UITableViewCell *)ProductTableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *cellIdentifier = @"LocationCellIdentifier";
+    
+//    NSString *leftImgString = [self.m_dic objectForKey:@"AdMidLeftImg"];
+
+    LocationCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    
+    if ( cell == nil ) {
+        
+        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"LocationCell" owner:self options:nil];
+        
+        cell = (LocationCell *)[nib objectAtIndex:0];
+        
+//        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        
+        cell.selectionStyle = UITableViewCellSelectionStyleGray;
+        
+    }
+    
+    if ( self.m_productList.count != 0 ) {
+        
+        NSMutableDictionary *dic  = [[NSMutableDictionary alloc]init];
+        
+//        if (leftImgString.length != 0&&self.m_infoList.count != 0 ) {
+//            dic= [self.m_productList objectAtIndex:indexPath.row-2];
+//        } else {
+//            
+//            if (leftImgString.length == 0&&self.m_infoList.count==0){
+//                
+//                dic= [self.m_productList objectAtIndex:indexPath.row];
+//                
+//            }else{
+//                
+//                dic= [self.m_productList objectAtIndex:indexPath.row-1];
+//                
+//            }
+//        }
+
+        
+        dic = [self.m_productList objectAtIndex:indexPath.row];
+
+        // 设置图片
+        [cell setImageView:[NSString stringWithFormat:@"%@",[dic objectForKey:@"s_image_url"]]];
+        // 设置cell上面的评分
+        [cell setValue:[NSString stringWithFormat:@"0"]];
+        
+        // 赋值
+        cell.m_productName.text = [NSString stringWithFormat:@"%@",[dic objectForKey:@"title"]];
+        cell.m_infoLabel.text = [NSString stringWithFormat:@"%@",[dic objectForKey:@"description"]];
+        cell.m_priceLabel.text = [NSString stringWithFormat:@"%@",[dic objectForKey:@"current_price"]];
+        cell.m_orignLabel.text = [NSString stringWithFormat:@"￥%@",[dic objectForKey:@"list_price"]];
+        
+        // 计算label的大小坐标
+        CGSize size = [cell.m_priceLabel.text sizeWithFont:[UIFont systemFontOfSize:18.0f] constrainedToSize:CGSizeMake(MAXFLOAT, 21) lineBreakMode:NSLineBreakByWordWrapping];
+        
+        CGSize size1 = [cell.m_orignLabel.text sizeWithFont:[UIFont systemFontOfSize:12.0f] constrainedToSize:CGSizeMake(MAXFLOAT, 21) lineBreakMode:NSLineBreakByWordWrapping];
+        
+        cell.m_priceLabel.frame = CGRectMake(cell.m_priceLabel.frame.origin.x, cell.m_priceLabel.frame.origin.y, size.width, 21);
+        
+        cell.m_orignLabel.frame = CGRectMake(cell.m_priceLabel.frame.origin.x + size.width + 5, cell.m_orignLabel.frame.origin.y, size1.width + 2, 21);
+        
+        cell.m_lineLabel.frame = CGRectMake(cell.m_priceLabel.frame.origin.x + size.width + 7, cell.m_lineLabel.frame.origin.y, size1.width + 3, 1);
+        
+//        cell.m_distanceLabel.hidden = YES;
+        
+        if ([[dic objectForKey:@"distance"] intValue]>=1000) {
+            cell.m_distanceLabel.text = [NSString stringWithFormat:@"%@km",[NSString stringWithFormat:@"%.1f",[[dic objectForKey:@"distance"] floatValue]/1000]];
+        }else{
+            //返回 m
+            cell.m_distanceLabel.text = [NSString stringWithFormat:@"%@米",[dic objectForKey:@"distance"]];
+        }
+    }
+    
+    return cell;
+    
+    
+}
+
+- (UITableViewCell *)menuTableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    
+    static NSString *cellIdentifier = @"HH_MactMenuCellIdentifier";
+    
+    HH_MactMenuCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    
+    if ( cell == nil ) {
+        
+        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"HH_CardPayCell" owner:self options:nil];
+        
+        cell = (HH_MactMenuCell *)[nib objectAtIndex:2];
+        
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+        
+        cell.m_backImgV.alpha = 0.6;
+        cell.m_backImgV.backgroundColor = [UIColor whiteColor];
+        
+        //        cell.m_menuImgV.layer.borderWidth = 1.0;
+        //        cell.m_menuImgV.layer.borderColor = [UIColor grayColor].CGColor;
+        
+        cell.m_mactLogo.layer.cornerRadius = 25.0f;
+        cell.m_mactLogo.layer.masksToBounds = YES;
+        
+        
+        cell.m_menuImgV.frame = CGRectMake(cell.m_menuImgV.frame.origin.x, cell.m_menuImgV.frame.origin.y, WindowSizeWidth - 20, cell.m_menuImgV.frame.size.height);
+        
+        cell.m_backImgV.frame = CGRectMake(cell.m_backImgV.frame.origin.x, cell.m_backImgV.frame.origin.y, WindowSizeWidth - 20, cell.m_backImgV.frame.size.height);
+        
+        cell.m_mactName.frame = CGRectMake(cell.m_mactName.frame.origin.x, cell.m_mactName.frame.origin.y, WindowSizeWidth - 85, cell.m_mactName.frame.size.height);
+        
+        
+        
+    }
+    
+    if ( self.m_menuList.count != 0 ) {
+        
+        NSDictionary *dic = [self.m_menuList objectAtIndex:indexPath.row];
+        // 商户名称
+        cell.m_mactName.text = [NSString stringWithFormat:@"%@",[dic objectForKey:@"MerchantName"]];
+        // 菜单logo
+        [cell setImagePath:[NSString stringWithFormat:@"%@",[dic objectForKey:@"CloudMenuLogo"]]];
+        // 商户头像
+        [cell setMactLogImagePath:[NSString stringWithFormat:@"%@",[dic objectForKey:@"Logo"]]];        
+        
+    }
+    
+    return cell;
+    
+    
+}
+
+#pragma mark - UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    if ( indexPath.section == 0 ) {
+        
+        return 240;
+        
+    }else if ( indexPath.section == 1 ) {
+        
+        NSString *leftImgString = [self.m_dic objectForKey:@"AdMidLeftImg"];
+        
+        if (leftImgString.length != 0&&self.m_infoList.count != 0 ) {
+            
+            if (indexPath.row == 0) {
+                return 50;
+            }else if (indexPath.row == 1)
+            {
+                return 60;
+            }
+            return 0.0f;
+            
+        }else{
+            
+            if (leftImgString.length == 0&&self.m_infoList.count==0) {
+                return 0.0f;
+            }else{
+                
+                if (leftImgString.length!=0) {
+                    if (indexPath.row==0) {
+                        return 50;
+                    }return 0.0f;
+                }else{
+                    if (indexPath.row==0) {
+                        return 60;
+                    }return 0.0f;
+                }
+                
+            }
+            
+        }
+
+    }
+    
+    /*else if ( indexPath.section == 2 ){
+        
+        // 机票酒店的高度
+        return 260.0f;
+        
+    }
+    
+    */
+    else{
+     
+        if ( [self.m_showTypeString isEqualToString:@"1"] ) {
+            
+            return 150.0f;
+            
+        }else{
+            
+            return 100.0f;
+
+        }
+        
+    }
+
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    
+    if ( indexPath.section == 0 ) {
+        
+        
+    }else if ( indexPath.section == 1 ) {
+        
+        
+    }
+    /*else if ( indexPath.section == 2 ) {
+        
+        
+    }*/
+    else{
+        
+//        NSString *leftImgString = [self.m_dic objectForKey:@"AdMidLeftImg"];
+//        
+//        NSMutableDictionary *dic = [[NSMutableDictionary alloc]initWithCapacity:0];;
+//        
+//        
+//        if (leftImgString.length != 0&&self.m_infoList.count != 0 ) {
+//            
+//            if (indexPath.row == 0) {
+//                return ;
+//                
+//            }else if (indexPath.row == 1)
+//            {
+//                return ;
+//            }
+//            
+//            dic = [self.m_productList objectAtIndex:indexPath.row -2];
+//            
+//        }else{
+//            
+//            if (leftImgString.length == 0&&self.m_infoList.count==0) {
+//                
+//                dic = [self.m_productList objectAtIndex:indexPath.row ];
+//                
+//            }else{
+//                if (indexPath.row==0) {
+//                    return;
+//                    
+//                }
+//                
+//                dic = [self.m_productList objectAtIndex:indexPath.row -1];
+//                
+//            }
+//            
+//        }
+        
+        // 根据不同的类型进行不同的操作
+        if ( [self.m_showTypeString isEqualToString:@"1"] ) {
+            // 菜单数据的操作
+            
+            NSMutableDictionary *item = [self.m_menuList objectAtIndex:indexPath.row];
+            // 获取店铺列表的信息
+            NSMutableArray *arr = [item objectForKey:@"ShopList"];
+            
+            [CommonUtil addValue:[item objectForKey:@"Logo"] andKey:@"MarchantImageKey"];
+            
+            
+            // 进入点菜的页面
+            HH_TakeOrderViewController *VC = [[HH_TakeOrderViewController alloc]initWithNibName:@"HH_TakeOrderViewController" bundle:nil];
+            VC.m_shopList = arr;
+            VC.m_seat = [NSString stringWithFormat:@"%@",[item objectForKey:@"IsSelectSeat"]];
+            VC.m_merchantId = [NSString stringWithFormat:@"%@",[item objectForKey:@"MerchantID"]];
+            VC.IsZCWaiMai = [NSString stringWithFormat:@"%@",[item objectForKey:@"IsZCWaiMai"]];
+
+            [self.navigationController pushViewController:VC animated:YES];
+
+            
+            
+        }else{
+            
+            // 显示大众点评数据的操作
+            NSMutableDictionary *dic = [[NSMutableDictionary alloc]initWithCapacity:0];
+            dic = [self.m_productList objectAtIndex:indexPath.row];
+            
+            
+            // 将商品的图片保存起来用于立即购买页面的显示
+            [CommonUtil addValue:[NSString stringWithFormat:@"%@",[dic objectForKey:@"s_image_url"]] andKey:@"productImage"];
+            
+            // 点击进入商品详情
+            ProductDetailViewController *VC = [[ProductDetailViewController alloc]initWithNibName:@"ProductDetailViewController" bundle:nil];
+            
+            VC.m_productId = [NSString stringWithFormat:@"%@",[dic objectForKey:@"deal_id"]];
+            VC.m_FromDPId  =@"1";
+            
+            [self.navigationController pushViewController:VC animated:YES];
+  
+            
+        }
+
+        
+        
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }
+ 
+}
+
+- (void)hotelClicked{
+    
+    // 进入酒店查询的页面
+//    CtriphotelViewController * VC = [[CtriphotelViewController alloc]initWithNibName:@"CtriphotelViewController" bundle:nil];
+//    [self.navigationController pushViewController:VC animated:YES];
+    
+//    Hotel_webViewController *VC = [[Hotel_webViewController alloc]initWithNibName:@"Hotel_webViewController" bundle:nil];
+//    [self.navigationController  pushViewController:VC animated:YES];
+    
+    // 进入火车票预订的页面
+    TrainwebViewController *VC = [[TrainwebViewController alloc]initWithNibName:@"TrainwebViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:YES];
+
+
+    
+}
+
+- (void)flightsClicked{
+    
+    // 进入机票查询的页面
+//    FlightsViewController *VC = [[FlightsViewController alloc]initWithNibName:@"FlightsViewController" bundle:nil];
+//    [self.navigationController pushViewController:VC animated:YES];
+    
+    Fl_webViewController *VC = [[Fl_webViewController alloc]initWithNibName:@"Fl_webViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:NO];
+
+}
+
+- (void)quanquanClicked{
+    
+    // 进入券券列表的页面
+//    QuanquanListViewController *VC  = [[QuanquanListViewController alloc]initWithNibName:@"QuanquanListViewController" bundle:nil];
+//    [self.navigationController pushViewController:VC animated:YES];
+    
+    // 进入到点单的页面
+    HH_MactMenuViewController *VC  = [[HH_MactMenuViewController alloc]initWithNibName:@"HH_MactMenuViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:YES];
+    
+    
+}
+
+- (void)secneryClicked{
+    
+    // 进入景区web页面查询
+    Sec_webViewController *VC = [[Sec_webViewController alloc]initWithNibName:@"Sec_webViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+- (void)bookHotelClicked{
+
+    // 进入酒店预订的页面
+    Hotel_webViewController *VC = [[Hotel_webViewController alloc]initWithNibName:@"Hotel_webViewController" bundle:nil];
+    [self.navigationController  pushViewController:VC animated:YES];
+
+}
+
+- (void)cardClicked{
+
+    // 进入会员卡的页面
+    MyCardViewController * VC = [[MyCardViewController alloc]initWithNibName:@"MyCardViewController" bundle:nil];
+
+    
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+- (void)merchantClicked{
+
+    // 进入商户直营的商品列表
+    DScale_productListViewController *VC = [[DScale_productListViewController alloc]initWithNibName:@"DScale_productListViewController" bundle:nil];
+    VC.TwoID = @"";
+    VC.m_titleString = @"全部分类";
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+- (void)brandClicked{
+
+    // 进入天城的页面
+    hh_tianchengViewController *VC = [[hh_tianchengViewController alloc]initWithNibName:@"hh_tianchengViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:YES];
+
+}
+
+#pragma mark - BtnClciked 分类
+- (void)btn1Clicked:(id)sender {
+
+    isClick = YES;
+    
+//    UIButton *btn = (UIButton *)sender;
+
+//    NSDictionary *dic = [self.m_categoryList objectAtIndex:btn.tag];
+    
+    // 进入商品列表
+//    Ca_productListViewController *VC = [[Ca_productListViewController alloc]initWithNibName:@"Ca_productListViewController" bundle:nil];
+//    VC.TwoID = [NSString stringWithFormat:@"%@",[dic objectForKey:@"ClassId"]];
+//    VC.m_titleString = [NSString stringWithFormat:@"%@",[dic objectForKey:@"ClassName"]];
+//    [self.navigationController pushViewController:VC animated:YES];
+    
+    //======test ========
+//    SC_productViewController *VC = [[SC_productViewController alloc]initWithNibName:@"SC_productViewController" bundle:nil];
+    
+//    SC_productViewController *VC = [SC_productViewController shareobject];
+//
+//    VC.m_categoryIndex = btn.tag;
+//    
+//    [self.navigationController pushViewController:VC animated:YES];
+    //===============
+    
+
+}
+
+
+- (void)btn5Clicked:(id)sender {
+    
+    isClick = YES;
+
+    // 进入分类的页面
+    CategoryViewController *VC = [[CategoryViewController alloc]initWithNibName:@"CategoryViewController" bundle:nil];
+    
+    [self.navigationController pushViewController:VC animated:YES];
+}
+
+// 查看更多分类
+- (IBAction)morebtnClicked:(id)sender {
+    
+    isClick = YES;
+
+    // 进入商品列表的页面
+    Ca_productListViewController *VC = [[Ca_productListViewController alloc]initWithNibName:@"Ca_productListViewController" bundle:nil];
+    VC.TwoID = @"";
+    VC.m_titleString = @"全部分类";
+    [self.navigationController pushViewController:VC animated:YES];
+    
+    
+    
+}
+
+- (IBAction)category_Clicked:(id)sender {
+    
+    isClick = YES;
+
+    UIButton *btn = (UIButton *)sender;
+   
+    NSString *string;
+    NSString *code;
+    
+    if ( btn.tag == 9 ) {
+        
+        // 进入分类的页面
+        CategoryViewController *VC = [[CategoryViewController alloc]initWithNibName:@"CategoryViewController" bundle:nil];
+        
+        [self.navigationController pushViewController:VC animated:YES];
+ 
+    }else if ( btn.tag == 4 ){
+        
+        // 进入券券列表的页面
+        QuanquanListViewController *VC  = [[QuanquanListViewController alloc]initWithNibName:@"QuanquanListViewController" bundle:nil];
+        [self.navigationController pushViewController:VC animated:YES];
+    
+    
+    }
+    
+    else{
+        
+        
+        if ( btn.tag == 2 ){
+            
+            string = @"酒店";
+            code = @"10";
+            
+            // 进入酒店选择的页面-同程酒店预订还是大众点评团购
+            HotelChooseViewController *VC = [[HotelChooseViewController alloc]initWithNibName:@"HotelChooseViewController" bundle:nil];
+            VC.m_titleString = string;
+            VC.m_code = code;
+            [self.navigationController pushViewController:VC animated:YES];
+            
+            
+        }else if ( btn.tag == 6 ){
+            
+//            string = @"面包甜点";
+//            code = @"47";
+            
+            // 机票
+            
+            // 进入火车票预订的页面
+           
+            Fl_webViewController *VC = [[Fl_webViewController alloc]initWithNibName:@"Fl_webViewController" bundle:nil];
+            [self.navigationController pushViewController:VC animated:NO];
+           
+            
+        }else if ( btn.tag == 7 ){
+            
+//            string = @"小吃快餐";
+//            code = @"43";
+            
+            // 火车、汽车
+            TrainwebViewController *VC = [[TrainwebViewController alloc]initWithNibName:@"TrainwebViewController" bundle:nil];
+            [self.navigationController pushViewController:VC animated:YES];
+            
+        }else if ( btn.tag == 8 ){
+            
+//            string = @"旅游";
+//            code = @"204";
+            
+        
+            // 景点
+            // 进入景区web页面查询
+            Sec_webViewController *VC = [[Sec_webViewController alloc]initWithNibName:@"Sec_webViewController" bundle:nil];
+            [self.navigationController pushViewController:VC animated:YES];
+            
+        }
+        else{
+            
+            if ( btn.tag == 0 ) {
+                
+                string = @"美食";
+                code = @"5";
+                
+            }else if ( btn.tag == 1 ){
+                
+                string = @"KTV";
+                code = @"62";
+                
+            }
+            
+//            else if ( btn.tag == 2 ){
+//                
+//                string = @"酒店";
+//                code = @"10";
+//                
+//            }
+            
+            else if ( btn.tag == 3 ){
+                
+                string = @"丽人";
+                code = @"8";
+                
+            }
+            
+//            else if ( btn.tag == 4 ){
+//                
+//                string = @"结婚亲子";
+//                code = @"9";
+//                
+//            }
+            
+            else if ( btn.tag == 5 ){
+                
+                string = @"电影院";
+                code = @"63";
+                
+            }
+            
+//            else if ( btn.tag == 6 ){
+//                
+//                string = @"面包甜点";
+//                code = @"47";
+//                
+//            }else if ( btn.tag == 7 ){
+//                
+//                string = @"小吃快餐";
+//                code = @"43";
+//                
+//            }else if ( btn.tag == 8 ){
+//                
+//                string = @"旅游";
+//                code = @"204";
+//                
+//            }
+            
+            
+            // 进入商品列表的页面
+            Ca_productListViewController *VC = [[Ca_productListViewController alloc]initWithNibName:@"Ca_productListViewController" bundle:nil];
+            VC.TwoID = [NSString stringWithFormat:@"%@",code];
+            VC.m_titleString = [NSString stringWithFormat:@"%@",string];
+            [self.navigationController pushViewController:VC animated:YES];
+            
+        }
+        
+    }
+    
+}
+
+- (IBAction)m_menuClicked:(id)sender {
+    
+    // 进入到点单的页面
+    HH_MactMenuViewController *VC  = [[HH_MactMenuViewController alloc]initWithNibName:@"HH_MactMenuViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+- (IBAction)m_vipCardClicked:(id)sender {
+    
+    // 进入会员卡的页面
+    MyCardViewController * VC = [[MyCardViewController alloc]initWithNibName:@"MyCardViewController" bundle:nil];
+    
+    
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+- (void)leftBtnClicked:(id)sender {
+   
+    isClick = YES;
+    
+    // 点击进入链接
+    WebViewController *VC = [[WebViewController alloc]initWithNibName:@"WebViewController" bundle:nil];
+    VC.m_scanString = [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"AdMidLeftUrl"]];
+    VC.m_typeString = @"2";
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+- (void)rightBtnClicked:(id)sender {
+    
+    isClick = YES;
+
+    // 点击进入链接
+    WebViewController *VC = [[WebViewController alloc]initWithNibName:@"WebViewController" bundle:nil];
+    VC.m_scanString = [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"AdMidRighUrl"]];
+    VC.m_typeString = @"2";
+    [self.navigationController pushViewController:VC animated:YES];
+
+}
+
+- (void)initScrollerView{
+    // 如果滚动tableView的话，则重新初始化下NSTimer
+    if ( [m_timer isValid] ) {
+        [m_timer invalidate];
+        m_timer = [[NSTimer alloc]init];
+    }
+    // 先清空添加上的控件，然后再重新添加
+    // 清空pageController
+    for ( id view in self.m_headerView.subviews ) {
+        if ( [view isKindOfClass:[GrayPageControl class]] ) {
+            [view removeFromSuperview];
+        }
+    }
+    // 清空scrollerView上面的控件
+    for ( id view in self.m_scollerView.subviews ) {
+        [view removeFromSuperview];
+    }
+    
+    
+    [self.m_scollerView setContentSize:CGSizeMake(WindowSizeWidth * self.m_AdUpAdList.count,100)];
+    
+    self.m_scollerView.backgroundColor = [UIColor clearColor];
+    
+    self.m_scollerView.pagingEnabled = YES;
+    
+    self.m_scollerView.showsHorizontalScrollIndicator = NO;
+    
+    self.m_scollerView.showsVerticalScrollIndicator = NO;
+    
+    // 上面商户广告的处理
+    if ( self.m_AdUpAdList.count != 0 ) {
+        
+        
+        for (int i = 0; i < self.m_AdUpAdList.count; i ++) {
+            
+            NSDictionary *dic = [self.m_AdUpAdList objectAtIndex:i];
+            
+            UIImageView *imgV = [[UIImageView alloc]initWithFrame:CGRectMake(i * WindowSizeWidth, 0, WindowSizeWidth, 100)];
+            imgV.backgroundColor = [UIColor clearColor];
+            
+            NSString *imagePath = [NSString stringWithFormat:@"%@",[dic objectForKey:@"AdImg"]];
+//            [imgV setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:imagePath]]
+//                        placeholderImage:[UIImage imageNamed:@"invite_reg_no_photo.png"]
+//                                 success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image){
+//                                     imgV.image = image;//[CommonUtil scaleImage:image toSize:CGSizeMake(960, 180)];
+//                                     // image;
+////                                     imgV.contentMode = UIViewContentModeScaleAspectFit;
+//                                     
+//                                 }
+//                                 failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error){
+//                                     
+//                                 }];
+            
+            [imgV setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",imagePath]] placeholderImage:[UIImage imageNamed:@"invite_reg_no_photo.png"]];
+            
+            // 添加按钮触发点击事件
+            UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+            btn.frame = CGRectMake(i * WindowSizeWidth, 0, WindowSizeWidth, 100);
+            btn.backgroundColor = [UIColor clearColor];
+            btn.tag = i;
+            [btn addTarget:self action:@selector(AdImageClicked:) forControlEvents:UIControlEventTouchUpInside];
+            
+            [self.m_scollerView addSubview:imgV];
+            
+            [self.m_scollerView addSubview:btn];
+            
+        }
+        
+        // 初始化pageControl
+//        CGRect pageControlFrame = CGRectMake(0, 50, WindowSizeWidth, 10);
+//        self.m_pageControl = [[GrayPageControl alloc]initWithFrame:pageControlFrame];
+//        self.m_pageControl.backgroundColor = [UIColor clearColor];//背景
+//        self.m_pageControl.inactiveImage = [UIImage imageNamed:@"white.png"];
+//        self.m_pageControl.activeImage = [UIImage imageNamed:@"blue.png"];
+//        self.m_pageControl.userInteractionEnabled = NO;
+        self.m_pageControl.numberOfPages = self.m_AdUpAdList.count;
+//        self.m_pageControl.currentPage = 0;
+        
+//        [self.m_headerView addSubview:self.m_pageControl];
+        
+        // 时钟添加方法
+        self.m_timer = [NSTimer scheduledTimerWithTimeInterval:3.0f
+                                                        target:self
+                                                      selector:@selector(scrollToNextPage:)
+                                                      userInfo:nil
+                                                       repeats:YES];
+        //default--> run at once
+        //timewithinterval addrun ->then run
+        //tablview->trackingmode
+        //Mode->event lines
+        
+        [[NSRunLoop currentRunLoop]addTimer:self.m_timer forMode:NSRunLoopCommonModes];
+        
+
+        // 设置tableView的headerView
+        self.m_tableView.tableHeaderView = self.m_headerView;
+        
+        
+        [self.m_headerView addSubview:self.m_pageControl];
+
+        
+    }else{
+        
+        // 设置tableView的headerView
+        self.m_tableView.tableHeaderView = nil;
+    }
+
+    
+    NSLog(@"cityName = %@",self.m_cityNameLabel.text);
+    
+    // 请求数据-根据城市来进行判断显示哪个样式
+    [self showStyleRequest];
+    
+//    // 请求大众点评的数据
+//    [self ServicesFromDP];
+    
+    
+    self.m_tableView.pullLastRefreshDate = [NSDate date];
+    self.m_tableView.pullTableIsRefreshing = NO;
+//    self.m_tableView.pullTableIsLoadingMore = YES;
+    
+    
+    // 将类别的数据存储到plist里面用于网络不好时从plist里面读取
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+
+    NSString *documentDirectory = [paths objectAtIndex:0];
+    
+    NSString *finalPath = [documentDirectory stringByAppendingPathComponent:@"categoryList.plist"];
+    
+    //开始创建文件-文件中不存在此路径的文件的话则取创建文件
+    if ( ![fm fileExistsAtPath:finalPath] ) {
+        
+        [fm createFileAtPath:finalPath contents:nil attributes:nil];
+        
+    }
+    
+    // 把字典中的数据写入到文件中
+    [self.m_categoryList writeToFile:finalPath atomically:YES];
+    
+}
+
+- (void)AdImageClicked:(id)sender{
+    
+    UIButton *btn = (UIButton *)sender;
+    
+    NSDictionary *dic = [self.m_AdUpAdList objectAtIndex:btn.tag];
+    NSDictionary * Prodic = [self dictionaryFromQuery:[[NSURL URLWithString:[dic objectForKey:@"AdUrl"]] query] usingEncoding:NSUTF8StringEncoding];
+    
+    NSLog(@"prodic = %@",Prodic);
+    
+    if ([[NSString stringWithFormat:@"%@",[Prodic objectForKey:@"cityandcitytype"]] isEqualToString:@"3"]) {
+        // 点击进入商品详情
+        ProductDetailViewController *VC = [[ProductDetailViewController alloc]initWithNibName:@"ProductDetailViewController" bundle:nil];
+        
+        VC.m_productId = [NSString stringWithFormat:@"%@",[Prodic objectForKey:@"serviceId"]];
+        VC.m_merchantShopId = [NSString stringWithFormat:@"%@",[Prodic objectForKey:@"merchantShopId"]];
+        
+        [self.navigationController pushViewController:VC animated:YES];
+        
+    }else if ([[NSString stringWithFormat:@"%@",[Prodic objectForKey:@"cityandcitytype"]] isEqualToString:@"4"])
+    {
+    
+        // 进入webView页面
+        WebViewController *VC = [[WebViewController alloc]initWithNibName:@"WebViewController" bundle:nil];
+        
+        VC.m_scanString = [NSString stringWithFormat:@"%@",[dic objectForKey:@"AdUrl"]];
+        VC.m_typeString = @"2";
+        
+        [self.navigationController pushViewController:VC animated:YES];
+        
+    }else if ([[NSString stringWithFormat:@"%@",[Prodic objectForKey:@"cityandcitytype"]] isEqualToString:@"5"])
+    {
+
+        // 跳转到菜单列表的页面
+                
+        [CommonUtil addValue:[dic objectForKey:@"Logo"] andKey:@"MarchantImageKey"];
+        [CommonUtil addValue:[dic objectForKey:@"YHDescription"] andKey:YHDESCRIPTION];
+        [CommonUtil addValue:[dic objectForKey:@"Man"] andKey:MANKEY];
+        [CommonUtil addValue:[dic objectForKey:@"Jian"] andKey:JIANKEY];
+        
+        
+        // 进入点菜的页面
+        HH_TakeOrderViewController *VC = [[HH_TakeOrderViewController alloc]initWithNibName:@"HH_TakeOrderViewController" bundle:nil];
+        VC.m_shopList = [dic objectForKey:@"ShopList"];
+        VC.m_seat = [NSString stringWithFormat:@"%@",[dic objectForKey:@"IsSelectSeat"]];
+        VC.m_merchantId = [NSString stringWithFormat:@"%@",[dic objectForKey:@"MerchantID"]];
+        VC.IsZCWaiMai = [NSString stringWithFormat:@"%@",[dic objectForKey:@"IsZCWaiMai"]];
+        
+        [self.navigationController pushViewController:VC animated:YES];
+        
+        
+        
+    }
+}
+
+//获取地址址中参数
+- (NSDictionary*)dictionaryFromQuery:(NSString*)query usingEncoding:(NSStringEncoding)encoding {
+    NSCharacterSet* delimiterSet = [NSCharacterSet characterSetWithCharactersInString:@"&;"];
+    NSMutableDictionary* pairs = [NSMutableDictionary dictionary];
+    NSScanner* scanner = [[NSScanner alloc] initWithString:query];
+    while (![scanner isAtEnd]) {
+        NSString* pairString = nil;
+        [scanner scanUpToCharactersFromSet:delimiterSet intoString:&pairString];
+        [scanner scanCharactersFromSet:delimiterSet intoString:NULL];
+        NSArray* kvPair = [pairString componentsSeparatedByString:@"="];
+        if (kvPair.count == 2) {
+            NSString* key = [[kvPair objectAtIndex:0]
+                             stringByReplacingPercentEscapesUsingEncoding:encoding];
+            NSString* value = [[kvPair objectAtIndex:1]
+                               stringByReplacingPercentEscapesUsingEncoding:encoding];
+            [pairs setObject:value forKey:key];
+        }
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:pairs];
+}
+
+#pragma mark - 请求首页的数据
+- (void)homeRequestSubmit{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString *merchantId = [CommonUtil getValueByKey:MERCHANTID];
+    NSString *cityId = [CommonUtil getValueByKey:kSelectCityId];
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           merchantId, @"merchantId",
+                           cityId, @"cityId",
+                           nil];    
+    if (self.m_productList.count ==0) {
+        [SVProgressHUD showWithStatus:@"数据加载中"];
+    }
+    [httpClient request:@"MerchantIndexList_1.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            NSLog(@"json = %@",json);
+            
+            self.m_dic = [json valueForKey:@"MctIndex"];
+            
+            // 如果数组有数据的话先清空数据再赋值
+            if ( self.m_infoList.count != 0 ) {
+                
+                [self.m_infoList removeAllObjects];
+            }
+            
+            if ( self.m_AdUpAdList.count != 0 ) {
+                
+                [self.m_AdUpAdList removeAllObjects];
+            }
+            
+            if ( self.m_categoryList.count != 0 ) {
+                
+                [self.m_categoryList removeAllObjects];
+            }
+            
+            
+            // 赋值
+            self.m_infoList = [self.m_dic objectForKey:@"WisdomInfoList"];
+            
+            self.m_AdUpAdList = [self.m_dic objectForKey:@"AdUpAdList"];
+            
+            self.m_categoryList = [self.m_dic objectForKey:@"MctIndexSvcClassList"];
+//            
+//            if (self.m_productList.count == 0) {
+//              self.m_tableView.hidden = YES;
+//            }
+            
+            // 处理数据
+            [self initScrollerView];
+            
+            
+            // 设置定位到的地址位置
+            NSString *current = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kHomeCityAddress]];
+            // 如果定位的地址为空时默认为苏州市的地址
+            if ( current.length == 0 || [current isEqualToString:@"(null)"] ) {
+                
+                self.m_address1.text = @"定位未成功 默认为:苏州";
+                
+            }else{
+                
+                self.m_address1.text = [NSString stringWithFormat:@"您当前位置:%@",current];
+                
+            }
+            
+            [self.m_tableView reloadData];
+            
+            // 将分类的数据存储起来用于分类滚动的页面显示
+            if ( [searchHelper categoryList].count == 0 ) {
+                
+                NSMutableArray *arr = [[NSMutableArray alloc]initWithCapacity:0];
+                
+                for (int i = 0; i < self.m_categoryList.count - 1; i++) {
+                    
+                    NSDictionary *dic = [self.m_categoryList objectAtIndex:i];
+                    
+                    NSString *classId = [NSString stringWithFormat:@"%@",[dic objectForKey:@"ClassId"]];
+                    
+                    NSString *className = [NSString stringWithFormat:@"%@",[dic objectForKey:@"ClassName"]];
+                    
+                    NSDictionary *l_dic = [NSDictionary dictionaryWithObjectsAndKeys:className,@"name",classId,@"code", nil];
+                    
+                    [arr addObject:l_dic];
+                    
+                }
+                // 将分类的数据保存到数据库中
+                [searchHelper updatecategoryList:arr];
+            }
+            
+        }else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+            self.m_tableView.pullTableIsRefreshing = NO;
+
+        }
+    } failure:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:@"请求失败，请稍后再试"];
+        self.m_tableView.pullTableIsRefreshing = NO;
+    }];
+
+}
+
+#pragma mark - HHCityListDelegate{
+- (void)getHHCityName:(NSMutableDictionary *)aCityName{
+    
+    [CommonUtil addValue:@"NO" andKey:HomeIslocation];//手动选择城市 进入首页不定位
+
+    if ([[aCityName objectForKey:@"name"] isEqualToString:self.m_cityNameLabel.text]&& [[CommonUtil getValueByKey:kSelectAddress] isEqualToString:titleLabel.text]&&(![titleLabel.text isEqualToString:@""]))
+    {
+        return;
+    }
+   
+    NSString *district = [CommonUtil getValueByKey: kHomeDistrict];
+    
+    // 判断左上角城市显示名称
+    if ( ![district isEqualToString:@""] ) {
+        
+        self.m_cityNameLabel.text = [NSString stringWithFormat:@"%@",district];
+        
+    }else{
+        
+        self.m_cityNameLabel.text = [aCityName objectForKey:@"name"];
+
+    }
+    
+
+    selectCity = [aCityName objectForKey:@"code"];
+    
+    [CommonUtil addValue:[aCityName objectForKey:@"name"] andKey:kSelectCityName];
+    [CommonUtil addValue:selectCity andKey:kSelectCityId];
+    
+//    [CommonUtil addValue:@"" andKey:kHomeDistrict];
+    
+//    if ([[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]] isEqualToString:@"(null)"]||[[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]] isEqualToString:@""]) {
+//        titleLabel.text = @"本地";
+//    }else{
+//        titleLabel.text = [CommonUtil getValueByKey:kSelectAddress];
+//    }
+//    [titleLabel sizeToFit];
+//    self.navigationItem.titleView = titleLabel;
+    [CommonUtil addValue:[NSDate date] andKey:@"kDefaultPlayLocationInterval"];
+    
+    [self homeRequestSubmit];
+
+
+}
+
+#pragma mark - AdvDelegate
+- (void)imageClicked:(id)sender{
+    
+    isClick = YES;
+    
+    UIButton *btn = (UIButton *)sender;
+    
+    NSDictionary *dic = [self.m_infoList objectAtIndex:btn.tag];
+    
+    NSString *type = [NSString stringWithFormat:@"%@",[dic objectForKey:@"Type"]];
+    
+    if ( [type isEqualToString:@"DetailInfo"] ) {
+        // 进入抢购商品的商品详情
+        SaleProductDetailViewController *VC = [[SaleProductDetailViewController alloc]initWithNibName:@"SaleProductDetailViewController" bundle:nil];
+        //        VC.m_dic = dic;
+        //        VC.m_timeSecond = self.m_timeSecond;
+        
+        VC.m_panicBuyGoodID = [NSString stringWithFormat:@"%@",[dic objectForKey:@"PanicBuyGoodID"]];
+        [self.navigationController pushViewController:VC animated:YES];
+        
+    }else if ( [type isEqualToString:@"ListInfo"] ) {
+        // 进入抢购的商品列表
+        SaleProductListViewController *VC = [[SaleProductListViewController alloc]initWithNibName:@"SaleProductListViewController" bundle:nil];
+        [self.navigationController pushViewController:VC animated:YES];
+    }
+    
+}
+
+#pragma UIScrollView delegate
+- (void)scrollToNextPage:(id)sender
+{
+    int pageNum = self.m_pageControl.currentPage;
+    
+    CGSize viewSize = self.m_scollerView.frame.size;
+    
+    pageNum ++;
+    
+    if ( pageNum == self.m_AdUpAdList.count ) {
+        
+        pageNum = 0;
+        
+        self.m_pageControl.currentPage = pageNum;
+        
+        CGRect newRect = CGRectMake(0, 0, viewSize.width, viewSize.height);
+        [self.m_scollerView scrollRectToVisible:newRect animated:YES];
+        
+    }else{
+        
+        self.m_pageControl.currentPage = pageNum;
+        
+        
+        CGRect rect = CGRectMake(pageNum * viewSize.width, 0, viewSize.width, viewSize.height);
+        [self.m_scollerView scrollRectToVisible:rect animated:YES];
+    }
+    
+    
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+//    CGFloat pageWidth = self.m_scollerView.frame.size.width;
+//    int currentPage = self.m_scollerView.contentOffset.x  / pageWidth;
+    
+    //floor((self.m_scrollerView.contentOffset.x - pageWidth / 2) / pageWidth) + 1;
+    
+    //    if ( currentPage == 0 ) {
+    //
+    //        self.m_pageControl.currentPage = self.m_imagArray.count - 1;
+    //
+    //    }else if ( currentPage == self.m_imagArray.count + 1 ){
+    //
+    //        self.m_pageControl.currentPage = 0;
+    //
+    //    }
+    //    self.m_pageControl.currentPage = currentPage - 1;
+    
+    //    self.m_pageControl.currentPage = currentPage;
+    
+}
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    [self.m_timer invalidate];
+}
+
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+{
+    self.m_timer = [NSTimer scheduledTimerWithTimeInterval:3.0f target:self selector:@selector(scrollToNextPage:) userInfo:nil repeats:YES];
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    CGFloat pageWidth = self.m_scollerView.frame.size.width;
+    CGFloat pageHeigth = self.m_scollerView.frame.size.height;
+    int currentPage = self.m_scollerView.contentOffset.x / pageWidth;
+ 
+    [self.m_scollerView scrollRectToVisible:CGRectMake(pageWidth * currentPage, 0, pageWidth, pageHeigth) animated:NO];
+    
+    self.m_pageControl.currentPage = currentPage;
+}
+
+////请求点评数据
+////大众点评开发数据
+//-(void)ServicesFromDP
+//{
+//    // 判断网络是否存在
+//    if ( ![self isConnectionAvailable] ) {
+//        return;
+//    }
+//    
+//    NSString *url = @"v1/deal/find_deals";
+//    NSString *city =[CommonUtil getValueByKey:kSelectCityName];//城市
+//    float latitude = [[CommonUtil getValueByKey:kLatitudeKey] floatValue];
+//    float longitude = [[CommonUtil getValueByKey:kLongitudeKey] floatValue];
+//    if (latitude == 0.000000&&longitude == 0.000000) {
+//        latitude = 31.3;
+//        longitude = 120.6;
+//    }
+//    NSString * params= [NSString stringWithFormat:@"city=%@&latitude=%f&longitude=%f&radius=-1&sort=7&page=1&limit=40",city,latitude,longitude];
+//    
+//    [[[AppDelegate instance] dpapi] requestWithURL:url paramsString:params delegate:self];
+//
+//}
+//
+//- (void)request:(DPRequest *)request didFailWithError:(NSError *)error {
+//    
+//    [SVProgressHUD dismiss];
+//    self.m_tableView.hidden = NO;
+//    [self.m_tableView reloadData];
+//}
+//
+//- (void)request:(DPRequest *)request didFinishLoadingWithResult:(id)result {
+//    
+//    NSString * success = [result valueForKey:@"status"];
+//    [SVProgressHUD dismiss];
+//    if ([success isEqualToString:@"OK"]) {
+//       self.m_productList = [result valueForKey:@"deals"];
+//        
+//        self.m_productList = [self arrayWithMemberIsOnly:self.m_productList];
+//        
+//        self.m_tableView.hidden = NO;
+//        [self.m_tableView reloadData];
+//    } else {
+//        self.m_tableView.hidden = NO;
+//        [self.m_tableView reloadData];
+//    }
+//    
+//}
+
+//数组过滤
+//- (NSMutableArray *)arrayWithMemberIsOnly:(NSMutableArray *)array
+//{
+//    NSDictionary * dic1 = [[NSDictionary alloc]init];
+//    NSDictionary * dic2 = [[NSDictionary alloc]init];
+//    NSMutableArray *arr = [[NSMutableArray alloc]init];
+//    [arr addObject:[array objectAtIndex:0]];
+//
+//    for (int  ii = 1; ii < array.count; ii++) {
+//        dic1 = [array objectAtIndex:ii-1];
+//        dic2 = [array objectAtIndex:ii];
+//        
+//        if (![[NSString stringWithFormat:@"%@",[dic1 objectForKey:@"title"]] isEqualToString:[NSString stringWithFormat:@"%@",[dic2 objectForKey:@"title"]]]) {
+//            [arr addObject:[array objectAtIndex:ii]];
+//        }
+//    }
+//    
+//    return arr;
+//}
+
+//请求大众点评数据（首页，经过后台过滤）
+- (void)ServicesFromDP{
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString *district = [CommonUtil getValueByKey:kHomeDistrict];
+    
+//    NSString *merchantId = [CommonUtil getValueByKey:MERCHANTID];
+    NSString *city = [CommonUtil getValueByKey:kSelectCityName];//城市
+    
+    NSString *cityString = @"";
+    
+    NSString *l_district = @"";
+    
+    // 判断字符
+    if ( [district isEqualToString:@""] || [district isEqualToString:@"(null)"] ) {
+        
+        cityString = [NSString stringWithFormat:@"%@",city];
+        
+    }else{
+        
+        if ( [district rangeOfString:@"市"].location != NSNotFound ) {
+        
+            l_district = [district substringWithRange:NSMakeRange(0, district.length - 1)];
+            
+        }
+        
+        if ( [self.m_dazhongList containsObject:district] ) {
+            
+            cityString = [NSString stringWithFormat:@"%@",district];
+            
+        }else if ( [self.m_dazhongList containsObject:l_district] ){
+            
+            cityString = [NSString stringWithFormat:@"%@",l_district];
+            
+        }else{
+            
+            cityString = [NSString stringWithFormat:@"%@",city];
+
+            
+        }
+        
+        NSLog(@"cityString = %@",cityString);
+        
+    }
+    
+    
+    float latitude = [[CommonUtil getValueByKey:kLatitudeKey] floatValue];
+    float longitude = [[CommonUtil getValueByKey:kLongitudeKey] floatValue];
+  
+    if (latitude == 0.000000&&longitude == 0.000000) {
+        latitude = 31.3;
+        longitude = 120.6;
+    }    
+    AppHttpClient* httpClient = [AppHttpClient sharedDP];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           cityString,@"city",
+                           [NSString stringWithFormat:@"%f",latitude],@"latitude",
+                           [NSString stringWithFormat:@"%f",longitude],@"longitude",
+                           @"-1",@"radius",
+                           @"7",@"sort",
+                           @"1",@"page",
+                           @"40",@"limit",
+                           @"",@"category",
+                           @"",@"destination_city",
+                           @"",@"format",
+                           @"",@"is_local",
+                           @"",@"keyword",
+                           @"",@"region",
+                           nil];
+    
+    NSLog(@"param = %@",param);
+    
+    [httpClient requestDP:@"GetNearByDeals.ashx" parameters:param success:^(NSJSONSerialization* json) {
+       
+        [SVProgressHUD dismiss];
+        
+        // 如果数组里有值的话则删除数据重新赋值
+        if ( self.m_productList.count != 0 ) {
+            
+            [self.m_productList removeAllObjects];
+            
+        }
+        
+        // =========================
+
+        NSMutableArray *arr = [[NSMutableArray alloc]initWithCapacity:0];
+        
+        arr = [json valueForKey:@"deals"];
+        
+        if ( arr.count != 0 ) {
+            
+            for (int i = 0; i < arr.count; i++) {
+                
+                NSDictionary *dic = [arr objectAtIndex:i];
+                
+                NSString *price = [NSString stringWithFormat:@"%@",[dic objectForKey:@"current_price"]];
+                
+                float priceValue = [price floatValue];
+                
+                if ( priceValue != 0.000000 ) {
+                    
+                    [self.m_productList addObject:dic];
+                    
+                }
+                
+            }
+            
+        }
+        
+        // =========================
+        
+//        self.m_productList = [json valueForKey:@"deals"];
+        
+        
+        
+        self.m_tableView.hidden = NO;
+        [self.m_tableView reloadData];
+        
+        
+    } failure:^(NSError *error) {
+        [SVProgressHUD dismiss];
+        self.m_tableView.hidden = NO;
+        [self.m_tableView reloadData];
+    }];
+    
+}
+
+
+
+#pragma mark - PullTableViewDelegate
+- (void)pullTableViewDidTriggerRefresh:(PullTableView*)pullTableView {
+
+    self.m_cityNameLabel.text = [CommonUtil getValueByKey:kSelectCityName];
+    for (NSDictionary *dic in m_city) {
+        NSString *string = [dic objectForKey:@"name"];
+        if ( [string isEqualToString:self.m_cityNameLabel.text] ) {
+            [CommonUtil addValue:[NSString stringWithFormat:@"%@",[dic objectForKey:@"code"]] andKey:kSelectCityId];
+            break;
+        }
+    }
+    
+//    if ([[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]] isEqualToString:@"(null)"]||[[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kSelectAddress]] isEqualToString:@""]) {
+//        titleLabel.text = @"本地";
+//    }else{
+//        titleLabel.text = [CommonUtil getValueByKey:kSelectAddress];
+//    }
+//    [titleLabel sizeToFit];
+//    self.navigationItem.titleView = titleLabel;
+    
+    // 刷新数据
+    [self homeRequestSubmit];
+    
+}
+
+- (void)pullTableViewDidTriggerLoadMore:(PullTableView*)pullTableView {
+
+    [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(LoadMoreOver) userInfo:nil repeats:NO];
+}
+
+- (void)LoadMoreOver
+{
+    self.m_tableView.pullLastRefreshDate = [NSDate date];
+    self.m_tableView.pullTableIsLoadingMore = NO;
+    
+}
+
+- (void)menuRequestSubmit{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *cityId = [CommonUtil getValueByKey:kSelectCityId];
+    
+    NSLog(@"cityId = %@",cityId);
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  memberId,     @"memberId",
+                                  key,   @"key",
+                                  @"1", @"pageIndex",
+                                  @"10",@"pageSize",
+                                  cityId, @"CityID",
+                                  @"", @"AreaID",
+                                  @"", @"DistrictID",
+                                  @"", @"ClassID",
+                                  [NSString stringWithFormat:@"%f",m_longtitude],@"MapX",
+                                  [NSString stringWithFormat:@"%f",m_latitude],@"MapY",
+                                  @"",@"keyword",
+                                  
+                                  nil];
+    
+    NSLog(@"params = %@",param);
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"GetMerchantCloudMenuList.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        NSLog(@"json = %@",json);
+
+        
+        if (success) {
+            [SVProgressHUD dismiss];
+            
+            NSMutableArray *metchantShop = [json valueForKey:@"MerchantList"];
+            
+            self.m_menuList = metchantShop;
+            
+            [self.m_tableView reloadData];
+            
+            
+//            if (pageIndex == 1) {
+//                if (metchantShop == nil || metchantShop.count == 0) {
+//                    
+//                    [self.keyItems removeAllObjects];
+//                    self.m_merchantTableView.hidden = YES;
+//                    
+//                    self.m_emptyLabel.hidden = NO;
+//                    
+//                    self.m_emptyLabel.text = @"暂无支持点单的商户信息！";
+//                    
+//                } else {
+//                    
+//                    self.keyItems = metchantShop;
+//                    
+//                    self.m_emptyLabel.hidden = YES;
+//                    
+//                    self.m_merchantTableView.hidden = NO;
+//                    
+//                    [self.m_merchantTableView reloadData];
+//                    
+//                }
+//            } else {
+//                
+//                if (metchantShop == nil || metchantShop.count == 0) {
+//                    pageIndex--;
+//                    
+//                } else {
+//                    
+//                    [self.keyItems addObjectsFromArray:metchantShop];
+//                }
+//                
+//                self.m_merchantTableView.hidden = NO;
+//                
+//                [self.m_merchantTableView reloadData];
+//            }
+          
+            
+        } else {
+           
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+       
+    } failure:^(NSError *error) {
+//        if (pageIndex > 1) {
+//            pageIndex--;
+//        }
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+
+    }];
+
+    
+}
+
+- (void)showStyleRequest{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *cityId = [CommonUtil getValueByKey:kSelectCityId];
+    
+    NSLog(@"cityId = %@",cityId);
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  memberId,     @"MemberID",
+                                  key,   @"Key",
+                                  cityId, @"CityID",
+                                  nil];
+    
+    NSLog(@"params = %@",param);
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+//    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"GetAPPModelByCityID.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+           
+            [SVProgressHUD dismiss];
+            
+            NSLog(@"json = %@",json);
+            
+            // 赋值
+            self.m_showTypeString = [NSString stringWithFormat:@"%@",[json valueForKey:@"ModelID"]];
+            
+            NSLog(@"showTypeString = %@",self.m_showTypeString);
+            
+            if ( [self.m_showTypeString isEqualToString:@"1"] ) {
+                
+                // 请求菜单数据列表的数据
+                [self menuRequestSubmit];
+                
+                [self.m_moreBtn setTitle:@"查看更多菜单" forState:UIControlStateNormal];
+                
+                
+                [self.m_moreBtn removeTarget:self action:@selector(morebtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+
+                [self.m_moreBtn addTarget:self action:@selector(m_menuClicked:) forControlEvents:UIControlEventTouchUpInside];
+                
+                
+            }else{
+                
+               
+                // 请求大众点评的数据
+                [self ServicesFromDP];
+                
+                [self.m_moreBtn setTitle:@"查看更多商品" forState:UIControlStateNormal];
+
+                [self.m_moreBtn removeTarget:self action:@selector(m_menuClicked:) forControlEvents:UIControlEventTouchUpInside];
+                
+                [self.m_moreBtn addTarget:self action:@selector(morebtnClicked:) forControlEvents:UIControlEventTouchUpInside];
+
+            }
+            
+            
+            
+        } else {
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+        
+    } failure:^(NSError *error) {
+
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+    }];
+    
+    
+}
+
+
+// 根据城市名获取经纬度
+//- (void)getcitylocalong
+//{
+//    
+//    CLGeocoder * geocoder = [[CLGeocoder alloc] init];
+//    
+//    [geocoder geocodeAddressString:[CommonUtil getValueByKey:kSelectCityName] completionHandler:^(NSArray *placemarks, NSError *error) {
+//        
+//        CLPlacemark * placeMark = [placemarks objectAtIndex:0];
+//        
+//        secondlatitude =[NSString stringWithFormat:@"%f",placeMark.location.coordinate.latitude];
+//        secondlongitude =[NSString stringWithFormat:@"%f",placeMark.location.coordinate.longitude];
+//        
+//        secondASI = @"YES";
+//        //定位市中
+//        [self ServicesFromDP];//重新获取数据
+//    }];
+//    
+//}
+
+
+@end

@@ -1,0 +1,55 @@
+//
+//  AppHttpClient.h
+//  bazhifuApp
+//
+//  Created by mac on 13-6-8.
+//  Copyright (c) 2013年 mac. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "AFHTTPClient.h"
+
+@interface AppHttpClient : AFHTTPClient
+
+
+
++ (AppHttpClient *) sharedClient;
+- (void)request:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+- (void)multiRequest:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+
+
+
+
++ (AppHttpClient *)sharedSpace;
+- (void)requestSpace:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+- (void)multiRequestSpace:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+
+
+
+
++ (AppHttpClient *)sharedCtrip;
+- (void)requestCtrip:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+- (void)multiRequestCtrip:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+
+
+
+//诲诲APPle - 机票
++ (AppHttpClient *)sharedClient1;
+- (void)requestFlights:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+- (void)multiRequestFlights:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+
+// get请求
+- (void)getRequest:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+
+// 诲诲Apple-景点门票
++ (AppHttpClient *)scenerySharedClient;
+- (void)requestScenery:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+- (void)multiRequestScenery:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+
+
+//大众点评
++ (AppHttpClient *)sharedDP;
+- (void)requestDP:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+- (void)multiRequestDP:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure;
+
+@end

@@ -1,0 +1,28 @@
+#import "XMPPMessage+XEP_0224.h"
+
+@implementation XMPPMessage (XEP_0224)
+
+- (BOOL)isHeadLineMessage {
+    return [[[self attributeForName:@"type"] stringValue] isEqualToString:@"headline"];
+}
+
+- (BOOL)isAttentionMessage
+{
+	return  [self isHeadLineMessage] && [self elementForName:@"attention" xmlns:XMLNS_ATTENTION];
+}
+
+- (BOOL)isAttentionMessageWithBody
+{
+	if([self isAttentionMessage])
+	{
+		return [self isMessageWithBody];
+	}
+	return NO;
+}
+
+- (BOOL)elementForName:(NSString *)aa xmlns:(NSString *)ss{
+    
+    
+}
+
+@end

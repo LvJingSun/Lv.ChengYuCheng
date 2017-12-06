@@ -1,0 +1,375 @@
+//
+//  Sharetofriend.m
+//  HuiHui
+//
+//  Created by 冯海强 on 14-12-18.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//
+
+#import "Sharetofriend.h"
+#import "EMRemarkImageView.h"
+#import "RealtimeSearchUtil.h"
+#import "BaseTableViewCell.h"
+#import "ChatSendHelper.h"
+#import "ChineseToPinyin.h"
+#import "FriendsCell.h"
+
+@interface Sharetofriend ()
+
+@property (strong, nonatomic) NSMutableArray *contactsSource;
+
+@property (strong, nonatomic) UIImage *SourceImage;
+
+@property (strong, nonatomic) NSMutableArray *sectionTitles;//存储每区域标题
+
+@property (strong, nonatomic) UITableView *tableView;
+
+@end
+
+@implementation Sharetofriend
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        _contactsSource = [NSMutableArray array];
+        _dataSource = [NSMutableArray array];
+        _sectionTitles = [NSMutableArray array];
+        friendHelp = [[FriendHelper alloc]init];
+        self.imageCache = [[ImageCache alloc]init];
+        self.TextDIC = [[NSMutableDictionary alloc]initWithCapacity:0];
+
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+    
+    self.tableView.dataSource = self;
+    self.tableView.delegate = self;
+    [self setTitle:@"选择联系人"];
+    if ( isIOS7 ) {
+        // section索引的背景色-右边排序的ABCD所在的视图
+        self.tableView.sectionIndexBackgroundColor = [UIColor clearColor];
+    }
+    self.tableView.separatorColor = UITableViewCellSeparatorStyleNone;
+    self.navigationController.navigationBar.titleTextAttributes = @{ UITextAttributeTextColor: [UIColor whiteColor],UITextAttributeFont : [UIFont boldSystemFontOfSize:20]};
+    
+    self.navigationItem.rightBarButtonItem = nil;
+    UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 15, 16)];
+    [backButton setImage:[UIImage imageNamed:@"arrow_WL.png"] forState:UIControlStateNormal];
+    [backButton addTarget:self action:@selector(leftClicked) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
+    [self.navigationItem setLeftBarButtonItem:backItem];
+    
+    UIButton *GroupButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 80, 44)];
+    [GroupButton setTitle:@"发群组" forState:UIControlStateNormal];
+    [GroupButton.titleLabel setFont:[UIFont systemFontOfSize:15.0f]];
+    [GroupButton setContentHorizontalAlignment:UIControlContentHorizontalAlignmentRight];
+    [GroupButton addTarget:self action:@selector(rightClicked) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *_addFriendItem = [[UIBarButtonItem alloc] initWithCustomView:GroupButton];
+    self.navigationItem.rightBarButtonItem = _addFriendItem;
+
+//    [self.view addSubview:self.footerView];
+
+    [self loadDataSource];
+}
+
+- (void)leftClicked{
+    
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)rightClicked{
+    
+    if (_groupController == nil) {
+        _groupController = [[GroupListViewController alloc] initWithStyle:UITableViewStylePlain];
+    }
+    else{
+        [_groupController reloadDataSource];
+    }
+    _groupController.didselectandpoptwo = [[NSMutableDictionary alloc]initWithCapacity:0];//自定义分享
+    _groupController.didselectandpoptwo = self.TextDIC;
+    _groupController.m_FromDPId = self.m_FromDPId;
+    _groupController.m_productId = self.m_productId;
+    _groupController.m_merchantShopId = self.m_merchantShopId;
+    [self.navigationController pushViewController:_groupController animated:YES];
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+
+#pragma mark - getter
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;
+{
+    return [[_dataSource objectAtIndex:section] count];
+ 
+}
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    // Return the number of sections.
+    return [_dataSource count];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 53.0;
+}
+
+#pragma mark - Table view data source
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{ 
+    static NSString *cellIdentifier = @"FriendsCellIdentifier";
+    FriendsCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    if ( cell == nil ) {
+        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"FriendsCell" owner:self options:nil];
+        cell = (FriendsCell *)[nib objectAtIndex:0];
+        cell.selectionStyle = UITableViewCellSelectionStyleGray;
+    }
+    cell.m_inviteNameLabel.hidden = YES;
+    cell.m_statusLabel.hidden = YES;
+    cell.m_nameLabel.hidden = NO;
+    cell.m_imageView.hidden = NO;
+    cell.m_imageBtn.hidden = YES;
+
+    NSDictionary *buddy = [[_dataSource objectAtIndex:indexPath.section] objectAtIndex:indexPath.row];
+    cell.m_imageView.layer.masksToBounds = YES;
+    cell.m_imageView.layer.cornerRadius = 4.0;
+    cell.m_nameLabel.text = [NSString stringWithFormat:@"%@",[buddy objectForKey:@"RealName"]];
+    
+    //头像
+    {
+        NSString * imagePath = [NSString stringWithFormat:@"%@",[buddy objectForKey:@"PhotoUrl"]];
+        UIImage *reSizeImage = [self.imageCache getImage:imagePath];
+        if (reSizeImage != nil) {
+            cell.m_imageView.image = reSizeImage;
+            return cell;
+        }
+        [cell.m_imageView setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:imagePath]]
+                              placeholderImage:[UIImage imageNamed:@"moren.png"]
+                                       success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image){
+                                           cell.m_imageView.image = image;
+                                           [self.imageCache addImage:image andUrl:imagePath];
+                                       }
+                                       failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error){
+                                           
+                                           cell.m_imageView.image = [UIImage imageNamed:@"moren.png"];
+                                           
+                                       }];
+        
+        
+    }
+    
+    return cell;
+}
+
+
+#pragma mark - Table view delegate
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    chosepath = indexPath;
+
+    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil
+                                                       message:@"确定发送消息?"
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"确定", nil];
+    alertView.tag = 10010;
+    [alertView show];
+
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+}
+
+#pragma mark - UIAlertViewDelegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    
+    if ( alertView.tag == 10010 ) {
+        if ( buttonIndex == 1 ) {
+            
+            NSMutableDictionary * DIC = [[_dataSource objectAtIndex:chosepath.section] objectAtIndex:chosepath.row];
+            
+            NSString *MemberID = [NSString stringWithFormat:@"%@",[DIC objectForKey:@"MemberID"]];
+            NSString *imagePath =[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:@"productImage"]];
+            
+            NSString *Title = @"";
+            if ([self.m_FromDPId isEqualToString:@"1"]){
+
+                Title =  [NSString stringWithFormat:@"%@",[self.TextDIC objectForKey:@"description"]];
+                
+            }else{
+                
+                Title =  [NSString stringWithFormat:@"%@",[self.TextDIC objectForKey:@"SvcSimpleName"]];
+ 
+            }
+
+            [self sendU_definedMessage:imagePath andtitle:Title andsubtitle:nil andtype:@"PRO" andtoid:MemberID andgroup:NO];
+
+            
+        }
+    }
+    
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    if ( [[self.dataSource objectAtIndex:(section)] count] == 0)
+    {
+        return 0;
+    }
+    else{
+        return 22;
+    }
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    if ([[_dataSource objectAtIndex:section] count] == 0)
+    {
+        return nil;
+    }
+    
+    UIView *contentView = [[UIView alloc] init];
+    [contentView setBackgroundColor:[UIColor colorWithRed:0.88 green:0.88 blue:0.88 alpha:1.0]];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, 100, 22)];
+    [label setBackgroundColor:[UIColor clearColor]];
+    [label setText:[self.sectionTitles objectAtIndex:section]];
+    [contentView addSubview:label];
+    return contentView;
+}
+
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+{
+    NSMutableArray * existTitles = [NSMutableArray array];
+    //section数组为空的title过滤掉，不显示
+    for (int i = 0; i < [self.sectionTitles count]; i++) {
+        if ([[self.dataSource objectAtIndex:i] count] > 0) {
+            [existTitles addObject:[self.sectionTitles objectAtIndex:i]];
+        }
+    }
+    return existTitles;
+}
+#pragma mark - public
+
+- (void)loadDataSource
+{
+    _contactsSource = [friendHelp friendsList];
+    _dataSource = [self sortDataArrayself:self.contactsSource];
+    [self hideHud];
+    [self.tableView reloadData];
+}
+
+
+- (NSMutableArray *)sortDataArrayself:(NSArray *)dataArray
+{
+    //建立索引的核心
+    UILocalizedIndexedCollation *indexCollation = [UILocalizedIndexedCollation currentCollation];
+    self.sectionTitles = [[indexCollation sectionTitles] mutableCopy];
+    //返回27，是a－z和＃
+    NSInteger highSection = [self.sectionTitles count];
+    //tableView 会被分成27个section
+    NSMutableArray *sortedArray = [NSMutableArray arrayWithCapacity:highSection];
+    for (int i = 0; i <= highSection; i++) {
+        NSMutableArray *sectionArray = [NSMutableArray arrayWithCapacity:1];
+        [sortedArray addObject:sectionArray];
+    }
+    
+    for (NSDictionary * dic in dataArray) {
+        //getUserName是实现中文拼音检索的核心，见NameIndex类
+        NSString *firstLetter = [ChineseToPinyin pinyinFromChineseString:[NSString stringWithFormat:@"%@",[dic objectForKey:@"RealName"]]];
+        NSInteger section = [indexCollation sectionForObject:[firstLetter substringToIndex:1] collationStringSelector:@selector(uppercaseString)];
+        
+        NSMutableArray *array = [sortedArray objectAtIndex:section];
+        [array addObject:dic];
+    }
+    
+    for (int i = 0; i < [sortedArray count]; i++) {
+        NSArray *array = [[sortedArray objectAtIndex:i] sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
+            NSString *str1 = [NSString stringWithFormat:@"%@",[obj1 objectForKey:@"RealName"] ];
+            NSString *str2 = [NSString stringWithFormat:@"%@",[obj2 objectForKey:@"RealName"] ];
+            
+            NSString *firstLetter1 = [ChineseToPinyin pinyinFromChineseString:str1];
+            firstLetter1 = [[firstLetter1 substringToIndex:1] uppercaseString];
+            
+            NSString *firstLetter2 = [ChineseToPinyin pinyinFromChineseString:str2];
+            firstLetter2 = [[firstLetter2 substringToIndex:1] uppercaseString];
+            
+            return [firstLetter1 caseInsensitiveCompare:firstLetter2];
+        }];
+        
+        [sortedArray replaceObjectAtIndex:i withObject:[NSMutableArray arrayWithArray:array]];
+    }
+    
+    
+    return sortedArray;
+}
+
+
+
+#pragma mark 发送自定义消息（高级会话）一般是图片+正副标题（类型一般是产品，活动，网站等等）
+-(void)sendU_definedMessage:(NSString *)Photo andtitle:(NSString *)title andsubtitle:(NSString *)subtitle andtype:(NSString *)type andtoid:(NSString *)username andgroup:(BOOL)Isgroup
+{
+    //@"自定义消息_HuiHui_012345"
+    EMChatText *userObject = [[EMChatText alloc] initWithText:title];
+    EMTextMessageBody *body = [[EMTextMessageBody alloc]
+                               initWithChatObject:userObject];
+    EMMessage *msg = [[EMMessage alloc] initWithReceiver:username
+                                                  bodies:@[body]];
+    msg.requireEncryption = NO;
+    msg.isGroup = Isgroup;
+    NSMutableDictionary *vcardProperty = [NSMutableDictionary dictionary];
+   	[vcardProperty setObject:Photo forKey:@"coverphoto"];
+    [vcardProperty setObject:title forKey:@"title"];
+   	[vcardProperty setObject:type forKey:@"type"];
+    if ([self.m_FromDPId isEqualToString:@"1"]){
+        [vcardProperty setObject:self.m_productId forKey:@"m_productId"];
+        [vcardProperty setObject:@"0" forKey:@"m_merchantShopId"];
+        [vcardProperty setObject:@"1" forKey:@"m_FromDPId"];
+    }else{
+        [vcardProperty setObject:self.m_productId forKey:@"m_productId"];
+        [vcardProperty setObject:self.m_merchantShopId forKey:@"m_merchantShopId"];
+        [vcardProperty setObject:@"2" forKey:@"m_FromDPId"];
+    }
+
+    msg.ext = vcardProperty;
+    [[EaseMob sharedInstance].chatManager asyncSendMessage:msg progress:nil prepare:^(EMMessage *message, EMError *error) {
+        if (!error) {
+            [self showHudInView:self.view hint:@"正在发送..."];
+        }
+    } onQueue:nil completion:^(EMMessage *message, EMError *error) {
+        [self hideHud];
+        if (!error) {
+            [self showHint:@"发送成功"];
+            [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(leftClicked) userInfo:nil repeats:NO];
+        }else{
+            [self showHint:@"发送失败"];
+        }
+    } onQueue:nil];
+
+}
+
+
+@end
+

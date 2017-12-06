@@ -1,0 +1,43 @@
+//
+//  MyCarddetailTableViewCell.h
+//  HuiHui
+//
+//  Created by 冯海强 on 15-4-8.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface MyCarddetailTableViewCell : UITableViewCell
+
+@property (nonatomic,weak) IBOutlet UIView*footview;
+
+@property (nonatomic,weak) IBOutlet UILabel*cardNumber;
+@property (nonatomic,weak) IBOutlet UILabel*balance;
+@property (nonatomic,weak) IBOutlet UIImageView*Qrcode;
+
+@property (nonatomic,weak) IBOutlet UIButton*Qrcoderefresh;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_accountBtn;
+
+
+@end
+
+
+@interface MyCarddetailTableViewCell1 : UITableViewCell
+
+@property (nonatomic,weak) IBOutlet UILabel *namelabel;
+
+@property (nonatomic,weak) IBOutlet UILabel *Numlabel;
+
+@property (nonatomic, weak) IBOutlet UIImageView *upview;
+@property (nonatomic, weak) IBOutlet UIImageView *downview;
+@property (nonatomic, weak) IBOutlet UIImageView *rightview;
+
+@end
+
+@interface MyCarddetailTableViewCell2 : UITableViewCell
+
+@property (nonatomic,weak) IBOutlet UILabel *namelabel;
+
+@end

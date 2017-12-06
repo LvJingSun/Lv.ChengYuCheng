@@ -1,0 +1,572 @@
+//
+//  SubmitOrderViewController.m
+//  HuiHui
+//
+//  Created by mac on 13-11-25.
+//  Copyright (c) 2013年 MaxLinksTec. All rights reserved.
+//
+
+#import "SubmitOrderViewController.h"
+
+#import "ConfirmOrderViewController.h"
+
+#import "SVProgressHUD.h"
+
+#import "CommonUtil.h"
+
+#import "AppHttpClient.h"
+
+#import "UIImageView+AFNetworking.h"
+
+#import "PaymentQueViewController.h"
+
+#import "RechargeViewController.h"
+
+#import "PayStyleViewController.h"
+
+#import "OrderAndPayTypeViewController.h"
+
+
+@interface SubmitOrderViewController ()
+
+@property (weak, nonatomic) IBOutlet UIImageView *m_imgV;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_productName;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_unitPrice;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_totalPrice;
+
+@property (weak, nonatomic) IBOutlet UITextField *m_acountTextField;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_minusBtn;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_plusBtn;
+
+@property (weak, nonatomic) IBOutlet UITextField *m_passwordTextField;
+
+
+// 提交订单
+- (IBAction)submitOrder:(id)sender;
+// 减
+- (IBAction)minusClicked:(id)sender;
+// 加
+- (IBAction)plusClicked:(id)sender;
+
+- (IBAction)submitOrderClicked:(id)sender;
+
+
+@end
+
+@implementation SubmitOrderViewController
+
+@synthesize m_items;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        
+        m_items = [[NSMutableDictionary alloc]initWithCapacity:0];
+
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    [self setTitle:@"立即购买"];
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+    self.m_acount = 1;
+    
+    // 赋值    
+    self.m_acountTextField.text = [NSString stringWithFormat:@"%li",(long)self.m_acount];
+    
+    // 判断商品数量为1的情况
+//    if ( self.m_acount == 1 ) {
+//    
+//        self.m_minusBtn.userInteractionEnabled = NO;
+//        
+//        self.m_minusBtn.backgroundColor  = [UIColor clearColor];
+//        
+//    }else{
+//        
+//        self.m_minusBtn.userInteractionEnabled = YES;
+//        
+//        self.m_minusBtn.backgroundColor = [UIColor clearColor];
+//      
+//    }
+    
+    self.m_plusBtn.userInteractionEnabled = YES;
+
+    self.m_plusBtn.backgroundColor  = [UIColor clearColor];
+    
+    
+    // 赋值
+    self.m_productName.text = [NSString stringWithFormat:@"%@",[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"SvcSimpleName"]]];
+    
+    self.m_unitPrice.text = [NSString stringWithFormat:@"%.2f",[[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+    
+    self.m_totalPrice.text = [NSString stringWithFormat:@"%.2f",self.m_acount * [[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+    
+    self.m_acountTextField.text = [NSString stringWithFormat:@"%li",(long)self.m_acount];
+    
+    // 对图片进行赋值
+    [self.m_imgV setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:[CommonUtil getValueByKey:@"productImage"]]]
+                       placeholderImage:[UIImage imageNamed:@"invite_reg_no_photo.png"]
+                                success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image){
+                                    self.m_imgV.image = [CommonUtil scaleImage:image toSize:CGSizeMake(105, 65)];
+                                }
+                                failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error){
+                                    
+                                }];
+
+    
+
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    [self hideTabBar:YES];
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    [self hideTabBar:NO];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)leftClicked{
+    
+    [self.m_acountTextField resignFirstResponder];
+    
+    [self goBack];
+}
+
+- (IBAction)submitOrder:(id)sender {
+    
+    [self.view endEditing:YES];
+    
+    if ( self.m_passwordTextField.text.length == 0 ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"请输入密码！"];
+        
+        return;
+    }
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    
+    NSString *totalPrice = [NSString stringWithFormat:@"%.2f",self.m_acount * [[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           [NSString stringWithFormat:@"%@",totalPrice],@"payTotalAmount",
+                           [NSString stringWithFormat:@"%@",self.m_passwordTextField.text],@"paymentPass",
+                           [NSString stringWithFormat:@"%i",self.m_acount],@"quantity",
+                           [NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"ServiceID"]],@"svcId",
+                           nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"Payment.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        
+        //  返回值：false(1：用户信息丢失，请重新登录;2:支付密码未设置;3:支付密码不正确; 4：支付密码锁定中,请3小时后再试；5：您的账户余额不足； 6：商品不存在;7：服务资源不在销售中；8：服务资源已下架；9：服务资源已售完； 10:该订单已支付成功，请勿重复支付，如需购买请重新下单; 其他：服务资源只有n个，不足您购买的数量) true(支付成功)
+        
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+                
+        if (success) {
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showSuccessWithStatus:msg];
+            
+            [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(goLastView) userInfo:nil repeats:NO];
+                        
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+
+            [SVProgressHUD dismiss];
+            
+            if ( [msg isEqualToString:@"1"] ) {
+                // 1：用户信息丢失，请重新登录
+                
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"用户信息丢失，请重新登录"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }else  if ( [msg isEqualToString:@"2"] ) {
+                // 2:支付密码未设置
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"支付密码未设置"
+                                                                  delegate:self
+                                                         cancelButtonTitle:@"取消"
+                                                         otherButtonTitles:@"立即设置",nil];
+                alertView.tag = 123894;
+                
+                [alertView show];
+                
+                
+                
+            }else  if ( [msg isEqualToString:@"3"] ) {
+                
+                //3:支付密码不正确
+                
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"支付密码不正确"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+                
+                
+            }else  if ( [msg isEqualToString:@"4"] ) {
+                //4：支付密码锁定中,请3小时后再试
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"支付密码锁定中,请3小时后再试"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }else  if ( [msg isEqualToString:@"5"] ) {
+                //5：您的账户余额不足
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"您的账户余额不足"
+                                                                  delegate:self
+                                                         cancelButtonTitle:@"取消"
+                                                         otherButtonTitles:@"立即充值",nil];
+                alertView.tag = 123893;
+                
+                [alertView show];
+                
+                
+            }else  if ( [msg isEqualToString:@"6"] ) {
+                //6：商品不存在
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"商品不存在"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+                
+            }else  if ( [msg isEqualToString:@"7"] ) {
+                //7：服务资源不在销售中
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"服务资源不在销售中"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }else  if ( [msg isEqualToString:@"8"] ) {
+                //8：服务资源已下架
+                
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"服务资源已下架"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }else  if ( [msg isEqualToString:@"9"] ) {
+                // 9：服务资源已售完
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"服务资源已售完"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+                
+            }else  if ( [msg isEqualToString:@"10"] ) {
+                // 10:该订单已支付成功，请勿重复支付，如需购买请重新下单;
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"该订单已支付成功，请勿重复支付，如需购买请重新下单"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }else{
+                // 其他：服务资源只有n个，不足您购买的数量
+                
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:msg
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }
+        
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+    // 进入确认订单
+//    ConfirmOrderViewController *VC = [[ConfirmOrderViewController alloc]initWithNibName:@"ConfirmOrderViewController" bundle:nil];
+//
+//    [self.navigationController pushViewController:VC animated:YES];
+}
+
+- (void)goLastView{
+    
+    [self goBack];
+}
+
+- (IBAction)minusClicked:(id)sender {
+    
+    [self.view endEditing:YES];
+    
+    self.m_plusBtn.userInteractionEnabled = YES;
+    
+    self.m_plusBtn.backgroundColor  = [UIColor clearColor];
+       
+    //====
+    if ( self.m_acount == 1 || self.m_acount == 0 ) {
+        
+        self.m_acount = 1;
+        
+//        self.m_minusBtn.userInteractionEnabled = NO;
+        
+        self.m_minusBtn.backgroundColor  = [UIColor clearColor];
+        
+        self.m_acountTextField.text = [NSString stringWithFormat:@"%i",self.m_acount];
+        
+        self.m_totalPrice.text = [NSString stringWithFormat:@"%.2f",self.m_acount * [[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+        
+        return;
+        
+    }
+    
+   
+    
+    //====
+    
+    self.m_acount = self.m_acount - 1;
+    
+    if ( self.m_acount == 1 ) {
+        
+//        self.m_minusBtn.userInteractionEnabled = NO;
+        
+        self.m_minusBtn.backgroundColor  = [UIColor clearColor];
+        
+    }else{
+        
+        self.m_minusBtn.userInteractionEnabled = YES;
+        
+        self.m_minusBtn.backgroundColor = [UIColor clearColor];
+        
+    }
+    
+    self.m_acountTextField.text = [NSString stringWithFormat:@"%i",self.m_acount];
+    
+    self.m_totalPrice.text = [NSString stringWithFormat:@"%.2f",self.m_acount * [[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+}
+
+- (IBAction)plusClicked:(id)sender {
+    
+    [self.view endEditing:YES];
+    
+    self.m_minusBtn.userInteractionEnabled = YES;
+    
+    self.m_minusBtn.backgroundColor  = [UIColor clearColor];
+    
+    self.m_acount = self.m_acount + 1;
+    
+    self.m_acountTextField.text = [NSString stringWithFormat:@"%i",self.m_acount];
+    
+    self.m_totalPrice.text = [NSString stringWithFormat:@"%.2f",self.m_acount * [[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+
+}
+
+// 提交订单按钮触发的事件
+- (IBAction)submitOrderClicked:(id)sender {
+    
+    [self.view endEditing:YES];
+    
+    if ( self.m_acount == 0 ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"商品数量不能为0"];
+        
+        return;
+    }
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+//    NSString *totalPrice = [NSString stringWithFormat:@"%.2f",self.m_acount * [[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           [NSString stringWithFormat:@"%i",self.m_acount],@"amount",
+                           [NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"ServiceID"]],@"serviceId",
+                           @"2",@"type",
+                           nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"Buy_1.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        if (success) {
+            
+            [SVProgressHUD dismiss];
+            
+//            NSString *msg = [json valueForKey:@"msg"];
+            
+            NSDictionary *l_dic = [json valueForKey:@"OrInfoResultSession"];
+            
+            // 存储是否支付支付宝支付的值 0：不支持；1：支持
+            [CommonUtil addValue:[NSString stringWithFormat:@"%@",[l_dic valueForKey:@"IsAlipay"]] andKey:kIsAlipay];
+
+            // 保存支付宝的地址url
+            [CommonUtil addValue:[NSString stringWithFormat:@"%@",[l_dic valueForKey:@"AlipayUrl"]] andKey:kAlipayUrl];
+            
+            // 订单号
+            NSString *orderId = [NSString stringWithFormat:@"%@",[l_dic objectForKey:@"OrderIds"]];
+
+            NSMutableDictionary *dic = [[NSMutableDictionary alloc]initWithObjectsAndKeys:self.m_unitPrice.text,@"Price",[NSString stringWithFormat:@"%i",self.m_acount],@"quantity",[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"ServiceID"]],@"svcId",[self.m_items objectForKey:@"SvcSimpleName"],@"SvcSimpleName", nil];
+
+            
+            // 进入提交订单确认订单的页面
+            OrderAndPayTypeViewController *VC = [[OrderAndPayTypeViewController alloc]initWithNibName:@"OrderAndPayTypeViewController" bundle:nil];
+            VC.m_orderId = orderId;
+            VC.m_dic = dic;
+            [self.navigationController pushViewController:VC animated:YES];
+            
+            
+        } else {
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+
+    
+
+    
+}
+
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidEndEditing:(UITextField *)textField{
+    
+    [textField resignFirstResponder];
+    
+    if ( self.m_acountTextField.text.length == 0 ) {
+        
+        self.m_acountTextField.text = @"1";
+        
+        self.m_acount = 1;
+
+        self.m_totalPrice.text = [NSString stringWithFormat:@"%.2f",self.m_acount * [[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+   
+    }else{
+        
+        self.m_acount = [self.m_acountTextField.text intValue];
+        
+        self.m_totalPrice.text = [NSString stringWithFormat:@"%.2f",self.m_acount * [[NSString stringWithFormat:@"%@",[self.m_items objectForKey:@"Price"]] floatValue]];
+
+    }
+    
+   
+    
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    
+    [textField resignFirstResponder];
+    
+    return YES;
+}
+
+#pragma mark - UIAlertViewDelegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    
+    if ( alertView.tag == 123894 ){
+        if ( buttonIndex == 1 ) {
+            
+            // 未设置支付密码，进入支付密码设置的页面
+            PaymentQueViewController *viewController = [[PaymentQueViewController alloc]initWithNibName:@"PaymentQueViewController" bundle:nil];
+            [self.navigationController pushViewController:viewController animated:YES];
+            
+        }else{
+            
+            
+        }
+        
+        
+    }else if ( alertView.tag == 123893 ){
+        if ( buttonIndex == 1 ) {
+            // 余额不足跳转到充值的页面
+//            RechargeViewController *viewController = [[RechargeViewController alloc] initWithNibName:@"RechargeViewController" bundle:nil];
+//            [self.navigationController pushViewController:viewController animated:YES];
+            
+            PayStyleViewController *VC = [[PayStyleViewController alloc]initWithNibName:@"PayStyleViewController" bundle:nil];
+            VC.m_typeString = @"2";
+            [self.navigationController pushViewController:VC animated:YES];
+            
+            
+            
+        }else{
+            
+            
+        }
+        
+    }else{
+        
+        
+    }
+}
+
+
+@end

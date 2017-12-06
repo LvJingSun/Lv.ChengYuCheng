@@ -1,0 +1,487 @@
+//
+//  ShareViewController.m
+//  baozhifu
+//
+//  Created by 冯海强 on 14-3-18.
+//  Copyright (c) 2014年 mac. All rights reserved.
+
+
+#import "ShareViewController.h"
+#import "ShareCell.h"
+#import "BusinesserlistViewController.h"
+#import "WwebViewController.h"
+#import "HuiViewController.h"
+#import "MyActivityViewController.h"
+#import "MyAccountViewController.h"
+
+//#import "AHlistViewController.h"
+
+#import "MactQuanquanViewController.h"
+#import "BblockslistViewController.h"
+#import "BCloudMenuViewController.h"
+
+@interface ShareViewController ()
+
+@end
+
+@implementation ShareViewController
+
+@synthesize m_isMerchant;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+    [self setTitle:@"我的分享"];
+    
+    self.m_isMerchant = @"0";
+    
+    // 请求数据验证是否入驻过商户
+    [self Ismerchant];
+
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    [self hideTabBar:YES];
+    
+    // 刷新下列表，刷新下红点的显示与否
+    [self.m_tableView reloadData];
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    [self hideTabBar:NO];
+    
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+}
+
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+// 请求接口判断是否入驻过商户
+- (void)Ismerchant
+{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           @"Contracted",@"status",
+                           nil];
+    
+    NSLog(@"params = %@",param);
+    
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"MemberMerchantList_1_0.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            [SVProgressHUD dismiss];
+            
+            NSMutableArray *metchantShop = [json valueForKey:@"merchantInfo"];
+           
+            
+            if (metchantShop == nil || metchantShop.count == 0) {
+               
+                self.m_isMerchant = @"0";
+                
+            } else {
+                
+                self.m_isMerchant = @"1";
+                
+            }
+            
+        }
+        else
+        {
+            self.m_isMerchant = @"0";
+
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        
+        self.m_isMerchant = @"0";
+
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+
+}
+
+#pragma mark - UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    
+//    return 8;
+    
+    return 7;
+    
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return 1;
+    
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 50;
+}
+
+//section头部间距
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    if ( isIOS7 ) {
+
+        return 0.001;
+    }
+    return 0;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *CellIdentifier = @"Cell";
+    ShareCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        NSArray*cellarray=[[NSBundle mainBundle]
+                           loadNibNamed:@"ShareCell" owner:self options:nil];
+        cell =[cellarray objectAtIndex:0];
+        cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
+        
+        cell.selectionStyle = UITableViewCellSelectionStyleGray;
+
+    }
+    switch (indexPath.section) {
+        case 0:
+            cell.m_labeltext.text = @"我的商户";
+            cell.m_numImgV.hidden = YES;
+            break;
+        case 1:
+            cell.m_labeltext.text = @"我的产品";
+            cell.m_numImgV.hidden = YES;
+            break;
+        case 2:
+            cell.m_labeltext.text = @"我的卡";
+            cell.m_numImgV.hidden = YES;
+            break;
+        case 3:
+            cell.m_labeltext.text = @"我的券券";
+            cell.m_numImgV.hidden = YES;
+            break;
+//        case 4:
+//            cell.m_labeltext.text = @"我的活动";
+//            cell.m_numImgV.hidden = YES;
+//            break;
+        case 4:
+            cell.m_labeltext.text = @"我的工具";
+            cell.m_numImgV.hidden = YES;
+            break;
+            
+        case 5:
+        {
+            
+            // 判断是否有数据变化
+            NSString *string = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:@"MyAccountKey"]];
+            
+            if ( [string isEqualToString:@"1"] ) {
+                
+                cell.m_numImgV.hidden = NO;
+
+            }else{
+                
+                cell.m_numImgV.hidden = YES;
+
+            }
+            
+            cell.m_labeltext.text = @"我的用户";
+        }
+            break;
+            
+        case 6:
+            cell.m_labeltext.text = @"我的代理";
+            cell.m_numImgV.hidden = YES;
+            [cell setdailiValue:[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:DaiLiLevel]]];
+            
+            break;
+            
+        default:
+            break;
+    }
+    
+ 
+    
+    return cell;
+    
+}
+
+#pragma mark - UITableViewDelegate
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+ 
+    switch (indexPath.section) {
+        case 0:
+        {
+            BusinesserlistViewController *VC = [[BusinesserlistViewController alloc] initWithNibName:@"BusinesserlistViewController" bundle:nil];
+            VC.PorB=@"2";
+            [self.navigationController pushViewController:VC animated:YES];
+        }
+            break;
+        case 1:
+        {
+            [self ChoseProductType];
+
+        }
+            break;
+            
+        case 2:
+        {
+            
+            if ( [self.m_isMerchant isEqualToString:@"1"] ) {
+                
+                // 进入我的卡
+                BblockslistViewController *VC = [[BblockslistViewController alloc]initWithNibName:@"BblockslistViewController" bundle:nil];
+                [self.navigationController pushViewController:VC animated:YES];
+                
+            }else{
+                
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil
+                                                                   message:@"您还不是商户，请先入驻"
+                                                                  delegate:self
+                                                         cancelButtonTitle:@"取消"
+                                                         otherButtonTitles:@"确定", nil];
+                alertView.tag = 14567;
+                [alertView show];
+            
+            }
+           
+            
+        }
+            break;
+            
+        case 3:
+        {
+            if ( [self.m_isMerchant isEqualToString:@"1"] ) {
+                
+                // 进入我的券券页面
+                MactQuanquanViewController *VC = [[MactQuanquanViewController alloc]initWithNibName:@"MactQuanquanViewController" bundle:nil];
+                [self.navigationController pushViewController:VC animated:YES];
+           
+            }else{
+                
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil
+                                                                   message:@"您还不是商户，请先入驻"
+                                                                  delegate:self
+                                                         cancelButtonTitle:@"取消"
+                                                         otherButtonTitles:@"确定", nil];
+                alertView.tag = 14567;
+                [alertView show];
+            }
+            
+//            BusinesserlistViewController *VC = [[BusinesserlistViewController alloc] initWithNibName:@"BusinesserlistViewController" bundle:nil];
+//            VC.PorB=@"1";
+//            [self.navigationController pushViewController:VC animated:YES];
+            
+            
+        }
+            break;
+            
+            
+//        case 4:
+//        {
+//            MyActivityViewController *VC = [[MyActivityViewController alloc] initWithNibName:@"MyActivityViewController" bundle:nil];
+//            [self.navigationController pushViewController:VC animated:YES];
+//        }
+//            break;
+        case 4:
+        {
+            //工具
+            [self BusinessLogoChangeBtn];
+
+        }
+
+            break;
+        case 5:
+        {
+            
+            // 用于判断是否点击了用户，点击了用户后则返回更多页面的时候进行刷新，去掉小红点
+            [CommonUtil addValue:@"1" andKey:@"RedDotKey"];
+            
+            [CommonUtil addValue:@"0" andKey:@"MyAccountKey"];
+            
+            // 我的用户
+            MyAccountViewController *VC = [[MyAccountViewController alloc]initWithNibName:@"MyAccountViewController" bundle:nil];
+            [self.navigationController pushViewController:VC animated:YES];
+            
+        }
+            break;
+        case 6:
+        {
+            //代理商关系
+//            AHlistViewController *VC = [[AHlistViewController alloc] initWithNibName:@"AHlistViewController" bundle:nil];
+//            [self.navigationController pushViewController:VC animated:YES];
+        }
+            
+        default:
+            break;
+    }
+    
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+
+}
+
+
+-(void)BusinessLogoChangeBtn
+{
+    
+    if ( [self.m_isMerchant isEqualToString:@"1"] ) {
+        
+        UIActionSheet *sheet;
+        
+        sheet  = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"我的微网站",@"我的APP", nil];
+        
+        sheet.tag = 1;
+        [sheet showInView:self.view];
+        
+    }else{
+        
+        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil
+                                                           message:@"您还不是商户，请先入驻"
+                                                          delegate:self
+                                                 cancelButtonTitle:@"取消"
+                                                 otherButtonTitles:@"确定", nil];
+        alertView.tag = 14567;
+        [alertView show];
+        
+    }
+   
+}
+
+-(void)ChoseProductType
+{
+    UIActionSheet *sheet;
+    
+    sheet  = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"我的天城商品",@"我的线上商品",@"我的线下门店商品", nil];
+    
+    sheet.tag = 2;
+    [sheet showInView:self.view];
+    
+}
+
+#pragma mark - UIAlertViewDelegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    
+    if ( alertView.tag == 14567 ) {
+        
+        if ( buttonIndex == 1 ) {
+            // 进入商户入驻的页面
+            BusinesserlistViewController *VC = [[BusinesserlistViewController alloc] initWithNibName:@"BusinesserlistViewController" bundle:nil];
+            VC.PorB = @"2";
+            [self.navigationController pushViewController:VC animated:YES];
+            
+        }
+    }
+}
+
+#pragma mark - UIAlertViewDelegate
+-(void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (actionSheet.tag == 1)
+    {
+        if (buttonIndex==0)
+        {
+            WwebViewController *VC = [[WwebViewController alloc] initWithNibName:@"WwebViewController" bundle:nil];
+
+            [self.navigationController pushViewController:VC animated:YES];
+           
+        }
+        
+        if (buttonIndex == 1) {
+            
+            HuiViewController *HuiVC=[[HuiViewController alloc]initWithNibName:@"HuiViewController" bundle:nil];
+                
+            [self.navigationController pushViewController:HuiVC animated:YES];
+           
+        }
+        
+    }else if (actionSheet.tag ==2){
+        
+        if (buttonIndex == 0) {
+            
+//            NSLog(@"天城商品发布");
+            
+//            TianChengProductViewController *vc = [[TianChengProductViewController alloc] init];
+//            
+//            [self.navigationController pushViewController:vc animated:YES];
+            
+        }else if (buttonIndex ==1) {
+           
+            BusinesserlistViewController *VC = [[BusinesserlistViewController alloc] initWithNibName:@"BusinesserlistViewController" bundle:nil];
+            VC.PorB=@"1";
+            [self.navigationController pushViewController:VC animated:YES];
+       
+        }else if (buttonIndex ==2){
+        
+            if ( [self.m_isMerchant isEqualToString:@"1"] ) {
+                
+                BCloudMenuViewController *VC = [[BCloudMenuViewController alloc]initWithNibName:@"BCloudMenuViewController" bundle:nil];
+                [self.navigationController pushViewController:VC animated:YES];
+                
+            }else{
+                
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil
+                                                                   message:@"您还不是商户，请先入驻"
+                                                                  delegate:self
+                                                         cancelButtonTitle:@"取消"
+                                                         otherButtonTitles:@"确定", nil];
+                alertView.tag = 14567;
+                [alertView show];
+            }
+        
+        }
+
+    }
+}
+
+
+
+@end

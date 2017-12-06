@@ -1,0 +1,377 @@
+//
+//  MywalletViewController.m
+//  HuiHui
+//
+//  Created by 冯海强 on 14-8-9.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//
+
+#import "MywalletViewController.h"
+
+#import "MoreCell.h"
+
+#import "CommonUtil.h"
+
+#import "PayMentViewController.h"
+
+#import "PayStyleViewController.h"
+
+#import "PaymentQueViewController.h"
+
+#import "MyCardViewController.h"
+
+#import "IntegrationViewController.h"
+
+
+@interface MywalletViewController ()
+
+@property (weak, nonatomic) IBOutlet UITableView *m_tableView;
+
+// 充值
+- (void)rechargeClicked:(id)sender;
+// 付款
+- (void)payClicked:(id)sender;
+
+@end
+
+
+@implementation MywalletViewController
+@synthesize appMore;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+    }
+    appMore = [[NSMutableDictionary alloc]initWithCapacity:0];
+
+    return self;
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    [self hideTabBar:YES];
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    [self hideTabBar:NO];
+    
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    [self setTitle:@"我的钱包"];
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+
+    
+    // 如果用户登录则直接请求数据
+    [self loadData];
+    
+    self.m_tableView.hidden = YES;
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    
+//    return 2;
+
+
+    return 3;
+
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return 1;
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+
+    
+    if (indexPath.section ==0 ) {
+        
+            static NSString *cellIdentifier = @"MyBalanceCellIdentifier";
+            
+            MyBalanceCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+            
+            if ( cell == nil ) {
+                
+                NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"MoreCell" owner:self options:nil];
+                
+                cell = (MyBalanceCell *)[nib objectAtIndex:1];
+                
+                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+            
+            // 赋值
+            cell.m_imageView.image = [UIImage imageNamed:@"rmb_fuhao.png"];
+            
+            //            cell.m_balanceLabel.text = [NSString stringWithFormat:@"￥56.00"];
+            
+            // 赋值 - 余额
+            if (self.appMore) {
+                
+                cell.m_balanceLabel.text = [NSString stringWithFormat:@"￥%.2f",floor([[self.appMore objectForKey:@"myBalance"] doubleValue]*100)/100];
+                
+            } else {
+                cell.m_balanceLabel.text = @"¥0.00";
+            }
+            
+            
+            [cell.m_RechargeBtn addTarget:self action:@selector(rechargeClicked:) forControlEvents:UIControlEventTouchUpInside];
+            
+            [cell.m_payBtn addTarget:self action:@selector(payClicked:) forControlEvents:UIControlEventTouchUpInside];
+            
+        return cell;
+
+        
+    }
+    
+    else if (indexPath.section == 1)
+    {
+        
+        static NSString *CellIdentifier = @"Cell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
+        }
+        // Configure the cell...
+        cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
+        
+        cell.textLabel.text = @"我的卡";
+        
+
+        return cell;
+    }
+    
+    else if (indexPath.section == 2 )
+    {
+        
+        static NSString *CellIdentifier = @"Cell";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+        if (cell == nil) {
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:CellIdentifier];
+        }
+        // Configure the cell...
+        cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
+        
+        cell.textLabel.text = @"我的积分";
+        
+        
+        return cell;
+    }
+
+    
+    return nil;
+
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath {
+    
+    if (indexPath.section == 1 ) {
+        // 我的卡
+        MyCardViewController * VC = [[MyCardViewController alloc]initWithNibName:@"MyCardViewController" bundle:nil];
+        
+        [self.navigationController pushViewController:VC animated:YES];
+        
+    }else if (indexPath.section == 2 ) {
+        
+        // 我的积分
+        IntegrationViewController *VC = [[IntegrationViewController alloc]initWithNibName:@"IntegrationViewController" bundle:nil];
+        [self.navigationController pushViewController:VC animated:YES];
+    }
+    
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+    
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    switch (indexPath.section) {
+        case 0:
+            
+            return 60.0f;
+            
+            break;
+            
+        case 1:
+    
+            return 44.0f;
+            break;
+            
+        case 2:
+            
+            return 44.0f;
+            break;
+            
+            
+        default:
+            
+            return 44.0f;
+            
+            break;
+    }
+    
+}
+
+
+- (void)loadData {
+        
+        // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+            
+            return;
+    }
+        
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                               memberId,     @"memberid",
+                               key,   @"key",
+                               nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"More.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+                
+            [SVProgressHUD dismiss];
+            self.appMore = [json valueForKey:@"appMore"];
+            [CommonUtil addValue:[self.appMore objectForKey:@"realAuName"] andKey:REAL_ACCOUNT_NAME];
+            [CommonUtil addValue:[self.appMore objectForKey:@"realAuIdCard"] andKey:REAL_ACCOUNT_IDCARD];
+            [CommonUtil addValue:[self.appMore objectForKey:@"realAuStatus"] andKey:USER_REALAUSTATUS];
+                
+                //充值
+            NSString *vldStatus = [self.appMore objectForKey:@"realAuStatus"];
+            
+            // 保存用户的状态
+            [CommonUtil addValue:vldStatus andKey:REALAUSTATUS];
+                
+            self.m_tableView.hidden = NO;
+
+            [self.m_tableView reloadData];
+                
+        } else {
+                
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+                
+           
+            }
+        } failure:^(NSError *error) {
+            //NSLog(@"failed:%@", error);
+            [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        }];
+   
+}
+
+// 验证用户是否填写了支付问题的网络请求
+- (void)paymentSafeRequest{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    // 根据类型字符aType 来判断  2表示点击修改支付密码 1表示充值按钮来请求
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"PaymentSafetyTesting.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        if (success) {
+//            NSString *msg = [json valueForKey:@"msg"];
+//            [SVProgressHUD showSuccessWithStatus:msg];
+            [SVProgressHUD dismiss];
+            
+            //充值
+            NSString *vldStatus = [self.appMore objectForKey:@"realAuStatus"];
+            
+            // 保存用户的状态
+            [CommonUtil addValue:vldStatus andKey:REALAUSTATUS];
+            
+            // 请求成功后进入支付方式选择的页面
+            PayStyleViewController *VC = [[PayStyleViewController alloc]initWithNibName:@"PayStyleViewController" bundle:nil];
+            VC.m_typeString = @"1";
+            [self.navigationController pushViewController:VC animated:YES];
+            
+            
+        } else {
+            
+            //            NSString *msg = [json valueForKey:@"msg"];
+            //                [SVProgressHUD showErrorWithStatus:msg];
+            [SVProgressHUD dismiss];
+            
+            
+            // 进入设置安全问题及支付密码的页面
+            PaymentQueViewController *viewController = [[PaymentQueViewController alloc]initWithNibName:@"PaymentQueViewController" bundle:nil];
+            [self.navigationController pushViewController:viewController animated:YES];
+            
+            
+        }
+        
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+    
+}
+
+
+
+#pragma mafrk - Btn clicked
+- (void)rechargeClicked:(id)sender{
+
+    // 验证安全问题 ==================
+    [self paymentSafeRequest];
+    
+    
+}
+
+- (void)payClicked:(id)sender{
+    
+    // 进入付款的页面
+    PayMentViewController *VC = [[PayMentViewController alloc]initWithNibName:@"PayMentViewController" bundle:nil];
+    
+    [self.navigationController pushViewController:VC animated:YES];
+}
+
+
+@end

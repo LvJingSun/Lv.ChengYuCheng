@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>count</key>
+		<string>100.00</string>
+		<key>status</key>
+		<string>已补助</string>
+		<key>time</key>
+		<string>2017/06/07</string>
+	</dict>
+	<dict>
+		<key>count</key>
+		<string>150.00</string>
+		<key>status</key>
+		<string>已补助</string>
+		<key>time</key>
+		<string>2017/06/07</string>
+	</dict>
+	<dict>
+		<key>count</key>
+		<string>50.00</string>
+		<key>status</key>
+		<string>已补助</string>
+		<key>time</key>
+		<string>2017/06/07</string>
+	</dict>
+	<dict>
+		<key>count</key>
+		<string>1000.00</string>
+		<key>status</key>
+		<string>已补助</string>
+		<key>time</key>
+		<string>2017/06/07</string>
+	</dict>
+	<dict>
+		<key>count</key>
+		<string>500.00</string>
+		<key>status</key>
+		<string>已补助</string>
+		<key>time</key>
+		<string>2017/06/07</string>
+	</dict>
+</array>
+</plist>

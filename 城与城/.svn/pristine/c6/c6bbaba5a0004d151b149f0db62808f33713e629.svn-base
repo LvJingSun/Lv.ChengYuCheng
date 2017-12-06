@@ -1,0 +1,42 @@
+//
+// Prefix header for all source files of the 'HuiHui' target in the 'HuiHui' project
+//
+
+#import <Availability.h>
+
+
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iOS SDK 3.0 and later."
+#endif
+
+#ifdef __OBJC__
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+
+#import "ChatDemoUIDefine.h"
+#import "WCAlertView.h"
+#import "TTGlobalUICommon.h"
+#import "UIViewController+HUD.h"
+#import "UIViewController+DismissKeyboard.h"
+#import "NSString+Valid.h"
+
+#import "UIImageView+WebCache.h"
+
+#define MR_SHORTHAND
+//#import "CoreData+MagicalRecord.h"
+//#import "EaseMob.h"
+#import "EMSDKFull.h"
+#define WindowSize [[UIScreen mainScreen] bounds]
+
+#define WindowSizeWidth [UIScreen mainScreen].bounds.size.width
+
+
+#define IS_IPAD ([[UIDevice currentDevice] respondsToSelector:@selector(userInterfaceIdiom)] && [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+
+#define isIOS7 ([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0 ? YES : NO)
+
+#endif
+
+#define AllianceID @"22362"
+#define SID @"456288"
+

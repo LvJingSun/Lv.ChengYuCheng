@@ -1,0 +1,221 @@
+//
+//  CardMemberListViewController.m
+//  HuiHui
+//
+//  Created by mac on 15-6-8.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import "CardMemberListViewController.h"
+
+#import "hh_shopListCell.h"
+
+#import "UserInformationViewController.h"
+
+#import "CardMemeberDetaiViewController.h"
+
+@interface CardMemberListViewController ()
+
+@property (weak, nonatomic) IBOutlet UITableView *m_tableView;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_emptyLabel;
+
+
+@end
+
+@implementation CardMemberListViewController
+
+@synthesize m_vipCardId;
+
+@synthesize m_memberList;
+
+@synthesize m_IsSelectSeat;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+
+        m_memberList = [[NSMutableArray alloc]initWithCapacity:0];
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    self.title = @"会员列表";
+ 
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+
+    self.m_emptyLabel.hidden = YES;
+    
+    self.m_tableView.hidden = YES;
+    
+    // 隐藏多余的分割线
+    [self setExtraCellLineHidden:self.m_tableView];
+
+    // 请求数据
+    [self memberListRequest];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+    
+}
+
+#pragma mark - UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return self.m_memberList.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *cellIdentifier = @"MactQuanDetailCellIdentifier";
+    
+    MactQuanDetailCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    
+    if ( cell == nil ) {
+        
+        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"hh_shopListCell" owner:self options:nil];
+        
+        cell = (MactQuanDetailCell *)[nib objectAtIndex:2];
+        
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+    }
+    
+    if ( self.m_memberList.count != 0 ) {
+        
+        cell.m_imageV.hidden = NO;
+        cell.m_name.hidden = NO;
+        cell.m_shopName.hidden = YES;
+
+        NSDictionary *dic = [self.m_memberList objectAtIndex:indexPath.row];
+        
+        cell.m_name.text = [NSString stringWithFormat:@"%@(%@)",[dic objectForKey:@"RealName"],[dic objectForKey:@"NickName"]];
+        
+        [cell setImageViewWithPath:[NSString stringWithFormat:@"%@",[dic objectForKey:@"PhotoBigUrl"]]];
+        
+    }
+   
+    
+    // 赋值
+     
+    
+    return cell;
+    
+}
+
+#pragma mark - UITableviewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    return 53.0f;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    
+//    NSDictionary *dic = [self.m_memberList objectAtIndex:indexPath.row];
+//    // 进入详细资料
+//    UserInformationViewController *VC = [[UserInformationViewController alloc]initWithNibName:@"UserInformationViewController" bundle:nil];
+//    VC.m_typeString = @"2";
+//    
+//    ///// 好友Id================
+//    VC.m_friendId = [NSString stringWithFormat:@"%@",[dic objectForKey:@"MemberID"]];
+//    [self.navigationController pushViewController:VC animated:YES];
+
+    
+    NSMutableDictionary *dic = [self.m_memberList objectAtIndex:indexPath.row];
+    
+    CardMemeberDetaiViewController *VC = [[CardMemeberDetaiViewController alloc]initWithNibName:@"CardMemeberDetaiViewController" bundle:nil];
+    VC.m_dic = dic;
+    VC.m_status = self.m_IsSelectSeat;
+    [self.navigationController pushViewController:VC animated:YES];
+    
+    
+}
+
+#pragma mark - UINetWork
+- (void)memberListRequest{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    //    NSString *merchantId = [CommonUtil getValueByKey:MERCHANTID];
+    
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,@"memberId",
+                           key,@"key",
+                           self.m_vipCardId,@"vipCardId",nil];
+    
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    
+    [httpClient request:@"VIPCardMemberList.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        if (success) {
+            
+            [SVProgressHUD dismiss];
+            
+            NSLog(@"json = %@",json);
+            
+            self.m_IsSelectSeat = [NSString stringWithFormat:@"%@",[json valueForKey:@"IsSelectSeat"]];
+            
+            // 赋值
+            self.m_memberList = [json valueForKey:@"MemberList"];
+            
+            if ( self.m_memberList.count != 0 ) {
+                
+                self.m_emptyLabel.hidden = YES;
+                
+                self.m_tableView.hidden = NO;
+                
+                [self.m_tableView reloadData];
+                
+            }else{
+                
+                self.m_emptyLabel.hidden = NO;
+                
+                self.m_tableView.hidden = YES;
+                
+            }
+            
+        } else {
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+        
+        
+    } failure:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+    }];
+    
+}
+
+@end

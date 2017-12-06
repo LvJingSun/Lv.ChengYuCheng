@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>taskName</key>
+		<string>发布朋友圈动态</string>
+		<key>taskDesc</key>
+		<string>使用城与城圈子功能发布</string>
+		<key>isChoose</key>
+		<false/>
+	</dict>
+	<dict>
+		<key>taskName</key>
+		<string>城与城消费</string>
+		<key>taskDesc</key>
+		<string>在城与城内进行消费</string>
+		<key>isChoose</key>
+		<false/>
+	</dict>
+	<dict>
+		<key>taskName</key>
+		<string>观看广告</string>
+		<key>taskDesc</key>
+		<string>进入全返付首页查看广告</string>
+		<key>isChoose</key>
+		<false/>
+	</dict>
+</array>
+</plist>

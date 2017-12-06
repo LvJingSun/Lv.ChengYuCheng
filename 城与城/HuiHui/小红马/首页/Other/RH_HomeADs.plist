@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Title</key>
+	<string>有奖 · 签到</string>
+	<key>ADs</key>
+	<array>
+		<dict>
+			<key>image</key>
+			<string>http://www.cityandcity.com//Resource/ADPic/20170610193428_3922.jpg</string>
+		</dict>
+		<dict>
+			<key>image</key>
+			<string>_ADs.png</string>
+		</dict>
+		<dict>
+			<key>image</key>
+			<string>_ADs.png</string>
+		</dict>
+		<dict>
+			<key>image</key>
+			<string>_ADs.png</string>
+		</dict>
+	</array>
+</dict>
+</plist>

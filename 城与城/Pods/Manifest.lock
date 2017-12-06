@@ -1,0 +1,18 @@
+PODS:
+  - BaiduMapKit (3.0.0)
+  - MBProgressHUD (1.0.0)
+  - MJRefresh (3.1.12)
+
+DEPENDENCIES:
+  - BaiduMapKit (~> 3.0.0)
+  - MBProgressHUD (~> 1.0.0)
+  - MJRefresh (~> 3.1.12)
+
+SPEC CHECKSUMS:
+  BaiduMapKit: de2a726d5296d6b2dc0e974b683af73153608dcd
+  MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
+  MJRefresh: b96cdb21c4aa75a7b07654311ab2f315c497e806
+
+PODFILE CHECKSUM: 75db6a9a8dcc08d2be6a5b96a689999d9d0f0fc1
+
+COCOAPODS: 1.2.0

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>TaskName</key>
+		<string>城与城消费</string>
+		<key>TaskID</key>
+		<string>2</string>
+		<key>TaskType</key>
+		<string>2</string>
+		<key>PersonName</key>
+		<string>张三</string>
+		<key>PersonID</key>
+		<string>15900</string>
+		<key>Count</key>
+		<string>10</string>
+		<key>Time</key>
+		<string>03-21</string>
+		<key>TaskStatus</key>
+		<string>进行中</string>
+		<key>MemberArray</key>
+		<array/>
+	</dict>
+</array>
+</plist>

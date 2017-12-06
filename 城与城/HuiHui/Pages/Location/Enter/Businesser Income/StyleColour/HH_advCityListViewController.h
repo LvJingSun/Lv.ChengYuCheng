@@ -1,0 +1,45 @@
+//
+//  HH_advCityListViewController.h
+//  HuiHui
+//
+//  Created by mac on 15-4-15.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@protocol HH_AdvCityDelegate <NSObject>
+
+- (void)getCityList:(NSMutableDictionary *)aDic;
+
+@end
+
+@interface HH_advCityListViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate> {
+
+    int blockcount;
+    
+}
+
+// 存放城市列表的数组
+@property (nonatomic, strong) NSMutableArray        *m_cityList;
+
+// 选择城市记录值
+@property (nonatomic, strong) NSMutableDictionary   *m_dic;
+
+@property (nonatomic, assign) id<HH_AdvCityDelegate>delegate;
+
+// 记录上个页面上面的城市名称
+@property (nonatomic, strong) NSString              *m_cityName;
+
+@property (nonatomic, strong) NSString              *m_cityId;
+
+// 存放排序字母的数组
+@property (nonatomic, strong) NSMutableArray            *m_allKeys;
+// 存放排序后数据的字典
+@property (nonatomic, strong) NSMutableDictionary       *m_cityListDic;
+
+
+//保证空间只有一个
++ (HH_advCityListViewController*)shareobject;
+
+@end

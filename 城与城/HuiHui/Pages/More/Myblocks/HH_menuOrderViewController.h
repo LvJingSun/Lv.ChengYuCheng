@@ -1,0 +1,36 @@
+//
+//  HH_menuOrderViewController.h
+//  HuiHui
+//
+//  Created by mac on 15-6-16.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface HH_menuOrderViewController : BaseViewController
+
+// 存放数据的数组
+@property (nonatomic, strong) NSMutableArray        *m_menuOrderList;
+
+// 判断是否是展开还是闭合的集合
+@property (nonatomic, strong) NSMutableSet          *m_SectionsSet;
+
+@property (nonatomic, strong) NSString              *m_merchantId;
+
+// 存放店铺数据的数组
+@property (nonatomic, strong) NSMutableArray        *m_shopList;
+// 记录是否是选择座位的
+@property (nonatomic, strong) NSString              *m_selectSeat;
+
+//m_ModelType为2是物流模式
+@property (nonatomic, strong) NSString              *m_ModelType;
+
+@property (nonatomic, strong) NSString *isWaimai;
+
+
+// 请求数据
+- (void)orderListRequest;
+
+
+@end

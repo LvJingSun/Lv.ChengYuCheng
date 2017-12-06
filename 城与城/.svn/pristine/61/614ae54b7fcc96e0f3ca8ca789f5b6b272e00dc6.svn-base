@@ -1,0 +1,289 @@
+//
+//  RealAccountViewController.m
+//  baozhifu
+//
+//  Created by mac on 13-7-22.
+//  Copyright (c) 2013年 mac. All rights reserved.
+//
+
+#import "RealAccountViewController.h"
+#import "CommonUtil.h"
+#import "AppHttpClient.h"
+#import "SVProgressHUD.h"
+#import "AppDelegate.h"
+
+@interface RealAccountViewController ()
+
+@property (weak, nonatomic) IBOutlet UITextField *name;
+
+@property (weak, nonatomic) IBOutlet UITextField *idcard;
+
+@property (weak, nonatomic) IBOutlet UIImageView *uploadP;
+
+@property (weak, nonatomic) IBOutlet UIImageView *uploadN;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_leftBtn;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_rightBtn;
+
+@property (weak, nonatomic) IBOutlet UIView *m_titleView;
+
+@property (weak, nonatomic) IBOutlet UIView *m_tempView;
+
+-(IBAction)submit:(id)sender;
+
+-(IBAction)upload:(id)sender;
+
+@end
+
+@implementation RealAccountViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    [self.name setDelegate:self];
+    [self.idcard setDelegate:self];
+    
+    [self  setTitle:@"实名认证"];
+
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    [self hideTabBar:YES];
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    [self hideTabBar:NO];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+}
+
+-(IBAction)upload:(UIButton *)sender {
+    // 取消第一响应
+    [self.name resignFirstResponder];
+    [self.idcard resignFirstResponder];
+    
+    self.tagIndex = [sender tag];
+    UIActionSheet *chooseImageSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"马上拍照",@"相册选取", nil];
+    [chooseImageSheet showInView:self.view];
+}
+
+-(IBAction)submit:(id)sender {
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    
+    NSString *realName = self.name.text;
+    if (realName.length == 0) {
+        [SVProgressHUD showErrorWithStatus:@"请输入姓名"];
+        return;
+    }
+    
+    NSString *iDNumber = self.idcard.text;
+    if (iDNumber.length == 0) {
+        [SVProgressHUD showErrorWithStatus:@"请输入身份证号"];
+        return;
+    }
+    
+    if (iDNumber.length != 18) {
+        [SVProgressHUD showErrorWithStatus:@"请输入合法身份证号"];
+        return;
+    }
+    
+    if (self.uploadP.image == nil || self.uploadN.image == nil) {
+        [SVProgressHUD showErrorWithStatus:@"请上传完整的身份证图片"];
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           realName,   @"realName",
+                           iDNumber,   @"iDNumber",
+                           nil];
+    NSDictionary *files = [NSDictionary dictionaryWithObjectsAndKeys:
+                           [self getImageData:self.uploadP],   @"iDCardPositive",
+                           [self getImageData:self.uploadN],   @"iDCardNegative",
+                           nil];
+    
+    [SVProgressHUD showWithStatus:@"信息提交中"];
+    [httpClient multiRequest:@"RealAttestationReq.ashx" parameters:param files:files success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+                        
+            NSString *msg = [json valueForKey:@"msg"];
+            NSMutableDictionary *realAccountData = [json valueForKey:@"realAttestation"];
+            
+            [CommonUtil addValue:[realAccountData objectForKey:@"VldStatus"] andKey:USER_REALAUSTATUS];
+            
+            // 保存身份证证件号码
+            //            [CommonUtil addValue:[realAccountData objectForKey:@"IDNumber"] andKey:REAL_ACCOUNT_IDCARD];
+                        
+            //if (realAccountData != nil) {
+            //    [realAccountData setObject:msg forKey:@"msg"];
+            //}
+            [SVProgressHUD showSuccessWithStatus:msg];
+            //[SVProgressHUD dismiss];
+            [self.navigationController popViewControllerAnimated:YES];
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+}
+
+#pragma mark 隐藏键盘的方法
+-(void)hidenKeyboard {
+    [self.name resignFirstResponder];
+    [self.idcard resignFirstResponder];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)sender {
+    if (sender == self.name) {
+//        [self.idcard becomeFirstResponder];
+        [self.name resignFirstResponder];
+        
+    } else if (sender == self.idcard){
+        
+        [self hidenKeyboard];
+    }
+    return YES;
+}
+
+#pragma mark UIActionSheetDelegate Method
+-(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+    
+    switch (buttonIndex) {
+        case 0://Take picture
+            if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+                picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+                //picker.
+                [self presentViewController:picker animated:YES completion:nil];
+            } else {
+                NSLog(@"模拟器无法打开相机");
+                
+                [SVProgressHUD showErrorWithStatus:@"模拟器无法打开相机"];
+            }
+            break;
+            
+        case 1://From album
+            picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+            [self presentViewController:picker animated:YES completion:nil];
+            break;
+            
+        default:
+            
+            break;
+    }
+}
+
+#pragma 拍照选择照片协议方法
+-(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    
+    // 为了显示状态栏的白色字体
+//    [UIApplication sharedApplication].statusBarHidden = NO;
+
+    
+    NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    
+    if ([mediaType isEqualToString:@"public.image"]){
+        
+        UIImage *originImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+        UIImage *scaleImage = [self scaleImage:originImage toScale:0.3];
+        
+        if (self.tagIndex == 1001) {
+            self.uploadP.image = scaleImage;
+            
+            [self.m_leftBtn setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+            
+        } else if (self.tagIndex == 1002) {
+            self.uploadN.image = scaleImage;
+           
+            [self.m_rightBtn setImage:[UIImage imageNamed:@""] forState:UIControlStateNormal];
+
+        }
+        [self dismissViewControllerAnimated:YES completion:nil];
+        
+        /*NSData *data = UIImageJPEGRepresentation(scaleImage, 1);
+        if (data == nil) {
+            data = UIImagePNGRepresentation(scaleImage);
+        }
+        
+        //将二进制数据生成UIImage
+        UIImage *image = [UIImage imageWithData:data];
+        
+        //将图片传递给截取界面进行截取并设置回调方法（协议）
+        CaptureViewController *captureView = [[CaptureViewController alloc] init];
+        captureView.delegate = self;
+        captureView.image = image;
+        //隐藏UIImagePickerController本身的导航栏
+        picker.navigationBar.hidden = YES;
+        [picker pushViewController:captureView animated:YES];
+         */
+        
+    }
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
+    
+//    // 为了显示状态栏的白色字体
+//    [UIApplication sharedApplication].statusBarHidden = NO;
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (NSData *)getImageData:(UIImageView *)imageView {
+    UIImage *iamge = imageView.image;
+    return UIImageJPEGRepresentation(iamge, 1);
+}
+
+#pragma mark- 缩放图片
+-(UIImage *)scaleImage:(UIImage *)image toScale:(float)scaleSize {
+    UIGraphicsBeginImageContext(CGSizeMake(image.size.width*scaleSize,image.size.height*scaleSize));
+    [image drawInRect:CGRectMake(0, 0, image.size.width * scaleSize, image.size.height *scaleSize)];
+    UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return scaledImage;
+}
+
+@end

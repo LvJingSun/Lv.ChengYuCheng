@@ -1,0 +1,63 @@
+//
+//  ConfirmOrderViewController.h
+//  HuiHui
+//
+//  Created by mac on 13-11-25.
+//  Copyright (c) 2013年 MaxLinksTec. All rights reserved.
+//  确认订单的页面
+
+#import "BaseViewController.h"
+
+#import "CouponListViewController.h"
+
+#import "LTInterface.h"
+
+
+@interface ConfirmOrderViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate,CounponListDelegate,UITextFieldDelegate,UIAlertViewDelegate,LTInterfaceDelegate>
+
+
+// 存放产品的数组
+@property (nonatomic, strong) NSMutableArray        *m_productList;
+
+// 优惠券的值
+@property (nonatomic, strong) NSString              *m_couponString;
+
+// 是否选择使用保智付余额
+@property (nonatomic, assign) BOOL                  isSelectedBalance;
+
+// 用于假数据设置价钱
+@property (nonatomic, strong) NSString              *m_totalPriceString;
+
+@property (nonatomic, strong) NSString              *m_balanceString;
+
+// 存储订单号
+@property (nonatomic, strong) NSString              *m_orderId;
+// 存放数量的字典
+@property (nonatomic, strong) NSMutableDictionary   *m_countDictionary;
+
+// 存放请求网络返回的数据
+@property (nonatomic, strong) NSMutableDictionary   *m_items;
+
+@property (nonatomic, assign) BOOL                  isCharge;
+
+// 判断来自于哪个页面  1表示来自于购物车  2表示来自于我的订单中的去付款
+@property (nonatomic, strong) NSString              *m_typeString;
+
+// 记录是银联支付还是诲诲支付
+@property (nonatomic, strong) NSString              *m_payTypeString;
+
+// 记录是否支持支付宝支付
+@property (nonatomic, strong) NSString              *m_zhifubao;
+
+// 记录点击的是充值按钮还是忘记密码的按钮  1表示充值  2表示忘记密码
+@property (nonatomic, strong) NSString              *m_type;
+
+// 请求数据返回余额和总价钱
+- (void)requestPriceSubmit;
+
+// 结算请求网络
+- (void)paymentRequest;
+// 设置是诲诲支付还是银联支付
+- (void)setLeftClicked:(BOOL)aLeft withRight:(BOOL)aRight withWeixinPay:(BOOL)aWeixinPay;
+
+@end

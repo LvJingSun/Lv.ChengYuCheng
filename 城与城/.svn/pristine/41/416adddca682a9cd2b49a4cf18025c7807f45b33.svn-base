@@ -1,0 +1,34 @@
+//
+//  BCloundMenuTableViewCell.h
+//  HuiHui
+//
+//  Created by 冯海强 on 15-5-21.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+#import "ImageCache.h"
+
+@interface BCloundMenuTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UILabel *m_labeltext;
+@end
+@interface BCloundMenuTableViewCell1 : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIButton *m_Btn;
+
+@end
+@interface BCloundMenuTableViewCell2 : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIImageView *m_numImgV;
+@property (weak, nonatomic) IBOutlet UILabel *m_labelname;
+@property (weak, nonatomic) IBOutlet UILabel *m_labelpice;
+
+@property (weak, nonatomic) ImageCache *imageCache;
+
+- (void)setImagePath:(NSString *)imagePath;
+
+
+@end
+@interface BCloundMenuTableViewCell3 : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIButton *m_Btn;
+
+@end

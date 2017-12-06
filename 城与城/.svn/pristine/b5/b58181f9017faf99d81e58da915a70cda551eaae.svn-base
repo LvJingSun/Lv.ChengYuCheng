@@ -1,0 +1,51 @@
+//
+//  HH_CardPayCell.h
+//  HuiHui
+//
+//  Created by mac on 15-6-30.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+#import "ImageCache.h"
+
+
+@interface HH_CardPayCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *m_price;
+
+@end
+
+
+@interface HH_CardNoPayCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *m_payType;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_balance;
+
+@property (weak, nonatomic) IBOutlet UIImageView *m_imageView;
+
+
+
+@end
+
+
+@interface HH_MactMenuCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UIImageView *m_menuImgV;
+
+@property (weak, nonatomic) IBOutlet UIImageView *m_backImgV;
+
+@property (weak, nonatomic) IBOutlet UIImageView *m_mactLogo;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_mactName;
+
+@property (weak, nonatomic) ImageCache *imageCache;
+
+- (void)setImagePath:(NSString *)imagePath;
+
+- (void)setMactLogImagePath:(NSString *)imagePath;
+
+
+@end

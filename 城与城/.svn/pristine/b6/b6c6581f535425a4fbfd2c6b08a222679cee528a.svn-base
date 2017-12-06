@@ -1,0 +1,1174 @@
+//
+//  PimageViewController.m
+//  baozhifu
+//
+//  Created by 冯海强 on 14-1-12.
+//  Copyright (c) 2014年 mac. All rights reserved.
+//
+
+#import "PimageViewController.h"
+//#import "EnterViewController.h"
+#import "BusinesserlistViewController.h"
+
+#import "CommonUtil.h"
+#import "SVProgressHUD.h"
+#import "AppHttpClient.h"
+#import "UIImageView+AFNetworking.h"
+#import "PimageCell.h"
+
+@interface PimageViewController ()
+
+
+@property (weak, nonatomic) IBOutlet UIButton *P_SaveBtn;
+@property (weak, nonatomic) IBOutlet UIButton *P_Submit;//提交
+@property (weak, nonatomic) IBOutlet UIButton *P_DelBtn;//删除
+@property (weak, nonatomic) IBOutlet UIButton *P_OutBtn;//下架
+
+@end
+
+@implementation PimageViewController
+
+@synthesize m_array;
+
+@synthesize m_imageDic;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        self.Imagearray=[[NSMutableArray alloc]initWithCapacity:0];
+        self.Imageaddress=[[NSMutableArray alloc]initWithCapacity:0];
+        self.BigImageaddress=[[NSMutableArray alloc]initWithCapacity:0];
+        self.ImageDic=[[NSMutableDictionary alloc]initWithCapacity:0];
+        self.IscoverDic=[[NSMutableDictionary alloc]initWithCapacity:0];
+        
+        self.AllDic =[[NSMutableDictionary alloc]initWithCapacity:0];
+
+        m_array = [[NSMutableArray alloc]initWithCapacity:0];
+        
+        m_imageDic = [[NSMutableDictionary alloc]initWithCapacity:0];
+
+    }
+    return self;
+}
+
+
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    // 为了显示状态栏的白色字体
+    [UIApplication sharedApplication].statusBarHidden = NO;
+    
+    //=======================
+    
+    if ( isIOS7 ) {
+        
+        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    }else{
+        
+    }
+    
+    [self hideTabBar:YES];
+    
+}
+
+
+
+
+- (void)leftClicked{
+
+    if (Alter)
+    {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提醒" message:@"您好像对海报有修改,记得保存哦!" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"保存",nil];
+        alert.tag=1005;
+        [alert show];
+        return;
+    }
+    else
+    {
+        [self goBack];
+    }
+    
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    Alter=NO;
+    
+    self.P_Submit.tag=1;//提交
+    self.P_DelBtn.tag=2;//删除
+    self.P_OutBtn.tag=3;//下架
+    
+    
+    [self.table_key_list setDelegate:self];
+    [self.table_key_list setDataSource:self];
+    
+    self.table_key_list.hidden=YES;
+    
+    [self setTitle:@"上传海报"];
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    [self setRightButtonWithNormalImage:@"add.png" action:@selector(rightClicked)];
+
+    if ([self.P_AddORSubmit isEqualToString:@"1"])//新增
+    {
+        self.P_Submit.hidden=YES;
+        self.P_DelBtn.hidden=YES;
+        self.P_OutBtn.hidden=YES;
+        self.P_SaveBtn.frame = CGRectMake(20, 19, WindowSizeWidth - 40, 39);
+        [self ServiceAddStep3];
+
+    }else if ([self.P_AddORSubmit isEqualToString:@"21"])//开发中
+    {
+        self.P_OutBtn.hidden=YES;
+        [self getImageFromServer];
+        
+    }else if ([self.P_AddORSubmit isEqualToString:@"22"]||[self.P_AddORSubmit isEqualToString:@"24"]||[self.P_AddORSubmit isEqualToString:@"25"]||[self.P_AddORSubmit isEqualToString:@"26"]||[self.P_AddORSubmit isEqualToString:@"27"]||[self.P_AddORSubmit isEqualToString:@"28"])//审核中。已过期。。
+    {
+        self.P_SaveBtn.hidden=YES;
+        self.P_Submit.hidden=YES;//提交
+        self.P_DelBtn.hidden=YES;//删除
+        self.P_OutBtn.hidden=YES;//下架
+        [self setRightButtonWithNormalImage:nil action:nil];
+        
+        [self.table_key_list setFrame:CGRectMake(0, 0, WindowSizeWidth,[[UIScreen mainScreen]bounds].size.height - 20 - 48)];
+        self.P_SaveView.hidden=YES;
+
+        [self getImageFromServer];
+
+    }else if ([self.P_AddORSubmit isEqualToString:@"23"])//销售中
+    {
+        self.P_SaveBtn.hidden=YES;
+        self.P_Submit.hidden=YES;
+        self.P_DelBtn.hidden=YES;
+        [self setRightButtonWithNormalImage:nil action:nil];
+        [self getImageFromServer];
+
+    }
+    
+    
+    // 隐藏多余的分割线
+    [self setExtraCellLineHidden:self.table_key_list];
+
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+//新增时候 先保存临时数据
+-(void)ServiceAddStep3
+{
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString * memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString * key = [CommonUtil getServerKey];
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,@"memberId",
+                           key,@"key",
+                           nil];
+    
+    [SVProgressHUD showWithStatus:@"数据检测中"];
+    [httpClient request:@"ServiceAddStep.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        [SVProgressHUD dismiss];
+        
+        if (success) {
+            
+            self.AllDic = [json valueForKey:@"SvcAddStep"];
+
+        } else {
+            
+            
+        }
+        
+        
+    } failure:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+    
+    
+}
+
+
+-(void)rightClicked
+{
+    UIActionSheet *sheet;
+    
+    sheet  = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"马上拍照",@"相册选取", nil];
+    
+    sheet.tag = 100;
+    [sheet showInView:self.view];
+    
+    
+}
+
+-(void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+ if (actionSheet.tag==100)
+    {
+        //打开照相
+        if (buttonIndex==0)
+        {
+            pickerorphoto=1;
+            if([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]){
+                UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
+                imagePicker.delegate = self;
+                //imagePicker.allowsImageEditing = YES;
+                imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+                
+                
+                [self presentViewController:imagePicker animated:YES completion:^{}];
+            }
+            else{
+                //如果没有提示用户
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"错误" message:@"手机没有摄像头!" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                [alert show];
+            }
+        }
+        
+        //打开相册
+        if (buttonIndex == 1) {
+            pickerorphoto=0;
+
+            MHImagePickerMutilSelector* imagePickerMutilSelector=[MHImagePickerMutilSelector standardSelector];//自动释放
+            imagePickerMutilSelector.delegate=self;//设置代理
+
+            
+            UIImagePickerController* picker=[[UIImagePickerController alloc] init];
+            picker.delegate=imagePickerMutilSelector;//将UIImagePicker的代理指向到imagePickerMutilSelector
+            [picker setAllowsEditing:NO];
+            picker.sourceType=UIImagePickerControllerSourceTypePhotoLibrary;
+            picker.modalTransitionStyle= UIModalTransitionStyleCoverVertical;
+            picker.navigationController.delegate=imagePickerMutilSelector;//将UIImagePicker的导航代理指向到imagePickerMutilSelector
+            imagePickerMutilSelector.imagePicker=picker;//使imagePickerMutilSelector得知其控制的UIImagePicker实例，为释放时需要。
+            [self presentModalViewController:picker animated:YES];
+            
+        }
+    }
+    
+    if (actionSheet.tag==101)
+    {
+        if (buttonIndex == 0) {
+            
+            Alter=YES;
+                    
+            [self.ImageDic removeAllObjects];
+            [self.IscoverDic removeAllObjects];
+            [self.Imagearray removeObjectAtIndex:selectIndexrow];
+            [self.m_array removeObjectAtIndex:selectIndexrow];
+                    
+            if (self.Imagearray.count==0)
+            {
+                self.table_key_list.hidden=YES;
+                self.P_label.hidden=NO;
+                        
+                }else{
+                self.table_key_list.hidden=NO;
+                self.P_label.hidden=YES;
+                [self.table_key_list reloadData];
+                    
+            }
+            
+            }
+        if (buttonIndex == 1)
+        {
+            Alter=YES;
+            
+            // 选择某个设置为封面就将数组里的该值设置为1,其他的为0
+            for (int i = 0; i < self.m_array.count; i ++) {
+                
+                if ( selectIndexrow == i ) {
+                    
+                    [self.m_array replaceObjectAtIndex:selectIndexrow withObject:@"1"];
+
+                }else{
+                    
+                    [self.m_array replaceObjectAtIndex:i withObject:@"0"];
+
+                }
+            }
+            
+            
+            [self.table_key_list reloadData];
+            
+        }
+        
+    }
+}
+
+
+#pragma mark - 保存图片至沙盒
+- (void) saveImage:(UIImage *)currentImage withName:(NSString *)imageName
+{
+    NSData *imageData = UIImageJPEGRepresentation(currentImage, 0.5);
+    // 获取沙盒目录
+    NSString *fullPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:imageName];
+    // 将图片写入文件
+    [imageData writeToFile:fullPath atomically:NO];
+}
+
+
+#pragma mark - image picker delegte
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+ 
+	[picker dismissViewControllerAnimated:YES completion:^{}];
+    UIImage *image=[[UIImage alloc]init];
+    if (pickerorphoto==0)
+    {
+        image = [info objectForKey:UIImagePickerControllerEditedImage];
+    }else if (pickerorphoto==1)
+    {
+        image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    }
+    [self saveImage:image withName:@"currentImage.png"];
+    NSString *fullPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"currentImage.png"];
+    UIImage *scaleImage = [[UIImage alloc] initWithContentsOfFile:fullPath];
+//    UIImage *scaleImage = [self scaleImage:savedImage toScale:0.3];
+    
+    
+    self.P_label.hidden=YES;
+    self.table_key_list.hidden=NO;
+    
+    [self.Imagearray addObject:scaleImage];
+    [self.m_array addObject:@"0"];
+
+    [self.table_key_list reloadData];
+
+    
+    
+    //[self.O_logo setImage:scaleImage forState:UIControlStateNormal];
+    
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
+    
+ 
+    [picker dismissViewControllerAnimated:YES completion:^{}];
+
+}
+
+
+- (NSData *)getImageData:(UIImageView *)imageView {
+    UIImage *iamge = imageView.image;
+    return UIImageJPEGRepresentation(iamge, 1);
+}
+
+-(UIImage *)scaleImage:(UIImage *)image toScale:(float)scaleSize {
+    
+    // 计算图片显示的大小
+    float height = image.size.width / 180.0f;
+    UIGraphicsBeginImageContext(CGSizeMake(180,image.size.height / height));
+    [image drawInRect:CGRectMake(0, 0, 180, image.size.height / height)];
+    
+    UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return scaledImage;
+    
+}
+
+
+
+//厅
+-(UIImage *)SavescaleImage:(UIImage *)image indexpath:(int)row
+{
+    //产品3种图片
+    // 将图片存储在字典里
+//    UIImageView *imgV = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 105, 65)];
+//    
+//    imgV.image = [CommonUtil scaleImage:image toSize:CGSizeMake(105, 65)];
+//    
+//    UIImageView *imgV1 = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 223, 139)];
+//    
+//    imgV1.image = [CommonUtil scaleImage:image toSize:CGSizeMake(223, 139)];
+    
+    UIImageView *imgV2 = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 450, 280)];
+    
+//    imgV2.image = [CommonUtil scaleImage:image toSize:CGSizeMake(450, 280)];
+    imgV2.image = image;
+    
+    
+//    [self.ImageDic setObject:[self getImageData:imgV] forKey:[NSString stringWithFormat:@"photoSmlUrl%d",row]];
+//    [self.ImageDic setObject:[self getImageData:imgV1] forKey:[NSString stringWithFormat:@"photoMidUrl%d",row]];
+    [self.ImageDic setObject:[self getImageData:imgV2] forKey:[NSString stringWithFormat:@"oldImgUrl%d",row]];
+
+    
+    float height = image.size.width / 180.0f;
+    UIGraphicsBeginImageContext(CGSizeMake(180,image.size.height / height));
+    [image drawInRect:CGRectMake(0, 0, 180, image.size.height / height)];
+    
+    UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return scaledImage;
+}
+
+
+-(void)Isdelorcover
+{
+    UIActionSheet *sheet;
+    
+    sheet  = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"删除照片",@"设为封面", nil];
+    sheet.tag = 101;
+    [sheet showInView:self.view];
+    
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return 85;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
+    return self.Imagearray.count;
+    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    static NSString *CellIdentifier = @"Cell";
+    PimageCell*cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        NSArray*cellarray=[[NSBundle mainBundle]
+                           loadNibNamed:@"PimageCell" owner:self options:nil];
+        cell =[cellarray objectAtIndex:0];
+    }
+    cell.P_Cellimageicon.hidden=YES;
+    if (self.Imagearray.count!=0)
+    {
+
+//        UIImage *scaleImage = [self scaleImage:[self.Imagearray objectAtIndex:indexPath.row] toScale:0.3];
+        UIImage *scaleImage =[self.Imagearray objectAtIndex:indexPath.row];
+        cell.P_Cellimage.image=scaleImage;
+
+        if ([[self.m_array objectAtIndex:indexPath.row]isEqualToString:@"1"])
+        {
+            cell.P_Celltext.text=@"封面图片";
+            cell.P_Cellimageicon.hidden=NO;
+            selectIndexrow = indexPath.row;
+        }
+        
+    }
+        
+      
+    return cell;
+}
+
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (([self.P_AddORSubmit isEqualToString:@"1"])||([self.P_AddORSubmit isEqualToString:@"21"]))
+    {
+    }else
+    {
+        [SVProgressHUD showErrorWithStatus:@"产品在此状态下\n海报不能修改!"];
+        return;
+    }
+    selectIndexrow=indexPath.row;
+    [self Isdelorcover];
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];//取消选中状态。。
+
+    
+}
+
+
+
+#pragma mark - Assets Picker Delegate
+
+
+-(void)imagePickerMutilSelectorDidGetImages:(NSArray *)imageArray
+{
+    // 存储是否为封面的值在数组里面
+    for (int i = 0; i < imageArray.count; i++) {
+        
+        [self.m_array addObject:@"0"];
+    }
+    
+    self.P_label.hidden=YES;
+    self.table_key_list.hidden=NO;
+    NSArray *importItems=[[NSArray alloc] initWithArray:imageArray copyItems:YES];
+    Alter=YES;
+    [self.Imagearray addObjectsFromArray:importItems];
+    [self.table_key_list reloadData];
+}
+
+
+
+-(IBAction)saveProductToServer:(id)sender
+{
+
+    if (self.Imagearray.count==0)
+    {
+        UIAlertView *alerv = [[UIAlertView alloc] initWithTitle:@"提示" message:@"发布产品必须至少选择一张海报!" delegate:self cancelButtonTitle:@"上传海报" otherButtonTitles:@"取消",nil];
+        alerv.tag=1006;
+        [alerv show];
+        return;
+    }
+    else
+    {
+        if ([self.P_AddORSubmit isEqualToString:@"1"])//新增
+        {
+            [self ServiceAddStep3ToServer];
+        }else{
+            [self PutDataToServer];
+        }
+    }
+
+
+}
+
+-(void)SaveDataOver
+{
+    for (UIViewController *controller in self.navigationController.viewControllers)
+    {
+        if ([controller isKindOfClass:[BusinesserlistViewController class]]) {
+            [self.navigationController popToViewController:controller animated:YES];
+        }
+    }
+}
+
+
+-(void)ServiceAddStep3ToServer
+{
+    
+    if (self.m_array.count!=0)
+    {
+        int count=0;
+        for (int i=0; i<self.m_array.count; i++)
+        {
+            if ([[self.m_array objectAtIndex:i]isEqualToString:@"1"])
+            {
+                break;
+            }
+            else
+            {
+                count++;
+            }
+        }
+        if (count==self.m_array.count)
+        {
+            [SVProgressHUD showErrorWithStatus:@"请选择一张封面"];
+            return;
+        }
+    }
+    
+    [self.IscoverDic removeAllObjects];
+    for (int i=0; i<self.Imagearray.count; i++)
+    {
+        [self SavescaleImage:[self.Imagearray objectAtIndex:i] indexpath:i+1];
+        
+        [self.IscoverDic setObject:[NSString stringWithFormat:@"%@",[self.m_array objectAtIndex:i]] forKey:[NSString stringWithFormat:@"IsFrontCover%d",i+1]];
+        
+    }
+    
+    
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    NSString *memberId;NSString *serviceId;NSString *key;
+    memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    
+    key = [CommonUtil getServerKey];
+    
+    serviceId = [self.AllDic objectForKey:@"ServiceID"];
+
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  memberId,@"memberId",
+                                  serviceId,@"serviceId",
+                                  key,@"key",
+                                  [NSString stringWithFormat:@"%lu",(unsigned long)self.Imagearray.count],@"picCount",
+                                  nil];
+    
+    
+    
+    [param addEntriesFromDictionary:[NSDictionary dictionaryWithDictionary:self.IscoverDic]];
+    
+    NSLog(@"%@",param);
+    
+    [SVProgressHUD showWithStatus:@"数据提交中"];
+    [httpClient multiRequest:@"ServiceAddStepTest.ashx" parameters:param files:self.ImageDic success:^(NSJSONSerialization* json){
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            [SVProgressHUD dismiss];
+            NSString *msg=[json valueForKey:@"msg"];
+            [SVProgressHUD showSuccessWithStatus:msg];
+            
+            [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(SaveDataOver) userInfo:nil repeats:NO];
+            
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+
+    
+}
+
+
+-(void)PutDataToServer
+{
+    
+    if (self.m_array.count!=0)
+    {
+        int count=0;
+    for (int i=0; i<self.m_array.count; i++)
+    {
+        if ([[self.m_array objectAtIndex:i]isEqualToString:@"1"])
+        {
+            break;
+        }
+        else
+        {
+            count++;
+        }
+    }
+        if (count==self.m_array.count)
+        {
+            [SVProgressHUD showErrorWithStatus:@"请选择一张封面"];
+            return;
+        }
+    }
+    
+        [self.IscoverDic removeAllObjects];
+        for (int i=0; i<self.Imagearray.count; i++)
+        {
+            [self SavescaleImage:[self.Imagearray objectAtIndex:i] indexpath:i+1];
+            
+            [self.IscoverDic setObject:[NSString stringWithFormat:@"%@",[self.m_array objectAtIndex:i]] forKey:[NSString stringWithFormat:@"IsFrontCover%d",i+1]];
+
+        }
+
+    
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    NSString *memberId;NSString *serviceId;NSString *merchantId;NSString *mctShopIDs;
+    NSString *classId;NSString*svcName;NSString *svcSimpleName;NSString *tags;NSString *explain;
+    NSString *introduction;NSString *shelfTime;NSString *price;
+    
+    NSString *originalPrice; NSString *commissionRate;NSString *keyVaildDateS;NSString *keyVaildDateE;
+    NSString *quantity;NSString*isExpiredReturn;NSString *isAnyTimeReturn;NSString *isReservation;NSString *key;
+    
+    memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    
+    merchantId =[self.AllDic objectForKey:@"chose.merchantId"];
+
+    classId =[self.AllDic objectForKey:@"chose.codetwo"];
+
+    mctShopIDs =[self.AllDic objectForKey:@"mctShopIDs"];
+    svcName =[self.AllDic objectForKey:@"P_name"];
+    svcSimpleName =[self.AllDic objectForKey:@"P_smallname"];
+    tags = [self.AllDic objectForKey:@"P_tags"];
+    explain =[self.AllDic objectForKey:@"P_remind"];
+    introduction =[self.AllDic objectForKey:@"P_introduce"];
+    shelfTime =[NSString stringWithFormat:@"%@",[self.AllDic objectForKey:@"PE_Data"]];
+    price =[self.AllDic objectForKey:@"PE_Newprice"];
+    originalPrice =[self.AllDic objectForKey:@"PE_Oldprice"];
+    commissionRate =[self.AllDic objectForKey:@"PE_Scale"];
+    keyVaildDateS =[NSString stringWithFormat:@"%@",[self.AllDic objectForKey:@"PE_KEY1"]];
+    keyVaildDateE =[NSString stringWithFormat:@"%@",[self.AllDic objectForKey:@"PE_KEY2"]];
+    quantity =[self.AllDic objectForKey:@"PE_Num"];
+    isExpiredReturn=[self.AllDic objectForKey:@"PE_PastBtn"];
+    isAnyTimeReturn=[self.AllDic objectForKey:@"PE_AlltimeBtn"];
+    isReservation =[self.AllDic objectForKey:@"PE_DontBtn"];
+    key = [CommonUtil getServerKey];
+    
+    if ([self.AllDic objectForKey:@"ServiceID"]!=nil)
+    {
+        serviceId=[NSString stringWithFormat:@"%@",[self.AllDic objectForKey:@"ServiceID"]];
+    }else
+    {
+        serviceId=@"0";
+    }
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  memberId,@"memberId",
+                                  merchantId,@"merchantId",
+                                  mctShopIDs,@"mctShopIDs",
+                                  serviceId,@"serviceId",
+                                  classId,@"classId",
+                                  svcName,@"svcName",
+                                  svcSimpleName,@"svcSimpleName",
+                                  tags,@"tags",
+                                  explain,@"explain",
+                                  introduction,@"introduction",
+                                  shelfTime,@"shelfTime",
+                                  price,@"price",
+                                  originalPrice,@"originalPrice",
+                                  commissionRate,@"commissionRate",
+                                  keyVaildDateS,@"keyVaildDateS",
+                                  keyVaildDateE,@"keyVaildDateE",
+                                  quantity,@"quantity",
+                                  isExpiredReturn,@"isExpiredReturn",
+                                  isAnyTimeReturn,@"isAnyTimeReturn",
+                                  isReservation,@"isReservation",
+                                  key,@"key",
+                                  [NSString stringWithFormat:@"%lu",(unsigned long)self.Imagearray.count],@"picCount",
+                                nil];
+
+    [param addEntriesFromDictionary:[NSDictionary dictionaryWithDictionary:self.IscoverDic]];
+    
+    [SVProgressHUD showWithStatus:@"数据提交中"];
+    [httpClient multiRequest:@"ServiceAddTest.ashx" parameters:param files:self.ImageDic success:^(NSJSONSerialization* json){
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            [SVProgressHUD dismiss];
+            NSString *msg=[json valueForKey:@"msg"];
+            [SVProgressHUD showSuccessWithStatus:msg];
+
+                [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(SaveDataOver) userInfo:nil repeats:NO];
+            
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+
+    
+}
+
+
+
+-(IBAction)Smbuit_Dele_Out:(UIButton *)sender
+{
+    if (sender.tag==1)
+    {
+        UIAlertView *alerv = [[UIAlertView alloc] initWithTitle:@"提示" message:@"确认提交产品审核\n审核中产品不能修改哦!" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定",nil];
+        alerv.tag=1001;
+        [alerv show];
+    }
+    else if (sender.tag==2)
+    {
+
+        UIAlertView *alerv = [[UIAlertView alloc] initWithTitle:@"提示" message:@"确认删除该产品?" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定",nil];
+        alerv.tag=1002;
+        [alerv show];
+    }
+    else if (sender.tag==3)
+    {
+        UIAlertView *alerv = [[UIAlertView alloc] initWithTitle:@"提示" message:@"确认下架该产品?" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定",nil];
+        alerv.tag=1003;
+        [alerv show];
+    }
+
+    
+}
+
+
+-(void)alertView:(UIAlertView*)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (alertView.tag==1001)
+    {
+        if (buttonIndex==0)
+        {
+            return;
+        }
+        if (buttonIndex==1)
+        {
+            option=@"1";
+            [self EditingDataToServer];
+            return;
+        }
+        
+    }
+   else  if (alertView.tag==1002)
+    {
+        if (buttonIndex==0)
+        {
+            return;
+        }
+        if (buttonIndex==1)
+        {
+            option=@"2";
+            [self EditingDataToServer];
+        }
+        
+    }
+    
+   else if (alertView.tag==1003)//下架
+    {
+        if (buttonIndex==0)
+        {
+            return;
+        }
+        if (buttonIndex==1)
+        {
+            option=@"3";
+            [self EditingDataToServer];
+        }
+        
+
+        
+    }
+    
+  else  if (alertView.tag==1005)//离开提醒保存
+    {
+        if (buttonIndex==0)
+        {
+            [self.navigationController popViewControllerAnimated:YES];
+            return;
+        }
+        if (buttonIndex==1)
+        {
+            if ([self.P_AddORSubmit isEqualToString:@"1"])//新增
+            {
+                [self ServiceAddStep3ToServer];
+            }else{
+                [self PutDataToServer];
+            }
+        }
+
+    }
+    
+   else if (alertView.tag==1006)
+    {
+        if (buttonIndex==1)
+        {
+            
+        }
+        if (buttonIndex==0)
+        {
+            pickerorphoto=0;
+            
+            MHImagePickerMutilSelector* imagePickerMutilSelector=[MHImagePickerMutilSelector standardSelector];//自动释放
+            imagePickerMutilSelector.delegate=self;//设置代理
+            
+            
+            UIImagePickerController* picker=[[UIImagePickerController alloc] init];
+            picker.delegate=imagePickerMutilSelector;//将UIImagePicker的代理指向到imagePickerMutilSelector
+            [picker setAllowsEditing:NO];
+            picker.sourceType=UIImagePickerControllerSourceTypePhotoLibrary;
+            picker.modalTransitionStyle= UIModalTransitionStyleCoverVertical;
+            picker.navigationController.delegate=imagePickerMutilSelector;//将UIImagePicker的导航代理指向到imagePickerMutilSelector
+            imagePickerMutilSelector.imagePicker=picker;//使imagePickerMutilSelector得知其控制的UIImagePicker实例，为释放时需要。
+            [self presentModalViewController:picker animated:YES];
+            
+        }
+//        if (buttonIndex==2)
+//        {
+//            if ([self.P_AddORSubmit isEqualToString:@"1"])//新增
+//            {
+//                [self ServiceAddStep3ToServer];
+//            }else{
+//                [self PutDataToServer];
+//            }
+//        }
+        
+    }
+
+
+}
+
+
+
+-(void)EditingDataToServer
+{
+
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    NSString *serviceId=[self.AllDic objectForKey:@"ServiceID"];
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  option,@"option",
+                                  memberId,@"memberId",
+                                  serviceId,@"serviceId",
+                                  key,@"key",
+                                  nil];
+
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"ServiceOptions.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            [SVProgressHUD dismiss];
+            NSString *msg=[json valueForKey:@"msg"];
+            [SVProgressHUD showSuccessWithStatus:msg];
+            [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(SaveDataOver) userInfo:nil repeats:NO];
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+    
+
+    
+}
+
+
+//获取图片列表
+-(void)getImageFromServer
+{
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *serviceId=[self.AllDic objectForKey:@"ServiceID"];
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  memberId,@"memberId",
+                                  serviceId,@"serviceId",
+                                  key,@"key",
+                                  nil];
+
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"ServicePosterListTest.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            [SVProgressHUD dismiss];
+            
+            NSMutableArray *metchantShop = [json valueForKey:@"svcPoster"];
+            
+            NSLog(@"%@",json);
+            
+            if (metchantShop == nil || metchantShop.count == 0) {
+                [self.Imageaddress removeAllObjects];
+                self.table_key_list.hidden = YES;
+                
+                self.P_label.hidden=NO;
+                return;
+            } else {
+                
+                [self.Imageaddress removeAllObjects];
+                [self.Imageaddress addObjectsFromArray:metchantShop];
+                
+                self.P_label.hidden=YES;
+   
+                [self ConvertImageFromData];
+            
+            }
+
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+
+    
+}
+
+
+-(void)ConvertImageFromData
+{
+
+    self.table_key_list.hidden=YES;
+    [SVProgressHUD showWithStatus:@"图片加载中……"];
+    
+    for (int i = 0; i < self.Imageaddress.count; i ++) {
+        
+        NSDictionary *data = [self.Imageaddress objectAtIndex:i];
+        
+        NSString *path = [data objectForKey:@"ApplePoster960"];
+
+        UIImageView*imv=[[UIImageView alloc]init];
+        [imv setImageWithURLRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",path]]] placeholderImage:[UIImage imageNamed:@"invite_reg_no_photo.png"] success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image) {
+            
+//            UIImageView *imgV = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 450,280)];
+            [self.imageCache addImage:image andUrl:path];
+//            UIImage *scaleImage = [self scaleImage:[CommonUtil scaleImage:image toSize:CGSizeMake(450, 280)] toScale:0.3];
+            
+            [self.m_imageDic setObject:image forKey:path];
+            
+            if (self.m_imageDic.count==self.Imageaddress.count)
+            {
+                [self getDic];
+                
+            }
+            
+        } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error) {
+            
+           [SVProgressHUD showErrorWithStatus:@"资源不存在或已丢失!"];
+
+        }];
+    }
+    
+
+}
+
+//重新整理图片；
+- (void)getDic{
+    
+
+    for (int i = 0; i < self.Imageaddress.count; i ++) {
+        
+        NSDictionary *dic = [self.Imageaddress objectAtIndex:i];
+        
+        [self.Imagearray addObject:[self.m_imageDic objectForKey:[NSString stringWithFormat:@"%@",[dic objectForKey:@"ApplePoster960"]]]];
+        [self.m_array addObject:[NSString stringWithFormat:@"%@",[dic objectForKey:@"IsCover"]]];
+
+        if ( i == self.Imageaddress.count - 1 ) {
+            
+            [SVProgressHUD dismiss];
+            self.table_key_list.hidden=NO;
+            [self.table_key_list reloadData];
+
+        }
+        
+    }
+    
+    //如果是开发中，保存一下修改过的数据
+    if ([self.P_AddORSubmit isEqualToString:@"21"]) {
+        [self silentlySaveData];
+    }
+}
+
+
+
+//若作修改 默默保存数据
+-(void)silentlySaveData
+{
+    if (self.m_array.count!=0)
+    {
+        int count=0;
+        for (int i=0; i<self.m_array.count; i++)
+        {
+            if ([[self.m_array objectAtIndex:i]isEqualToString:@"1"])
+            {
+                break;
+            }
+            else
+            {
+                count++;
+            }
+        }
+        if (count==self.m_array.count)
+        {
+            [SVProgressHUD showErrorWithStatus:@"请选择一张封面"];
+            return;
+        }
+    }
+    
+    [self.IscoverDic removeAllObjects];
+    for (int i=0; i<self.Imagearray.count; i++)
+    {
+        [self SavescaleImage:[self.Imagearray objectAtIndex:i] indexpath:i+1];
+        
+        [self.IscoverDic setObject:[NSString stringWithFormat:@"%@",[self.m_array objectAtIndex:i]] forKey:[NSString stringWithFormat:@"IsFrontCover%d",i+1]];
+        
+    }
+    
+    
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    NSString *memberId;NSString *serviceId;NSString *merchantId;NSString *mctShopIDs;
+    NSString *classId;NSString*svcName;NSString *svcSimpleName;NSString *tags;NSString *explain;
+    NSString *introduction;NSString *shelfTime;NSString *price;
+    
+    NSString *originalPrice; NSString *commissionRate;NSString *keyVaildDateS;NSString *keyVaildDateE;
+    NSString *quantity;NSString*isExpiredReturn;NSString *isAnyTimeReturn;NSString *isReservation;NSString *key;
+    
+    memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    
+    merchantId =[self.AllDic objectForKey:@"chose.merchantId"];
+    
+    classId =[self.AllDic objectForKey:@"chose.codetwo"];
+    
+    mctShopIDs =[self.AllDic objectForKey:@"mctShopIDs"];
+    svcName =[self.AllDic objectForKey:@"P_name"];
+    svcSimpleName =[self.AllDic objectForKey:@"P_smallname"];
+    tags = [self.AllDic objectForKey:@"P_tags"];
+    explain =[self.AllDic objectForKey:@"P_remind"];
+    introduction =[self.AllDic objectForKey:@"P_introduce"];
+    shelfTime =[NSString stringWithFormat:@"%@",[self.AllDic objectForKey:@"PE_Data"]];
+    price =[self.AllDic objectForKey:@"PE_Newprice"];
+    originalPrice =[self.AllDic objectForKey:@"PE_Oldprice"];
+    commissionRate =[self.AllDic objectForKey:@"PE_Scale"];
+    keyVaildDateS =[NSString stringWithFormat:@"%@",[self.AllDic objectForKey:@"PE_KEY1"]];
+    keyVaildDateE =[NSString stringWithFormat:@"%@",[self.AllDic objectForKey:@"PE_KEY2"]];
+    quantity =[self.AllDic objectForKey:@"PE_Num"];
+    isExpiredReturn=[self.AllDic objectForKey:@"PE_PastBtn"];
+    isAnyTimeReturn=[self.AllDic objectForKey:@"PE_AlltimeBtn"];
+    isReservation =[self.AllDic objectForKey:@"PE_DontBtn"];
+    key = [CommonUtil getServerKey];
+    
+    if ([self.AllDic objectForKey:@"ServiceID"]!=nil)
+    {
+        serviceId=[NSString stringWithFormat:@"%@",[self.AllDic objectForKey:@"ServiceID"]];
+    }else
+    {
+        serviceId=@"0";
+    }
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  memberId,@"memberId",
+                                  merchantId,@"merchantId",
+                                  mctShopIDs,@"mctShopIDs",
+                                  serviceId,@"serviceId",
+                                  classId,@"classId",
+                                  svcName,@"svcName",
+                                  svcSimpleName,@"svcSimpleName",
+                                  tags,@"tags",
+                                  explain,@"explain",
+                                  introduction,@"introduction",
+                                  shelfTime,@"shelfTime",
+                                  price,@"price",
+                                  originalPrice,@"originalPrice",
+                                  commissionRate,@"commissionRate",
+                                  keyVaildDateS,@"keyVaildDateS",
+                                  keyVaildDateE,@"keyVaildDateE",
+                                  quantity,@"quantity",
+                                  isExpiredReturn,@"isExpiredReturn",
+                                  isAnyTimeReturn,@"isAnyTimeReturn",
+                                  isReservation,@"isReservation",
+                                  key,@"key",
+                                  [NSString stringWithFormat:@"%lu",(unsigned long)self.Imagearray.count],@"picCount",
+                                  nil];
+    
+    [param addEntriesFromDictionary:[NSDictionary dictionaryWithDictionary:self.IscoverDic]];
+    
+    [httpClient multiRequest:@"ServiceAddTest.ashx" parameters:param files:self.ImageDic success:^(NSJSONSerialization* json){
+
+    } failure:^(NSError *error) {
+    }];
+}
+
+
+@end

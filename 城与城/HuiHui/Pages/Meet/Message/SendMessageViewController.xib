@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="5053" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none">
+    <dependencies>
+        <deployment defaultVersion="1280" identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SendMessageViewController">
+            <connections>
+                <outlet property="m_inputBar" destination="oiG-jm-uVQ" id="dVj-OD-qDw"/>
+                <outlet property="m_message" destination="kEx-gY-h8O" id="9s0-Ct-UZw"/>
+                <outlet property="m_tableView" destination="1Bz-ZD-OTN" id="a1X-AJ-iLb"/>
+                <outlet property="m_tipImagV" destination="9HZ-8B-Ruc" id="fQR-sv-Vyg"/>
+                <outlet property="m_voiceBtn" destination="Eek-ae-Jvq" id="Hor-Jg-SUm"/>
+                <outlet property="m_voiceTapBtn" destination="aaO-aU-UYj" id="yjs-9X-oOQ"/>
+                <outlet property="m_voiceView" destination="HTO-ih-jNC" id="tOb-ss-kNO"/>
+                <outlet property="view" destination="1" id="3"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="1">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" id="oiG-jm-uVQ">
+                    <rect key="frame" x="0.0" y="524" width="320" height="44"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <subviews>
+                        <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="A5b-xm-KPh">
+                            <rect key="frame" x="265" y="7" width="46" height="30"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <state key="normal" title="发送" backgroundImage="blue_btn.png">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <connections>
+                                <action selector="sendClicked:" destination="-1" eventType="touchUpInside" id="Ip1-NH-12o"/>
+                            </connections>
+                        </button>
+                        <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" id="kEx-gY-h8O">
+                            <rect key="frame" x="43" y="7" width="200" height="30"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <textInputTraits key="textInputTraits" returnKeyType="send"/>
+                            <connections>
+                                <action selector="hiddenNumPadDone:" destination="-1" eventType="touchDown" id="ZaK-fE-oL9"/>
+                                <outlet property="delegate" destination="-1" id="LGA-kj-b6L"/>
+                            </connections>
+                        </textField>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="JLj-TT-kkr">
+                            <rect key="frame" x="280" y="4" width="35" height="35"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <state key="normal" image="selectPhoto_normal.png">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <state key="selected" image="selectPhoto_selected.png"/>
+                            <connections>
+                                <action selector="choosePicture:" destination="-1" eventType="touchUpInside" id="uAS-ER-qXO"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="Eek-ae-Jvq">
+                            <rect key="frame" x="3" y="4" width="35" height="35"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <state key="normal" image="voice_normal.png">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <state key="selected" image="voice_selected.png"/>
+                            <connections>
+                                <action selector="voiceChooseClicked:" destination="-1" eventType="touchUpInside" id="Wwx-yZ-LQq"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="aaO-aU-UYj">
+                            <rect key="frame" x="43" y="6" width="200" height="32"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <state key="normal" title="按下说话">
+                                <color key="titleColor" red="0.22745099660000001" green="0.22745099660000001" blue="0.22745099660000001" alpha="1" colorSpace="deviceRGB"/>
+                                <color key="titleShadowColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                            </state>
+                            <state key="selected">
+                                <color key="titleColor" red="0.22745099660000001" green="0.22745099660000001" blue="0.22745099660000001" alpha="1" colorSpace="deviceRGB"/>
+                            </state>
+                            <state key="highlighted">
+                                <color key="titleColor" red="0.22745099663734436" green="0.22745099663734436" blue="0.22745099663734436" alpha="1" colorSpace="deviceRGB"/>
+                            </state>
+                            <connections>
+                                <action selector="voiceBtnClicked:" destination="-1" eventType="touchDown" id="iwP-H3-y2b"/>
+                                <action selector="voiceStop:" destination="-1" eventType="touchUpOutside" id="4n4-82-dzP"/>
+                                <action selector="voiceStop:" destination="-1" eventType="touchUpInside" id="9fp-5u-NYf"/>
+                                <action selector="voiceStop:" destination="-1" eventType="touchCancel" id="sD1-Nt-KwZ"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="8Bs-U8-QBI">
+                            <rect key="frame" x="246" y="4" width="35" height="35"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <state key="normal" image="biaoqing.png">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <state key="selected" image="selectPhoto_selected.png"/>
+                            <connections>
+                                <action selector="chooseEmotionClicked:" destination="-1" eventType="touchUpInside" id="i6y-Af-rbE"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" red="0.84313725490196079" green="0.84313725490196079" blue="0.84313725490196079" alpha="1" colorSpace="calibratedRGB"/>
+                </view>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="1Bz-ZD-OTN">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="524"/>
+                    <autoresizingMask key="autoresizingMask" heightSizable="YES"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="MTS-to-yuz"/>
+                        <outlet property="delegate" destination="-1" id="hDH-mF-C9Z"/>
+                    </connections>
+                </tableView>
+                <view contentMode="scaleToFill" id="HTO-ih-jNC">
+                    <rect key="frame" x="70" y="103" width="180" height="180"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mai0.png" id="OKG-wc-Xgm">
+                            <rect key="frame" x="0.0" y="0.0" width="180" height="180"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        </imageView>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" id="9HZ-8B-Ruc">
+                            <rect key="frame" x="0.0" y="0.0" width="180" height="180"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        </imageView>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
+            <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="biaoqing.png" width="35" height="35"/>
+        <image name="blue_btn.png" width="300" height="42"/>
+        <image name="mai0.png" width="180" height="180"/>
+        <image name="selectPhoto_normal.png" width="35" height="35"/>
+        <image name="selectPhoto_selected.png" width="35" height="35"/>
+        <image name="voice_normal.png" width="35" height="35"/>
+        <image name="voice_selected.png" width="35" height="35"/>
+    </resources>
+</document>

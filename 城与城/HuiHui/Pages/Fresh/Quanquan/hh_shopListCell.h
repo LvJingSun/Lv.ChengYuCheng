@@ -1,0 +1,47 @@
+//
+//  hh_shopListCell.h
+//  HuiHui
+//
+//  Created by mac on 15-3-20.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+#import "ImageCache.h"
+
+@interface hh_shopListCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *m_shopName;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_btn;
+
+
+@end
+
+
+@interface MactQuanquanCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *m_title;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_status;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_time;
+
+
+@end
+
+@interface MactQuanDetailCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel        *m_name;
+
+@property (weak, nonatomic) IBOutlet UIImageView    *m_imageV;
+
+@property (weak, nonatomic) IBOutlet UILabel        *m_shopName;
+
+//@property (weak, nonatomic) ImageCache *imageCache;
+@property (weak, nonatomic) IBOutlet UILabel *m_membersStatus;
+
+- (void)setImageViewWithPath:(NSString *)imagePath;
+
+@end

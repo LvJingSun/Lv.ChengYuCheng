@@ -1,0 +1,498 @@
+//
+//  AppHttpClient.m
+//  bazhifuApp
+//
+//  Created by mac on 13-6-8.
+//  Copyright (c) 2013Âπ?mac. All rights reserved.
+//
+
+#import "AppHttpClient.h"
+#import "AFJSONRequestOperation.h"
+
+//222.191.251.180:8010 test    221.228.197.77:8010  zhengshi
+//APP_API
+static NSString * const kAFAppDotNetAPIBaseURLString = @"http://221.228.197.77:8010/HuiHuiApple/";
+//空间
+static NSString * const kAFAppSpaceDotNetAPIBaseURLString = @"http://221.228.197.77:8010/HuiHuiSpace/";
+
+//携程   221.228.197.77:8013/  正式   222.191.251.180:8019/ 测试
+static NSString * const kAFAppCtripDotNetAPIBaseURLString = @"http://221.228.197.77:8013/";
+
+//去哪儿    221.228.197.77:8012 正式   222.191.251.180:8018 测试
+static NSString * const kAFAppFlightsDotNetAPIBaseURLString = @"http://221.228.197.77:8012/";
+
+// 同城景点门票   221.228.197.77:8014 正式   222.191.251.180:8020 测试
+static NSString * const kAFAppSceneryDotNetAPIBaseURLString = @"http://221.228.197.77:8014/";
+
+//大众点评
+//222.191.251.180:8022测试    221.228.197.77:8015/DianPing
+static NSString * const kAFAppDPDotNetAPIBaseURLString = @"http://221.228.197.77:8015/DianPing/";
+
+
+@implementation AppHttpClient
+
+
+- (id)initWithBaseURL:(NSURL *)url {
+    self = [super initWithBaseURL:url];
+    if (!self) {
+        
+        return nil;
+    }
+    
+    [self registerHTTPOperationClass:[AFJSONRequestOperation class]];
+    // Accept HTTP Header; see http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
+	[self setDefaultHeader:@"Accept" value:@"text/plain"];//text/plain
+    
+    return self;
+}
+
+//诲诲APPle
++ (AppHttpClient *)sharedClient {
+    static AppHttpClient *_sharedClient = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedClient = [[AppHttpClient alloc] initWithBaseURL:[NSURL URLWithString:kAFAppDotNetAPIBaseURLString]];
+    });
+    return _sharedClient;
+}
+
+//诲诲空间
++ (AppHttpClient *)sharedSpace {
+    static AppHttpClient *_sharedSpace  = nil;
+    static dispatch_once_t onceTokenSpace;
+    dispatch_once(&onceTokenSpace, ^{
+        _sharedSpace  = [[AppHttpClient alloc] initWithBaseURL:[NSURL URLWithString:kAFAppSpaceDotNetAPIBaseURLString]];
+    });
+    return _sharedSpace ;
+}
+
+//诲诲-携程
++ (AppHttpClient *)sharedCtrip {
+    static AppHttpClient *_sharedCtrip  = nil;
+    static dispatch_once_t onceTokenCtrip;
+    dispatch_once(&onceTokenCtrip, ^{
+        _sharedCtrip  = [[AppHttpClient alloc] initWithBaseURL:[NSURL URLWithString:kAFAppCtripDotNetAPIBaseURLString]];
+    });
+    return _sharedCtrip ;
+}
+
+//诲诲-大众点评
++ (AppHttpClient *)sharedDP {
+    static AppHttpClient *_sharedDP  = nil;
+    static dispatch_once_t onceTokenDP;
+    dispatch_once(&onceTokenDP, ^{
+        _sharedDP  = [[AppHttpClient alloc] initWithBaseURL:[NSURL URLWithString:kAFAppDPDotNetAPIBaseURLString]];
+    });
+    return _sharedDP ;
+}
+
+
+//诲诲APPle
+- (void)request:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedClient];
+    [httpClient postPath:path parameters:parameters success:^(AFHTTPRequestOperation *operation, id JSON) {
+                
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+         NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+}
+
+
+
+- (void)multiRequest:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedClient];
+    NSMutableURLRequest* multiRequest = [httpClient multipartFormRequestWithMethod:@"POST" path:path parameters:parameters constructingBodyWithBlock:^(id <AFMultipartFormData> formData) {
+        NSEnumerator *keys = files.keyEnumerator;
+        for (NSString *key in keys) {
+            [formData appendPartWithFileData:[files objectForKey:key] name:key fileName:[NSString stringWithFormat:@"%@.jpg", key] mimeType:@"image/jpg"];
+            //[formData appendPartWithFormData:[files objectForKey:key] name:key];
+        }
+    }];
+//    NSDictionary *info = [multiRequest allHTTPHeaderFields];
+//    for (NSString *key in info.keyEnumerator) {
+//        NSLog(@"%@=%@",key, [info objectForKey:key]);
+//    }
+    
+	AFHTTPRequestOperation *operation = [httpClient HTTPRequestOperationWithRequest:multiRequest success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+    [self enqueueHTTPRequestOperation:operation];
+}
+
+
+
+//空间
+- (void)requestSpace:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedSpace];
+    [httpClient postPath:path parameters:parameters success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+}
+
+- (void)multiRequestSpace:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedSpace];
+    NSMutableURLRequest* multiRequest = [httpClient multipartFormRequestWithMethod:@"POST" path:path parameters:parameters constructingBodyWithBlock:^(id <AFMultipartFormData> formData) {
+        NSEnumerator *keys = files.keyEnumerator;
+        for (NSString *key in keys) {
+            [formData appendPartWithFileData:[files objectForKey:key] name:key fileName:[NSString stringWithFormat:@"%@.jpg", key] mimeType:@"image/jpg"];
+        }
+    }];
+	AFHTTPRequestOperation *operation = [httpClient HTTPRequestOperationWithRequest:multiRequest success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+    [self enqueueHTTPRequestOperation:operation];
+}
+
+
+
+
+
+//诲诲-携程
+- (void)requestCtrip:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedCtrip];
+    [httpClient postPath:path parameters:parameters success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+}
+
+- (void)multiRequestCtrip:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedCtrip];
+    NSMutableURLRequest* multiRequest = [httpClient multipartFormRequestWithMethod:@"POST" path:path parameters:parameters constructingBodyWithBlock:^(id <AFMultipartFormData> formData) {
+        NSEnumerator *keys = files.keyEnumerator;
+        for (NSString *key in keys) {
+            [formData appendPartWithFileData:[files objectForKey:key] name:key fileName:[NSString stringWithFormat:@"%@.jpg", key] mimeType:@"image/jpg"];
+        }
+    }];
+	AFHTTPRequestOperation *operation = [httpClient HTTPRequestOperationWithRequest:multiRequest success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if (failure) {
+            failure(error);
+        }
+    }];
+    [self enqueueHTTPRequestOperation:operation];
+}
+
+
+
+//诲诲APPle - 机票
++ (AppHttpClient *)sharedClient1 {
+    static AppHttpClient *_sharedClient = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedClient = [[AppHttpClient alloc] initWithBaseURL:[NSURL URLWithString:kAFAppFlightsDotNetAPIBaseURLString]];
+    });
+    return _sharedClient;
+}
+
+//诲诲APPle - 机票
+- (void)requestFlights:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedClient1];
+    [httpClient postPath:path parameters:parameters success:^(AFHTTPRequestOperation *operation, id JSON) {
+        
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+}
+
+// - 机票
+- (void)multiRequestFlights:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedClient1];
+    NSMutableURLRequest* multiRequest = [httpClient multipartFormRequestWithMethod:@"POST" path:path parameters:parameters constructingBodyWithBlock:^(id <AFMultipartFormData> formData) {
+        NSEnumerator *keys = files.keyEnumerator;
+        for (NSString *key in keys) {
+            [formData appendPartWithFileData:[files objectForKey:key] name:key fileName:[NSString stringWithFormat:@"%@.jpg", key] mimeType:@"image/jpg"];
+            //[formData appendPartWithFormData:[files objectForKey:key] name:key];
+        }
+    }];
+    //    NSDictionary *info = [multiRequest allHTTPHeaderFields];
+    //    for (NSString *key in info.keyEnumerator) {
+    //        NSLog(@"%@=%@",key, [info objectForKey:key]);
+    //    }
+    
+    AFHTTPRequestOperation *operation = [httpClient HTTPRequestOperationWithRequest:multiRequest success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+    [self enqueueHTTPRequestOperation:operation];
+}
+
+
+
+//诲诲APPle - 景点门票
++ (AppHttpClient *)scenerySharedClient {
+    static AppHttpClient *_sharedClient = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedClient = [[AppHttpClient alloc] initWithBaseURL:[NSURL URLWithString:kAFAppSceneryDotNetAPIBaseURLString]];
+    });
+    return _sharedClient;
+}
+
+//诲诲APPle - 景点门票
+- (void)requestScenery:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient scenerySharedClient];
+    [httpClient postPath:path parameters:parameters success:^(AFHTTPRequestOperation *operation, id JSON) {
+        
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+}
+
+// - 景点门票
+- (void)multiRequestScenery:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient scenerySharedClient];
+    NSMutableURLRequest* multiRequest = [httpClient multipartFormRequestWithMethod:@"POST" path:path parameters:parameters constructingBodyWithBlock:^(id <AFMultipartFormData> formData) {
+        NSEnumerator *keys = files.keyEnumerator;
+        for (NSString *key in keys) {
+            [formData appendPartWithFileData:[files objectForKey:key] name:key fileName:[NSString stringWithFormat:@"%@.jpg", key] mimeType:@"image/jpg"];
+            //[formData appendPartWithFormData:[files objectForKey:key] name:key];
+        }
+    }];
+    //    NSDictionary *info = [multiRequest allHTTPHeaderFields];
+    //    for (NSString *key in info.keyEnumerator) {
+    //        NSLog(@"%@=%@",key, [info objectForKey:key]);
+    //    }
+    
+    AFHTTPRequestOperation *operation = [httpClient HTTPRequestOperationWithRequest:multiRequest success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+    [self enqueueHTTPRequestOperation:operation];
+}
+
+
+
+// get方法请求
+- (void)getRequest:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedClient];
+//    [httpClient postPath:path parameters:parameters success:^(AFHTTPRequestOperation *operation, id JSON) {
+    
+    [httpClient getPath:path parameters:parameters success:^(AFHTTPRequestOperation *operation, id JSON) {
+
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Error params:%@, reason:%@", parameters, error.description);
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+}
+
+//大众点评
+- (void)requestDP:(NSString *) path parameters:(NSDictionary *)parameters success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedDP];
+    [httpClient postPath:path parameters:parameters success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if (failure) {
+            failure(error);
+        }
+        
+    }];
+}
+
+- (void)multiRequestDP:(NSString *) path parameters:(NSDictionary *)parameters files:(NSDictionary *)files success:(void (^)(NSJSONSerialization *json))success failure:(void (^)(NSError *error))failure {
+    AFHTTPClient* httpClient = [AppHttpClient sharedDP];
+    NSMutableURLRequest* multiRequest = [httpClient multipartFormRequestWithMethod:@"POST" path:path parameters:parameters constructingBodyWithBlock:^(id <AFMultipartFormData> formData) {
+        NSEnumerator *keys = files.keyEnumerator;
+        for (NSString *key in keys) {
+            [formData appendPartWithFileData:[files objectForKey:key] name:key fileName:[NSString stringWithFormat:@"%@.jpg", key] mimeType:@"image/jpg"];
+        }
+    }];
+    AFHTTPRequestOperation *operation = [httpClient HTTPRequestOperationWithRequest:multiRequest success:^(AFHTTPRequestOperation *operation, id JSON) {
+        NSError* error;
+        NSJSONSerialization* json = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONReadingMutableContainers error:&error];
+        if (error) {
+            if (failure) {
+                failure(error);
+            }
+            return;
+        }
+        if (success) {
+            success(json);
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        if (failure) {
+            failure(error);
+        }
+    }];
+    [self enqueueHTTPRequestOperation:operation];
+}
+
+
+@end

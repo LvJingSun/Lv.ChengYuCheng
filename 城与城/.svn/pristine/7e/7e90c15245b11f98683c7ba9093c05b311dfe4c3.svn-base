@@ -1,0 +1,362 @@
+//
+//  RechargeAmountViewController.m
+//  baozhifu
+//
+//  Created by mac on 14-1-15.
+//  Copyright (c) 2014年 mac. All rights reserved.
+//
+
+#import "RechargeAmountViewController.h"
+
+#import "SVProgressHUD.h"
+
+#import "CommonUtil.h"
+
+#import "AppHttpClient.h"
+
+@interface RechargeAmountViewController ()
+
+@property (weak, nonatomic) IBOutlet UIView *m_titleView;
+
+@property (weak, nonatomic) IBOutlet UIView *m_tempView;
+
+@property (weak, nonatomic) IBOutlet UITextField *m_amountTextField;
+
+
+// 充值按钮触发的事件
+- (IBAction)rechargeClicked:(id)sender;
+
+
+@end
+
+@implementation RechargeAmountViewController
+
+@synthesize keyShow;
+
+@synthesize isCharge;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        
+        isCharge = NO;
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    self.needDone = YES;
+    
+    keyShow = NO;
+    
+    [self setTitle:@"充值"];
+    
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear: animated];
+    
+    self.isCharge = NO;
+
+    
+    [self hideTabBar:YES];
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    if ( !self.isCharge ) {
+        
+        [self hideTabBar:NO];
+
+    }
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+}
+
+- (IBAction)rechargeClicked:(id)sender {
+    
+    [self.m_amountTextField resignFirstResponder];
+    
+    NSString *amountStr = self.m_amountTextField.text;
+    
+    if ( amountStr.length == 0 ) {
+       
+        [SVProgressHUD showErrorWithStatus:@"请输入充值金额"];
+        return;
+    }
+    
+    // 判断输入多个小数点的情况
+    NSArray *array = [self.m_amountTextField.text componentsSeparatedByString:@"."];
+    
+    if ( array.count > 2 ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"您输入的金额格式不对,请重新输入"];
+        
+        return;
+    }
+    
+    
+    CGFloat amount = [amountStr floatValue];
+    
+    if (amount < 1) {
+       
+        [SVProgressHUD showErrorWithStatus:@"充值金额不能小于1"];
+        return;
+    }
+    
+    // 连接银联
+    [self requestRechargeSubmit];
+    
+}
+
+// 请求充值的接口，请求服务器返回报文提交启动银联支付的插件
+- (void)requestRechargeSubmit{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           self.m_amountTextField.text, @"amount",
+                           nil];
+    [SVProgressHUD showWithStatus:@"信息提交中"];
+    [httpClient request:@"UnionMobileRecharge.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            self.isCharge = YES;
+         
+//            NSString *msg = [json valueForKey:@"msg"];
+            
+            NSString *respXml = [json valueForKey:@"respXml"];
+            
+            [SVProgressHUD dismiss];
+            
+            NSInteger type = [[json valueForKey:@"tranEnvironment"] integerValue];
+            
+            
+            // 请求服务器成功后将报文提交银联插件 生产测试  0 生产 1 测试
+            UIViewController *viewCtrl = nil;
+            viewCtrl = [LTInterface getHomeViewControllerWithType:type strOrder:respXml andDelegate:self];
+            
+            if ( isIOS7 ) {
+                
+                [self.navigationController pushViewController:viewCtrl animated:NO];
+                
+            }else{
+                
+                [self.navigationController pushViewController:viewCtrl animated:YES];
+                
+            }
+        
+        } else {
+            
+            self.isCharge = NO;
+
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+}
+
+- (void)returnWithResult:(NSString *)strResult{
+        
+    // 有值则表示交易结果，若为空则用户未进行交易。
+    if ( strResult == nil ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"您取消了交易操作"];
+        
+    }else{
+        
+        // 0000 表示成功，其他表示失败
+        NSRange range;
+        
+        range = [strResult rangeOfString:@"<respCode>0000</respCode>"];
+        
+        if ( range.location != NSNotFound ) {
+            
+            UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                               message:@"您已成功充值，正常情况下即时到账，由于网络原因可能会有延时。"
+                                                              delegate:self
+                                                     cancelButtonTitle:@"确定"
+                                                     otherButtonTitles: nil];
+            
+            alertView.tag = 11983;
+            [alertView show];
+            
+        }else{
+            
+            
+            [SVProgressHUD showErrorWithStatus:@"交易失败"];
+            
+        }
+
+    }
+    
+}
+
+#pragma mark - UIAlertViewDelegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    
+    if ( alertView.tag == 11983 ) {
+        if ( buttonIndex == 0 ) {
+            
+            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:2] animated:YES];
+        }
+    }
+    
+}
+
+// 完成按钮改为小数点
+- (void)handleKeyboardWillHide:(NSNotification *)notification
+{
+    if (self.doneButton.superview)
+    {
+        [self.doneButton removeFromSuperview];
+    }
+    if (!keyShow) {
+        return;
+    }
+    //    if (self.rootScrollView != nil) {
+    //        NSDictionary *info = [notification userInfo];
+    //        NSValue *value = [info objectForKey:UIKeyboardFrameBeginUserInfoKey];
+    //        CGSize keybroundSize = [value CGRectValue].size;
+    //        CGRect viewFrame = [self.rootScrollView frame];
+    //        viewFrame.size.height += keybroundSize.height;
+    //        self.rootScrollView.frame = viewFrame;
+    //    }
+    keyShow = NO;
+}
+- (void)handleKeyboardDidShow:(NSNotification *)notification
+{
+    // create custom button
+    if (self.doneButton == nil)
+    {
+        self.doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        CGFloat screenHeight = [[UIScreen mainScreen] bounds].size.height;
+//        if (screenHeight==568.0f) {//爱疯5
+//            self.doneButton.frame = CGRectMake(0, 568 - 53, 106, 53);
+//        } else {//3.5寸
+//            self.doneButton.frame = CGRectMake(0, 480 - 53, 106, 53);
+//        }
+
+        
+        if ( screenHeight == 736.0f ) {
+            
+            self.doneButton.frame = CGRectMake(self.view.frame.origin.x, screenHeight - 57, WindowSizeWidth/3 - 2, 57);
+            
+        }else{
+            
+            self.doneButton.frame = CGRectMake(self.view.frame.origin.x, screenHeight - 53, WindowSizeWidth/3 - 2, 53);
+            
+        }
+        
+        self.doneButton.adjustsImageWhenHighlighted = NO;
+        self.doneButton.hidden=self.needDone;
+        [self.doneButton setBackgroundImage:[UIImage imageNamed:@"btn_done_normal.png"] forState:UIControlStateNormal];
+        [self.doneButton setBackgroundImage:[UIImage imageNamed:@"btn_done_selected.png"] forState:UIControlStateHighlighted];
+        [self.doneButton addTarget:self action:@selector(finishAction) forControlEvents:UIControlEventTouchUpInside];
+    }
+    
+    // locate keyboard view
+    UIWindow* tempWindow = [[[UIApplication sharedApplication] windows] objectAtIndex:1];
+    if (self.doneButton.superview == nil)
+    {
+        [tempWindow addSubview:self.doneButton];    // 注意这里直接加到window上
+    }
+    self.doneButton.hidden=self.needDone;
+    if (keyShow) {
+        return;
+    }
+    //    if (self.rootScrollView != nil) {
+    //        NSDictionary *info = [notification userInfo];
+    //        NSValue *value = [info objectForKey:UIKeyboardFrameBeginUserInfoKey];
+    //        CGSize keybroundSize = [value CGRectValue].size;
+    //        CGRect viewFrame = [self.rootScrollView frame];
+    //        viewFrame.size.height -= keybroundSize.height;
+    //        self.rootScrollView.frame = viewFrame;
+    //        //[self performSelector:@selector(moveToActiveView) withObject:nil afterDelay:0.5];
+    //        [self moveToActiveView];
+    //    }
+    keyShow = YES;
+    
+    //    if ( self.m_activityField == self.m_priceTextField ) {
+    //
+    //        self.doneButton.userInteractionEnabled = YES;
+    //
+    //    }else{
+    //
+    //        self.doneButton.userInteractionEnabled = NO;
+    //
+    //    }
+    
+}
+
+- (void)finishAction
+{
+    //    [self hidenKeyboard];
+    
+    self.m_amountTextField.text = [self.m_amountTextField.text stringByAppendingString:@"."];
+
+}
+
+- (IBAction)showKeyboard:(id)sender
+{
+    self.needDone = NO;
+    self.doneButton.hidden = self.needDone;
+}
+
+- (IBAction)hideKeyboard:(id)sender
+{
+    self.needDone = YES;
+    self.doneButton.hidden = self.needDone;
+}
+
+//UITextField的协议方法，当开始编辑时监听
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    
+    self.doneButton.userInteractionEnabled = YES;
+    
+    [self showKeyboard:nil];
+    
+    return YES;
+    
+}
+
+
+@end

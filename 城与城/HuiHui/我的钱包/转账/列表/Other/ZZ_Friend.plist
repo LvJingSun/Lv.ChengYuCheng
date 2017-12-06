@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>iconImg</key>
+		<string>ZZ_图标.png</string>
+		<key>friendName</key>
+		<string>红烧吕小布</string>
+		<key>friendPhone</key>
+		<string>17625642535</string>
+	</dict>
+	<dict>
+		<key>iconImg</key>
+		<string>ZZ_图标.png</string>
+		<key>friendName</key>
+		<string>红烧吕小布</string>
+		<key>friendPhone</key>
+		<string>18118195178</string>
+	</dict>
+</array>
+</plist>

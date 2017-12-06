@@ -1,0 +1,671 @@
+//
+//  AHlistViewController.m
+//  HuiHui
+//
+//  Created by 冯海强 on 14-10-21.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//
+
+#import "AHlistViewController.h"
+#import "AHdirectlyTableViewCell.h"
+
+#import "CommonUtil.h"
+#import "UIImageView+AFNetworking.h"
+#import "AhDevTableViewCell.h"
+#import "AhDevDetailViewController.h"
+#import "UserInformationViewController.h"
+#import "MyservicersViewController.h"
+
+@interface AHlistViewController ()
+{
+    IBOutlet UITableView *Wait_tableView;//等待开发
+    NSMutableArray *WaitDataArray;//待开发代理
+    IBOutlet UITableView *Old_tableView;
+    NSMutableArray *selectedArr;//二级列表是否展开状态
+    NSMutableArray *titleDataArray;
+
+}
+
+
+@property (weak, nonatomic) IBOutlet UIImageView *m_moveImgV;
+@property (weak, nonatomic) IBOutlet UIButton *m_waitpayBtn;
+@property (weak, nonatomic) IBOutlet UIButton *m_buyedBtn;
+
+@end
+
+
+@implementation AHlistViewController
+
+@synthesize m_moveImgV;
+@synthesize m_waitpayBtn;
+@synthesize m_buyedBtn;
+
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    AH_WAIT = @"AH_WAIT";
+    AH_OLD  = @"AH_OLD";
+    self.title = @"我推荐的代理商";
+    selectedArr = [[NSMutableArray alloc] init];
+    Old_tableView.showsVerticalScrollIndicator = Wait_tableView.showsVerticalScrollIndicator = NO;
+    //不要分割线
+    Old_tableView.separatorStyle = Wait_tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.m_typeString = AH_WAIT;
+    [self setLeft:YES withRight:NO];
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+
+}
+
+-(void)leftClicked
+{
+    [self goBack];
+}
+
+
+//开发
+-(void)Development
+{
+    CheckAHPhoneViewController *VC = [[CheckAHPhoneViewController alloc]initWithNibName:@"CheckAHPhoneViewController" bundle:nil];
+    VC.delegate = self;
+    [self.navigationController pushViewController:VC animated:YES];
+
+}
+//服务
+-(void)Service
+{
+    MyservicersViewController *VC = [[MyservicersViewController alloc]initWithNibName:@"MyservicersViewController" bundle:nil];
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    [self hideTabBar:YES];
+    
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    [self hideTabBar:NO];
+    
+    [SVProgressHUD dismiss];
+
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+
+#pragma mark----tableViewDelegate
+//返回几个表头
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    
+    if (tableView == Wait_tableView) {
+        return 1;
+    }else if (tableView == Old_tableView){
+    return titleDataArray.count;
+    }
+    return 0;
+}
+
+//每一个表头下返回几行
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (tableView == Wait_tableView) {
+        return WaitDataArray.count;
+    }else if (tableView == Old_tableView){
+        NSString *string = [NSString stringWithFormat:@"%ld",(long)section];
+        
+        if ([selectedArr containsObject:string]) {
+            UIImageView *imageV = (UIImageView *)[Old_tableView viewWithTag:20000+section];
+            imageV.image = [UIImage imageNamed:@"buddy_header_arrow_down@2x.png"];
+            
+            NSArray * arrB = [[titleDataArray objectAtIndex:section] objectForKey:@"SecARelationshipList"];
+            
+            return arrB.count;
+        }
+    }
+    return 0;
+}
+
+//设置表头的高度
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    if (tableView == Wait_tableView) {
+        return 0;
+    }
+    return 65;
+}
+
+//Section Footer的高度
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
+{
+    return 0.000001;
+}
+
+//设置view，将替代titleForHeaderInSection方法
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    if (tableView == Wait_tableView) {
+        return nil;
+    }else if(tableView ==Old_tableView)
+    {
+    NSDictionary * dicA = [titleDataArray objectAtIndex:section];
+        
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, WindowSizeWidth, 65)];
+    view.backgroundColor = [UIColor whiteColor];
+    
+    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(75, 8, 200, 20)];
+    titleLabel.text = [dicA objectForKey:@"NickName"];
+    titleLabel.textColor = [UIColor colorWithRed:0.5 green:0.6 blue:0.7 alpha:1];
+    [view addSubview:titleLabel];
+    
+    for (int iii=0; iii<6; iii++) {
+        
+        UIImageView *imgView = [[UIImageView alloc] initWithFrame:CGRectMake(185+(iii*13), 10, 12, 12)];
+        
+        if ([[self jisuanstarts:[dicA objectForKey:@"DaiLiLevel"]] isEqualToString:@"0.5"]) {
+            if (iii==0) {
+                imgView.image = [UIImage imageNamed:[NSString stringWithFormat:@"bd_15.png"]];
+            }else{
+                imgView.image = [UIImage imageNamed:[NSString stringWithFormat:@"bd_09.png"]];
+            }
+        }
+        else if ([[self jisuanstarts:[dicA objectForKey:@"DaiLiLevel"]] intValue]>iii) {
+            imgView.image = [UIImage imageNamed:[NSString stringWithFormat:@"bd_08.png"]];
+        }else{
+            imgView.image = [UIImage imageNamed:[NSString stringWithFormat:@"bd_09.png"]];
+        }
+        [view addSubview:imgView];
+    }
+
+
+    NSArray * arr = [dicA objectForKey:@"SecARelationshipList"];
+
+    UILabel *NumLabel = [[UILabel alloc] initWithFrame:CGRectMake(WindowSizeWidth - 31, 8, 40, 15)];
+    NumLabel.text = [NSString stringWithFormat:@"(%lu)",(unsigned long)arr.count];
+    NumLabel.font = [UIFont systemFontOfSize:13];
+    NumLabel.textColor = [UIColor colorWithRed:0.6 green:0.7 blue:0.8 alpha:1];
+    [view addSubview:NumLabel];
+    
+    UILabel *detLabel = [[UILabel alloc] initWithFrame:CGRectMake(75, 35, 95, 20)];
+    detLabel.text = @"佣金是否结算：";
+    detLabel.textColor = [UIColor darkGrayColor];
+    detLabel.font = [UIFont systemFontOfSize:13];
+    [view addSubview:detLabel];
+    
+    UILabel *YESLabel = [[UILabel alloc] initWithFrame:CGRectMake(200, 35, 60, 20)];
+    if ([[dicA objectForKey:@"IsJieSuan"] isEqualToString:@"0"]) {
+        YESLabel.text = @"未结算";
+        YESLabel.textColor = [UIColor colorWithRed:0.9 green:0.8 blue:0.5 alpha:1];
+
+    }else{
+        YESLabel.text = @"已结算";
+        YESLabel.textColor = [UIColor colorWithRed:0.6 green:0.7 blue:0.8 alpha:1];
+    }
+    YESLabel.font = [UIFont systemFontOfSize:13];
+    [view addSubview:YESLabel];
+    
+    UIImageView *HimageView = [[UIImageView alloc] initWithFrame:CGRectMake(10, 8, 50, 50)];
+    
+    NSString *imagePath = [dicA objectForKey:@"PhotoMidUrl"];
+    UIImage *reSizeImage = [self.imageCache getImage:imagePath];
+    if (reSizeImage != nil) {
+        HimageView.image = reSizeImage;
+        HimageView.layer.masksToBounds = YES; //没这句话它圆不起来
+        HimageView.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+        HimageView.contentMode = UIViewContentModeScaleAspectFill;
+
+    }
+    
+    UIImageView * imgv = [[UIImageView alloc]init];
+    
+    [imgv setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:imagePath]]
+                placeholderImage:[UIImage imageNamed:@"invite_reg_no_photo.png"]
+                         success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image){
+                             
+                             HimageView.image = image;
+                             HimageView.contentMode = UIViewContentModeScaleAspectFill;
+                             HimageView.layer.masksToBounds = YES; //没这句话它圆不起来
+                             HimageView.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+                             [self.imageCache addImage:image andUrl:imagePath];
+                             
+                         }
+                         failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error){
+                             HimageView.image = [UIImage imageNamed:@"invite_reg_no_photo.png"];
+                             HimageView.layer.masksToBounds = YES; //没这句话它圆不起来
+                             HimageView.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+
+                         }];
+    
+    [view addSubview:HimageView];
+    
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(WindowSizeWidth - 30, 25, 15, 15)];
+    imageView.tag = 20000+section;
+    
+    //判断是不是选中状态
+    NSString *string = [NSString stringWithFormat:@"%ld",(long)section];
+    
+    if ([selectedArr containsObject:string]) {
+        imageView.image = [UIImage imageNamed:@"buddy_header_arrow_down@2x.png"];
+    }
+    else
+    {
+        imageView.image = [UIImage imageNamed:@"buddy_header_arrow_right@2x.png"];
+    }
+    [view addSubview:imageView];
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.frame = CGRectMake(0, 0, WindowSizeWidth, 65);
+    button.tag = 100+section;
+    [button addTarget:self action:@selector(doButton:) forControlEvents:UIControlEventTouchUpInside];
+    [view addSubview:button];
+    
+    UIImageView *lineImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 64, WindowSizeWidth, 1)];
+    lineImage.image = [UIImage imageNamed:@"line.png"];
+    [view addSubview:lineImage];
+        
+    return view;
+    }
+    return nil;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+
+    return 65;
+
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (tableView == Wait_tableView) {
+      return [self tableViewWait:tableView cellForRowAtIndexPath:indexPath];
+    }else if (tableView == Old_tableView){
+    
+    static NSString *CellIdentifier = @"Cell";
+    AHdirectlyTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        NSArray*cellarray=[[NSBundle mainBundle]
+                               loadNibNamed:@"AHdirectlyTableViewCell" owner:self options:nil];
+        cell =[cellarray objectAtIndex:0];
+        cell.selectionStyle = UITableViewCellSelectionStyleGray;
+    }
+    //当前是第几个表头
+    NSArray * arrB = [[titleDataArray objectAtIndex:indexPath.section] objectForKey:@"SecARelationshipList"];
+    
+    NSDictionary * dicB = [arrB objectAtIndex:indexPath.row];
+    
+    [cell setAHValue:[dicB objectForKey:@"DaiLiLevel"]];
+    
+    NSString *imagePath = [dicB objectForKey:@"PhotoMidUrl"];
+    UIImage *reSizeImage = [self.imageCache getImage:imagePath];
+    if (reSizeImage != nil) {
+        cell.Headerphoto.image = reSizeImage;
+        cell.Headerphoto.layer.masksToBounds = YES; //没这句话它圆不起来
+        cell.Headerphoto.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+        cell.Headerphoto.contentMode = UIViewContentModeScaleAspectFill;
+
+    }
+    
+    UIImageView * imgv = [[UIImageView alloc]init];
+    
+    [imgv setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:imagePath]]
+                placeholderImage:[UIImage imageNamed:@"invite_reg_no_photo.png"]
+                         success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image){
+                             
+                             cell.Headerphoto.image = image;
+                             cell.Headerphoto.contentMode = UIViewContentModeScaleAspectFill;
+                             cell.Headerphoto.layer.masksToBounds = YES; //没这句话它圆不起来
+                             cell.Headerphoto.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+                             [self.imageCache addImage:image andUrl:imagePath];
+                             
+                         }
+                         failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error){
+                             cell.Headerphoto.image = [UIImage imageNamed:@"invite_reg_no_photo.png"];
+                             cell.Headerphoto.layer.masksToBounds = YES; //没这句话它圆不起来
+                             cell.Headerphoto.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+                             
+                         }];
+
+
+    cell.nameLabel.text = dicB[@"NickName"];
+    if ([[dicB objectForKey:@"IsJieSuan"] isEqualToString:@"0"]) {
+        cell.IntroductionLabel.text = @"未结算";
+        cell.IntroductionLabel.textColor = [UIColor colorWithRed:0.9 green:0.8 blue:0.5 alpha:1];
+        
+    }else{
+        cell.IntroductionLabel.text = @"已结算";
+    }
+    
+    cell.imageLine.image = [UIImage imageNamed:@"line.png"];
+    
+    return cell;
+    }
+    return nil;
+}
+
+- (UITableViewCell *)tableViewWait:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    static NSString *CellIdentifier = @"AhDevTableViewCell";
+    AhDevTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (cell == nil) {
+        NSArray*cellarray=[[NSBundle mainBundle]
+                           loadNibNamed:@"AhDevTableViewCell" owner:self options:nil];
+        cell =[cellarray objectAtIndex:0];
+        cell.selectionStyle = UITableViewCellSelectionStyleGray;
+    }
+    
+    NSMutableDictionary *Mdic = [WaitDataArray objectAtIndex:indexPath.row];
+    
+    
+    NSString *imagePath =[NSString stringWithFormat:@"%@",[Mdic objectForKey:@"PhotoMidUrl"]];
+    UIImage *reSizeImage = [self.imageCache getImage:imagePath];
+    if (reSizeImage != nil) {
+        cell.Headerphoto.image = reSizeImage;
+        cell.Headerphoto.layer.masksToBounds = YES; //没这句话它圆不起来
+        cell.Headerphoto.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+        cell.Headerphoto.contentMode = UIViewContentModeScaleAspectFill;
+        
+    }
+
+    UIImageView * imgv = [[UIImageView alloc]init];
+    [imgv setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:imagePath]]
+                placeholderImage:[UIImage imageNamed:@"invite_reg_no_photo.png"]
+                         success:^(NSURLRequest *request, NSHTTPURLResponse *response, UIImage *image){
+                             
+                             cell.Headerphoto.image = image;
+                             cell.Headerphoto.contentMode = UIViewContentModeScaleAspectFill;
+                             cell.Headerphoto.layer.masksToBounds = YES; //没这句话它圆不起来
+                             cell.Headerphoto.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+                             [self.imageCache addImage:image andUrl:imagePath];
+                             
+                         }
+                         failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error){
+                             cell.Headerphoto.image = [UIImage imageNamed:@"invite_reg_no_photo.png"];
+                             cell.Headerphoto.layer.masksToBounds = YES; //没这句话它圆不起来
+                             cell.Headerphoto.layer.cornerRadius = 8.0; //设置图片圆角的尺度
+                             
+                         }];
+    
+    cell.nameLabel.text = [NSString stringWithFormat:@"%@",[Mdic objectForKey:@"NickName"]];
+    
+    BOOL IsZhiPai = [[Mdic objectForKey:@"IsZhiPai"] boolValue];
+    if (!IsZhiPai) {
+        cell.typeLabel.textColor = RGBACOLOR(232, 133, 44, 1);
+        cell.typeLabel.text = @"待指派人";
+    }else
+    {
+        cell.typeLabel.text = @"已指派人";
+        cell.AHDevBtn.tag = indexPath.row;
+        [cell.AHDevBtn addTarget:self action:@selector(WaitBtnAHDevdetail:) forControlEvents:UIControlEventTouchUpInside];
+
+    }
+
+    cell.InfoBtn.tag = indexPath.row;
+    [cell.InfoBtn addTarget:self action:@selector(WaitBtnInfo:) forControlEvents:UIControlEventTouchUpInside];
+
+    
+    return cell;
+    
+    
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (tableView == Wait_tableView) {
+        [Wait_tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }else if (tableView == Old_tableView){
+        [Old_tableView deselectRowAtIndexPath:indexPath animated:YES];
+    }
+}
+
+-(void)doButton:(UIButton *)sender
+{
+    NSString *string = [NSString stringWithFormat:@"%ld",sender.tag-100];
+    
+    //数组selectedArr里面存的数据和表头想对应，方便以后做比较
+    if ([selectedArr containsObject:string])
+    {
+        [selectedArr removeObject:string];
+    }
+    else
+    {
+        [selectedArr addObject:string];
+    }
+    
+    [Old_tableView reloadData];
+}
+
+//计算星级
+-(NSString *)jisuanstarts:(NSString*)num
+{
+    
+    if ( [num isEqualToString:@""]||[num isEqualToString:@"DaiLiLevel_0"] ) {
+ 
+        return @"0";
+        
+    }else{
+        if ( [num isEqualToString:@"DaiLiLevel_ShiYong"] ) {
+            
+            return @"0.5";
+        }
+        else if ( [num isEqualToString:@"DaiLiLevel_1"] ) {
+            
+            return @"1";
+            
+        }else if ( [num isEqualToString:@"DaiLiLevel_2"] ){
+            
+            return @"2";
+            
+        }else if ( [num isEqualToString:@"DaiLiLevel_3"] ){
+            
+            return @"3";
+
+        }else if ( [num isEqualToString:@"DaiLiLevel_4"] ){
+            
+            return @"4";
+ 
+        }else if ( [num isEqualToString:@"DaiLiLevel_5"] ){
+            
+            return @"5";
+            
+        }else if ( [num isEqualToString:@"DaiLiLevel_6"] ){
+            
+            return @"6";
+            
+        }
+        
+    }
+
+    return nil;
+    
+}
+
+//数据请求(开发中-等待开发)
+- (void)AH_WaitloadData {
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"fromMemberId",
+                           nil];
+    if (WaitDataArray.count ==0) {
+        [SVProgressHUD showWithStatus:@"数据加载中"];
+    }
+    [httpClient request:@"MyRecommendAgents.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            if (WaitDataArray.count ==0) {
+                [SVProgressHUD dismiss];
+            }
+            WaitDataArray = [json valueForKey:@"recordList"];
+            if (WaitDataArray.count != 0) {
+
+                self.daili_webview.hidden = YES;
+
+                [Wait_tableView reloadData];
+
+                
+            }else{
+                
+                self.daili_webview.hidden = NO;
+
+                [self.daili_webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://wx.cityandcity.com/templates/activity/dailides.aspx"]]];
+            }
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:@"请求失败"];
+    }];
+}
+
+
+//数据请求(已开发)
+- (void)AH_loadData {
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberid",
+                           key,   @"key",
+                           nil];
+    if (titleDataArray.count ==0) {
+        [SVProgressHUD showWithStatus:@"数据加载中"];
+    }
+    [httpClient request:@"AgencyRelationshipList.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+        [SVProgressHUD dismiss];
+        titleDataArray = [json valueForKey:@"ARelationshipList"];
+        if (titleDataArray.count != 0) {
+            self.daili_webview.hidden = YES;
+
+            [Old_tableView reloadData];
+
+            
+        }else{
+            
+            self.daili_webview.hidden = NO;
+
+            [self.daili_webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://wx.cityandcity.com/templates/activity/dailides.aspx"]]];
+        }
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:@"请求失败"];
+    }];
+}
+
+
+//切换状态
+// 滑块移动位置
+- (void)moveImageMoveTo:(CGFloat)rectPoint
+{
+    [UIView beginAnimations:@"Flips1" context:(__bridge void *)(self)];
+    [UIView setAnimationDuration:0.3];
+    self.m_moveImgV.frame = CGRectMake(rectPoint, 40,WindowSizeWidth / 2 - 1, 4);
+    [UIView commitAnimations];
+}
+
+- (IBAction)typeChange:(id)sender{
+    
+    UIButton *btn = (UIButton *)sender;
+    
+    if ( btn.tag == 100 ) {
+        
+        [self setLeft:YES withRight:NO];
+        
+        // 设置滑块滚动的坐标
+        [self moveImageMoveTo:0];
+        
+    }else{
+        
+        [self setLeft:NO withRight:YES];
+        
+        // 设置滑块滚动的坐标
+        [self moveImageMoveTo:WindowSizeWidth / 2 + 1];
+        
+    }
+    
+}
+
+- (void)setLeft:(BOOL)isLeft withRight:(BOOL)isRight{
+    
+    self.m_waitpayBtn.selected = isLeft;
+    self.m_buyedBtn.selected = isRight;
+    
+    if ( isLeft ) {
+        [self AH_WaitloadData];
+        self.m_waitpayBtn.userInteractionEnabled = NO;
+        self.m_buyedBtn.userInteractionEnabled = YES;
+        self.m_typeString = AH_WAIT;
+        [self setRightButtonWithTitle:@"开发" action:@selector(Development)];
+        Wait_tableView.hidden = NO;
+        Old_tableView.hidden = YES;
+        
+    }else{
+        [self AH_loadData];
+        self.m_waitpayBtn.userInteractionEnabled = YES;
+        self.m_buyedBtn.userInteractionEnabled = NO;
+        self.m_typeString = AH_OLD;
+        [self setRightButtonWithTitle:@"服务" action:@selector(Service)];
+        Wait_tableView.hidden = YES;
+        Old_tableView.hidden = NO;
+
+    }
+    
+}
+
+//开发中按钮
+-(void)WaitBtnInfo:(id)Sender
+{
+    UIButton *Btn = (UIButton *)Sender;
+    NSDictionary *dic = [WaitDataArray objectAtIndex:Btn.tag];
+    
+    UserInformationViewController *VC = [[UserInformationViewController alloc]initWithNibName:@"UserInformationViewController" bundle:nil];
+    VC.m_typeString = @"2";
+    VC.m_friendId = [NSString stringWithFormat:@"%@",[dic objectForKey:@"toMemberId"]];
+    [self.navigationController pushViewController:VC animated:YES];
+}
+
+-(void)WaitBtnAHDevdetail:(id)Sender
+{
+    UIButton *Btn = (UIButton *)Sender;
+    NSDictionary *dic = [WaitDataArray objectAtIndex:Btn.tag];
+
+    AhDevDetailViewController *VC = [[AhDevDetailViewController alloc]initWithNibName:@"AhDevDetailViewController" bundle:nil];
+    VC.recordId = [NSString stringWithFormat:@"%@",[dic objectForKey:@"recordId"]];
+    VC.RealName = [NSString stringWithFormat:@"%@",[dic objectForKey:@"RealName"]];
+    [self.navigationController pushViewController:VC animated:YES];
+    
+}
+
+-(void)SubmitKaiFasuccess;
+{
+    [self setLeft:YES withRight:NO];
+
+}
+
+@end

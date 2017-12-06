@@ -1,0 +1,716 @@
+//
+//  StartViewController.m
+//  HuiHui
+//
+//  Created by mac on 13-11-19.
+//  Copyright (c) 2013年 MaxLinksTec. All rights reserved.
+//
+
+#import "StartViewController.h"
+
+#import "RootViewController.h"
+
+#import "CommonUtil.h"
+
+#import "UIImageView+AFNetworking.h"
+
+#import "LoginViewController.h"
+
+#import "DateUtil.h"
+
+#import "JPinYinUtil.h"
+
+#import "ApplyViewController.h"
+
+#import "CoverUtility.h"
+
+
+@interface StartViewController ()
+
+@property (weak, nonatomic) IBOutlet UIImageView *m_imageView;
+
+@property (weak, nonatomic) UIImageView *coverImgV;
+
+
+@end
+
+
+@implementation StartViewController
+
+@synthesize m_cityList;
+
+@synthesize coverImgV;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        
+        self.m_cityList = [[NSMutableArray alloc]initWithCapacity:0];
+        self.m_allKeys = [[NSMutableArray alloc]initWithCapacity:0];
+        self.m_cityListDic = [[NSMutableDictionary alloc]initWithCapacity:0];
+
+        dbhelp = [[DBHelper alloc] init];
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    NSString *string = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:MEMBER_ID]];
+    
+    // 如果memberId有值的话则表示不是第一次进入app
+    if ( ![string isEqualToString:@"(null)"] ) {
+        
+        // 请求红点的数据的接口
+        [self requestSubmitRedDian];
+        
+    }
+
+    // 赋值启动页图片
+    UIImage *coverImage = [[CoverUtility sharedCoverUtility] getLocalCoverImage];
+    
+    self.m_imageView.image = coverImage;
+
+    
+//    [self loadCityandClassInstart];
+    
+    
+    // 将大众点评的数据保存起来  将类别的数据存储到plist里面用于网络不好时从plist里面读取
+    // 判断文件路径里面是否包含这个文件
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+    
+    NSString *documentDirectory = [paths objectAtIndex:0];
+    
+    NSString *finalPath = [documentDirectory stringByAppendingPathComponent:@"DzdpCityList.plist"];
+    
+    NSMutableArray *arr = [[NSMutableArray alloc]initWithCapacity:0];
+    
+    if ( [fm fileExistsAtPath:finalPath] ) {
+        arr = [[NSArray arrayWithContentsOfFile:finalPath] mutableCopy];
+    }
+    
+    // 数组数据为空的话则请求数据
+    if ( arr.count == 0 ) {
+       
+        [self getCityList];
+        
+    }
+  
+    
+}
+
+// ======================================================================
+- (void)getCityList{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *url = @"v1/metadata/get_cities_with_deals";
+    
+    [[[AppDelegate instance] dpapi] requestWithURL:url paramsString:@"" delegate:self];
+    
+}
+
+- (void)request:(DPRequest *)request didFailWithError:(NSError *)error {
+    
+    [SVProgressHUD dismiss];
+
+}
+
+- (void)request:(DPRequest *)request didFinishLoadingWithResult:(id)result {
+    
+    NSString * success = [result valueForKey:@"status"];
+    
+    if ([success isEqualToString:@"OK"]) {
+        
+        NSMutableArray *arr = [result valueForKey:@"cities"];
+        
+        // 将大众点评的数据保存起来  将类别的数据存储到plist里面用于网络不好时从plist里面读取
+        NSFileManager *fm = [NSFileManager defaultManager];
+        
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        
+        NSString *documentDirectory = [paths objectAtIndex:0];
+        
+        NSString *finalPath = [documentDirectory stringByAppendingPathComponent:@"DzdpCityList.plist"];
+        
+        //开始创建文件-文件中不存在此路径的文件的话则取创建文件
+        if ( ![fm fileExistsAtPath:finalPath] ) {
+            
+            [fm createFileAtPath:finalPath contents:nil attributes:nil];
+            
+        }
+        
+        // 把字典中的数据写入到文件中
+        [arr writeToFile:finalPath atomically:YES];
+        
+    }
+ 
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    // 赋值启动页图片
+    UIImage *coverImage = [[CoverUtility sharedCoverUtility] getLocalCoverImage];
+    
+    self.m_imageView.image = coverImage;
+
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+
+    [self performSelector:@selector(loginStateChange) withObject:nil afterDelay:2.0f];
+
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+}
+
+- (void)didReceiveMemoryWarning{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)pushLoginController
+{
+    
+        NSString *account  = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:ACCOUNT]];
+        NSString *pwd = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:PWD]];
+    
+        AppHttpClient* httpClient = [AppHttpClient sharedClient];
+        NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                               account,     @"account",
+                               pwd,   @"password",
+                               @"HuiHuiApple",@"versionType",nil];
+        
+        [httpClient request:@"Login.ashx" parameters:param success:^(NSJSONSerialization* json) {
+            BOOL success = [[json valueForKey:@"status"] boolValue];
+            
+            if (success) {
+                
+                [self getJson:json];
+                
+            } else {
+
+                [SVProgressHUD showErrorWithStatus:@"登录失败..."];
+                LoginViewController *login = [[LoginViewController alloc]initWithNibName:@"LoginViewController" bundle:nil];
+                [self.navigationController pushViewController:login animated:YES];
+
+            }
+        } failure:^(NSError *error) {
+            
+            [SVProgressHUD showErrorWithStatus:@"登录失败..."];
+            LoginViewController *login = [[LoginViewController alloc]initWithNibName:@"LoginViewController" bundle:nil];
+            [self.navigationController pushViewController:login animated:YES];
+
+        }];
+ 
+
+}
+
+- (void)getJson:(NSJSONSerialization *)json{
+    
+    NSDictionary * member = [json valueForKey:@"member"];
+    // 令牌
+    [CommonUtil addValue:[json valueForKey:@"TokenNoUsedTotal"] andKey:TOKENNOUSEDTOTAL];
+    [CommonUtil addValue:[json valueForKey:@"TokenUsedTotal"] andKey:TOKENUSEDTOTAL];
+    // 保存登录用户的头像
+    [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithFormat:@"%@",[member objectForKey:@"photoMidUrl"]]forKey:kMY_USER_Head];
+    [CommonUtil addValue:[json valueForKey:@"ChatRoomPassword"] andKey:LOGINPASSWORD];
+    //是否商户或代理商（1是；0:否）
+    [CommonUtil addValue:[NSString stringWithFormat:@"%@", [json valueForKey:@"IsDaiLiAndMct"]] andKey:IsDaiLiAndMct];
+    
+    //存储会员身份，是否是生活达人或资源达人；
+    [CommonUtil addValue:[NSString stringWithFormat:@"%@", [json valueForKey:@"IsMemDaren"]] andKey:IsMemDaren];
+    [CommonUtil addValue:[NSString stringWithFormat:@"%@", [json valueForKey:@"IsResDaren"]] andKey:IsResDaren];
+    //（消费返利比例）、（生活达人返利比例）
+    [CommonUtil addValue:[NSString stringWithFormat:@"%@", [json valueForKey:@"XiaoFeiFanLiBiLi"]] andKey:XiaoFeiFanLiBiLi];
+    [CommonUtil addValue:[NSString stringWithFormat:@"%@", [json valueForKey:@"LifFanLiBiLi"]] andKey:LifFanLiBiLi];
+    
+    // 保存大众点评的返利比例值
+    [CommonUtil addValue:[NSString stringWithFormat:@"%@", [json valueForKey:@"DPRebates"]] andKey:DZDP_FANLI];
+
+
+    
+    //保存代理等级
+    [CommonUtil addValue:[NSString stringWithFormat:@"%@",[json valueForKey:@"DaiLiLevel"]] andKey:DaiLiLevel];
+    [self saveLoginInfo:member serverDateTime:[json valueForKey:@"sDatetime"]];
+    [self tokenRequest];
+    // 获取RGB的值请求数据
+    [self loadPageRequest];
+    
+    [SVProgressHUD dismiss];
+    
+    RootViewController * rootViewController = [[RootViewController alloc]initWithNibName:@"RootViewController" bundle:nil];
+    [self.navigationController pushViewController:rootViewController animated:YES];
+    
+    
+}
+
+
+
+// 获取token上传服务器
+- (void)tokenRequest{
+    
+    // 获取存储的token
+    
+    NSString *deviceToken = [CommonUtil getValueByKey:BPush_devicetoken];
+    
+    NSString *userId = [CommonUtil getValueByKey:BPush_kUserIdKey];
+    
+    NSString *appId = [CommonUtil getValueByKey:BPush_kAppIdKey];
+    
+    NSString *channelId = [CommonUtil getValueByKey:BPush_kChannelIdKey];
+    
+    NSLog(@"TOKEN = %@,userId = %@,channelId = %@,appId = %@",deviceToken,userId,channelId,appId);
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    //roleCode- Member会员,Merchant商户,Operator操作员 model-苹果Apple安卓Android type-CityPay：宝支付；HuiHui：诲诲；BossTool：老板驾驶舱；Acquirer：收单 userId 操作员Id，默认为0
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,@"memberId",
+                           key,@"key",
+                           @"0",@"userId",
+                           @"Member",@"roleCode",
+                           [NSString stringWithFormat:@"%@",deviceToken],@"tokenValue",
+                           [NSString stringWithFormat:@"%@",userId],@"bdUserID",
+                           [NSString stringWithFormat:@"%@",channelId],@"bdChannelId",
+                           @"Apple",@"model",
+                           @"HuiHui",@"type",nil];
+    
+    [httpClient request:@"AppTokenUpdate.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            
+        } else {
+            
+            
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+    
+}
+
+- (void)requestSubmitRedDian{
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           nil];
+    [httpClient request:@"RedTip.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            NSDictionary *dic = [json valueForKey:@"RedTipCnt"];
+            friendHelp = [[FriendHelper alloc]init];
+            int RedDot = [self sumOfSixValueWithDic:dic];
+            if ( [friendHelp redDotArray].count != 0 ) {
+                int RedDot1 = [self sumOfSixValueWithDic:[[friendHelp redDotArray] objectAtIndex:0]];
+                // 如果这两值相等的话则表示没有新消息，不显示红点
+                if ( RedDot != RedDot1 ) {
+                    [CommonUtil addValue:@"1" andKey:@"BudgeNumberKey"];
+                }else{
+                    [CommonUtil addValue:@"0" andKey:@"BudgeNumberKey"];
+                }
+                
+            }else{
+                // 第一次进入时数据库中没有数据，如果这个值为0则表示没消息不显示红点,否则显示红点
+                if ( RedDot != 0 ) {
+                    [CommonUtil addValue:@"1" andKey:@"BudgeNumberKey"];
+                }else{
+                    [CommonUtil addValue:@"0" andKey:@"BudgeNumberKey"];
+                }
+            }
+
+        } else {
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+}
+
+
+
+
+// 获取RGB
+- (void)loadPageRequest{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           nil];
+    
+    [httpClient request:@"AppSiteInfo.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            NSDictionary *dic = [json valueForKey:@"BtPageConfig"];
+            // 保存引导页的图片和RGB的值
+            [CommonUtil addValue:[dic objectForKey:@"MerchantId"] andKey:MERCHANTID];
+            [CommonUtil addValue:[dic objectForKey:@"MaxBgImg"] andKey:LOADINGPAGEIMAGE];
+//            [CommonUtil addValue:[dic objectForKey:@"Rgb"] andKey:LOADINGPAGERGB];
+            [CommonUtil addValue:[dic objectForKey:@"LogoBigUrl"] andKey:@"CardLoginBigUrl"];
+            [CommonUtil addValue:[dic objectForKey:@"YunDongYSUrl"] andKey:YunDongYSUrl];
+
+            // 对图片进行赋值 将图片保存起来 用于封面的显示
+            [self.m_imageView setImageWithURLRequest:[[NSURLRequest alloc] initWithURL:[NSURL URLWithString:[dic objectForKey:@"MaxBgImg"]]]
+                                    placeholderImage:[UIImage imageNamed:@""]
+                                             success:^(NSURLRequest *request, NSHTTPURLResponse *response,  UIImage *image){
+                                                 
+                                                 self.m_imageView.image = image; //[CommonUtil scaleImage:image toSize:CGSizeMake(320, [UIScreen mainScreen].bounds.size.height)];
+                                                 
+                                                 // 保存起来图片
+                                                 [self saveImage:self.m_imageView.image];
+                                                 
+                                             }
+                                             failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error){
+                                                 
+                                             }];
+            
+            
+        } else {
+
+            
+        }
+    } failure:^(NSError *error) {
+
+    }];
+    
+}
+
+- (void)saveLoginInfo:(NSDictionary *)member serverDateTime:(NSString *)sDatetime {
+    
+    NSTimeInterval timeDiff = [DateUtil computerServerTimeDiff:sDatetime];
+        
+    [CommonUtil addValue:[NSString stringWithFormat:@"%.0f", timeDiff] andKey:SERVER_TIME_DIFF];
+    
+    [CommonUtil addValue:[NSString stringWithFormat:@"%ld", (long)[[member valueForKey:@"memberId"] integerValue]] andKey:MEMBER_ID];
+    
+    [CommonUtil addValue:[NSString stringWithFormat:@"%@",[member valueForKey:@"account"]] andKey:ACCOUNT];
+    
+    [CommonUtil addValue:[member valueForKey:@"nick"] andKey:NICK];
+    
+    [CommonUtil addValue:[member valueForKey:@"name"] andKey:USER_NAME];
+    
+    //AppPkgUrl  VersionNumber 保存版本号
+    [CommonUtil addValue:[member objectForKey:@"versionNumber"] andKey:VERSION_NUM];
+    
+    [CommonUtil addValue:[member objectForKey:@"appPkgUrl"] andKey:VERSION_APPURL];
+    
+    // 保存会员编号
+    [CommonUtil addValue:[member objectForKey:@"memberCode"] andKey:MEMBERCODE];
+    
+    // 保存用户的生日、邮箱、居住地址等
+    [CommonUtil addValue:[member objectForKey:@"birthday"] andKey:USER_BIRTHDAY];
+    
+    [CommonUtil addValue:[member objectForKey:@"email"] andKey:USER_EMAIL];
+    
+    [CommonUtil addValue:[member objectForKey:@"liveAddress"] andKey:USER_AREA];
+    
+    [CommonUtil addValue:[member objectForKey:@"photoMidUrl"] andKey:USER_PHOTO];
+    
+    [CommonUtil addValue:[member objectForKey:@"sex"] andKey:USER_SEX];
+    
+    // 保存账号和密码、JID等
+    [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:MEMBER_ID]] forKey:kMY_USER_ID];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithFormat:@"%@@home.cityandcity.com",[CommonUtil getValueByKey:MEMBER_ID]] forKey:kXMPPmyJID];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:LOGINPASSWORD]] forKey:kXMPPmyPassword];
+    
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
+    
+}
+
+#pragma mark 对城市信息进行 【入库存储】
+//进行城市信息的请求以及存储
+- (void)loadCityandClassInstart {
+    // 判断网络是否存在
+    NSDictionary *versions = [dbhelp queryVersion];
+    NSString *cityVer = [versions objectForKey:TYPE_CITY];
+    if (cityVer == nil) {
+        cityVer = @"-1";
+    }
+    NSString *categoryVer = [versions objectForKey:TYPE_CATEGORY];
+    if (categoryVer == nil) {
+        categoryVer = @"-1";
+    }
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           @"-1", @"cityVer",
+                           @"-1", @"categoryVer",
+                           nil];
+    NSLog(@"start::%@",param);
+    
+    [httpClient request:@"MerchantCityandClass.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+
+            NSArray *versionList = [json valueForKey:@"version"];            
+            if (versionList == nil || [versionList count] == 0) {
+                return ;
+            }
+            NSInteger cityVersion = 0;
+            NSInteger categoryVersion = 0;
+            for (NSDictionary *version in versionList) {
+                NSString *type = [version objectForKey:@"VersionType"];
+                if ([@"VersionCity" isEqualToString:type]) {
+                    cityVersion = [[version objectForKey:@"VersionNum"] intValue];
+                }
+                if ([@"VersionClass" isEqualToString:type]) {
+                    categoryVersion = [[version objectForKey:@"VersionNum"] intValue];
+                }
+            }
+            if (cityVersion > 0) {
+                NSArray *cityList = [json valueForKey:@"city"];
+                [dbhelp updateData:cityList andType:TYPE_CITY andVersion:[NSString stringWithFormat:@"%ld", (long)cityVersion]];
+                
+            }
+            if (categoryVersion > 0) {
+                NSArray *categoryList = [json valueForKey:@"category"];
+                [dbhelp updateData:categoryList andType:TYPE_CATEGORY andVersion:[NSString stringWithFormat:@"%ld", (long)categoryVersion]];
+            }
+            
+            [self loadCityView];
+            
+        } else {
+            
+            NSLog(@"城市false");
+        }
+    } failure:^(NSError *error) {
+        
+        NSLog(@"网络请求失败");
+        
+    }];
+}
+
+// 城市
+- (void)loadCityView
+{
+    NSArray *citys = [dbhelp queryCity];
+    [self loadcelldata:citys];
+}
+-(void)loadcelldata:(NSArray*)datalist
+{
+    if (datalist == nil) {
+        return;
+    }
+    self.m_cityList = [NSMutableArray arrayWithArray:datalist];
+    [self sortCitys];
+}
+
+// 列表进行字母分类
+- (void)sortCitys{
+    if ( self.m_cityList.count != 0 ) {
+        // 进行排序循环
+        for (int i = 0; i< self.m_cityList.count; i++) {
+            
+                NSDictionary *dic = [self.m_cityList objectAtIndex:i];
+                NSString *pinyin = [self firstLetterForCompositeNames:[dic objectForKey:@"name"]];
+                NSArray *array = [self sortBypinyin:pinyin];
+                [self.m_cityListDic setObject:array forKey:pinyin];
+        }
+        self.m_allKeys  = [[[self.m_cityListDic allKeys] sortedArrayUsingSelector:@selector(compare:)] mutableCopy];
+        //对数据进行存储
+        NSData *encodemenulist = [NSKeyedArchiver archivedDataWithRootObject:self.m_allKeys];
+        [CommonUtil addValue:encodemenulist andKey:[NSString stringWithFormat:@"HHcitya"]];
+        NSData *encodemenudic = [NSKeyedArchiver archivedDataWithRootObject:self.m_cityListDic];
+        [CommonUtil addValue:encodemenudic andKey:[NSString stringWithFormat:@"HHcityd"]];
+    }
+}
+-(NSString *)firstLetterForCompositeNames:(NSString *)cityString {
+    if (![cityString length]) {
+        return @"";
+    }
+    unichar charString = [cityString characterAtIndex:0];
+    NSArray *array = pinYinWithoutToneOnlyLetter(charString);
+    if ([array count]) {
+        return [[[array objectAtIndex:0] substringToIndex:1] uppercaseString];
+    }
+    return @"";
+}
+- (NSMutableArray *)sortBypinyin:(NSString *)pinyin{
+    
+    NSMutableArray *array = [[NSMutableArray alloc] initWithCapacity:0];
+    
+    for (int i = 0; i< self.m_cityList.count; i++) {
+        
+        NSDictionary *dic = [self.m_cityList objectAtIndex:i];
+        NSString *data_pinyin = [self firstLetterForCompositeNames:[dic objectForKey:@"name"]];
+        
+        if ([data_pinyin isEqualToString:pinyin]) {
+            
+            [array addObject:dic];
+        }
+    }
+    return array;
+}
+
+
+
+- (void)loginStateChange
+{
+    
+    
+    
+    BOOL isAutoLogin = [[[EaseMob sharedInstance] chatManager] isAutoLoginEnabled];
+    
+    NSDate *date = [CommonUtil getValueByKey:QQExpirationDateKey];
+    
+    // 生效时间和截止时间的判断，生效时间不能晚于截止时间
+    NSDate *nowDate = [NSDate date];
+    
+    NSString *string = [CommonUtil getValueByKey:weixinOrQqOrAccount];
+    
+    // 判断是qq登录 1 还是 微信登录 2
+    NSString *type = [CommonUtil getValueByKey:wxQqType];
+    
+    if (isAutoLogin) {
+        
+        // 1表示是qq、微信登录
+        if ( [string isEqualToString:@"1"] ){
+            
+            if ( [type isEqualToString:@"1"] ){
+                
+                // qq登录
+                if ( [date compare:nowDate] == NSOrderedAscending ) {
+                    
+                    NSLog(@"11111");
+                    LoginViewController *login = [[LoginViewController alloc]initWithNibName:@"LoginViewController" bundle:nil];
+                    [self.navigationController pushViewController:login animated:YES];
+                    
+                    
+                }else{
+                    
+                    NSLog(@"2222");
+                    [self yanzhengRequest];
+                    
+                }
+            }else if ( [type isEqualToString:@"2"] ){
+                
+                NSLog(@"3333");
+               
+                // 微信登录
+                // token没有失效的时候根据环信登录来进行判断
+                // 微信登录就直接用openId直接去验证
+                [self yanzhengRequest];
+                
+            }else{
+                
+                NSLog(@"4444");
+                
+                // 表示是普通的账号登录
+                [self pushLoginController];
+
+            }
+            
+        }else{
+            
+            NSLog(@"5555");
+            
+            // 表示是普通的账号登录
+            [self pushLoginController];
+
+        }
+        
+    }else{
+        
+        NSLog(@"没有登录");
+        // 环信没有登录的情况下执行的操作
+        LoginViewController *login = [[LoginViewController alloc]initWithNibName:@"LoginViewController" bundle:nil];
+        [self.navigationController pushViewController:login animated:YES];
+    }
+
+}
+
+
+- (void)yanzhengRequest{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString *openId = [CommonUtil getValueByKey:QQCurrentUserIdKey];
+    
+    NSString *type = [CommonUtil getValueByKey:wxQqType];
+
+    //    合作平台账户类别（1：QQ;2：微信)
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           openId,     @"wxQq",
+                           [NSString stringWithFormat:@"%@",type], @"type",nil];
+    
+    [httpClient request:@"WxQqCheck.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        if (success) {
+            
+            // 验证成功表示是qq登录
+            [CommonUtil addValue:@"1" andKey:weixinOrQqOrAccount];
+            
+            [self getJson:json];
+            
+        } else {
+            
+            [CommonUtil addValue:@"0" andKey:weixinOrQqOrAccount];
+          
+            // 验证不成功的情况下再直接进入登录的页面
+            LoginViewController *login = [[LoginViewController alloc]initWithNibName:@"LoginViewController" bundle:nil];
+            [self.navigationController pushViewController:login animated:YES];
+            
+        }
+    } failure:^(NSError *error) {
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+}
+
+
+@end

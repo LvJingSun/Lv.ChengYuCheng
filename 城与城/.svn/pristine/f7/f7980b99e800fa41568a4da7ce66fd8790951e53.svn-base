@@ -1,0 +1,1223 @@
+//
+//  BprodetailViewController.m
+//  baozhifu
+//
+//  Created by 冯海强 on 14-1-17.
+//  Copyright (c) 2014年 mac. All rights reserved.
+//
+
+#import "BprodetailViewController.h"
+#import "ChoseShopViewController.h"
+#import "SVProgressHUD.h"
+#import "PimageViewController.h"
+#import "BusinesserlistViewController.h"
+
+@interface BprodetailViewController ()
+
+@property (weak, nonatomic) IBOutlet UIScrollView *ProDetailScroview;
+
+@property (nonatomic,weak) IBOutlet UILabel * remindlabel;//提醒
+
+@property (nonatomic,weak) IBOutlet UITextField *P_Businesser;
+@property (nonatomic,weak) IBOutlet UIButton *P_Businesser_Btn;
+
+@property (nonatomic,weak) IBOutlet UITextField *P_shop;
+@property (nonatomic,weak) IBOutlet UIButton *P_shop_Btn;
+
+@property (nonatomic,weak) IBOutlet UITextField *P_one;
+@property (nonatomic,weak) IBOutlet UIButton *P_one_Btn;
+
+@property (nonatomic,weak) IBOutlet UITextField *P_two;
+@property (nonatomic,weak) IBOutlet UIButton *P_two_Btn;
+
+@property (nonatomic,weak) IBOutlet UITextField *P_name;
+@property (nonatomic,weak) IBOutlet UITextField *P_smallname;
+@property (nonatomic,weak) IBOutlet UITextField *P_tags;
+@property (nonatomic,weak) IBOutlet UITextView *P_remind;
+@property (nonatomic,weak) IBOutlet UILabel *P_remind_lab;
+
+@property (nonatomic,weak) IBOutlet UITextView *P_introduce;
+@property (nonatomic,weak) IBOutlet UILabel *P_introduce_lab;
+
+@property (nonatomic,weak) IBOutlet UITextField *PE_Data;
+@property (nonatomic,weak) IBOutlet UIButton *PE_DataBtn;
+
+@property (nonatomic,weak) IBOutlet UITextField *PE_Oldprice;
+@property (nonatomic,weak) IBOutlet UITextField *PE_Newprice;
+@property (nonatomic,weak) IBOutlet UITextField *PE_Scale;//比例
+
+@property (nonatomic,weak) IBOutlet UITextField *PE_KEY1;
+@property (nonatomic,weak) IBOutlet UIButton *PE_KEYBtn1;
+@property (nonatomic,weak) IBOutlet UITextField *PE_KEY2;
+@property (nonatomic,weak) IBOutlet UIButton *PE_KEYBtn2;
+@property (nonatomic,weak) IBOutlet UITextField *PE_Num;
+
+@property (nonatomic,weak) IBOutlet UIButton *PE_PastBtn;
+@property (nonatomic,weak) IBOutlet UIButton *PE_AlltimeBtn;
+@property (nonatomic,weak) IBOutlet UIButton *PE_DontBtn;
+@property (nonatomic,weak) IBOutlet UIButton *PE_BigBtn;//加在上面的button可以编辑时隐藏
+
+
+@property (nonatomic,weak) IBOutlet UIButton *P_Businesser_Btn_Btn;
+@property (nonatomic,weak) IBOutlet UIButton *P_shop_Btn_Btn;
+@property (nonatomic,weak) IBOutlet UIButton *PE_DataBtn_Btn;
+
+@end
+
+@implementation BprodetailViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        self.ALLDic=[[NSMutableDictionary alloc]initWithCapacity:0];
+        self.ProDic=[[NSMutableDictionary alloc]initWithCapacity:0];
+        
+        array1 = [[NSArray alloc]init];
+        array2 = [[NSArray alloc]init];
+    }
+    return self;
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+
+    
+    // 隐藏pickerView和toolBar
+    [self.m_datePicker setHidden:YES];
+    
+	[self.m_toolbar setHidden:YES];
+    
+    
+    [self hideTabBar:YES];
+    
+    [self hiddenNumPadDone:nil];
+
+
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    // 隐藏pickerView和toolBar
+    [self.m_datePicker setHidden:YES];
+    
+	[self.m_toolbar setHidden:YES];
+    
+    [self hideTabBar:NO];
+
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    [self setRightButtonWithTitle:@"复制" action:@selector(IstureCopy)];
+
+    self.P_name.delegate=self.P_smallname.delegate=self.P_tags.delegate=self.PE_Num.delegate=self.PE_Scale.delegate=self.PE_Oldprice.delegate=self.PE_Newprice.delegate=self;
+
+    self.P_remind.delegate=self.P_introduce.delegate=self;
+    self.P_remind.tag=1;self.P_introduce.tag=2;
+    
+    self.P_Businesser_Btn.tag=1;
+    self.P_shop_Btn.tag=2;
+    self.P_one_Btn.tag=3;
+    self.P_two_Btn.tag=4;
+    
+    self.PE_PastBtn.tag=31;
+    self.PE_AlltimeBtn.tag=32;
+    self.PE_DontBtn.tag=33;
+    
+    [self setTitle:@"产品详情"];
+    [self.ProDetailScroview setContentSize:CGSizeMake(WindowSizeWidth,963)];
+
+    [self setDataToTextfield];
+    
+}
+
+
+- (void)leftClicked{
+    
+    [self goBack];
+    
+}
+
+
+//
+-(void)setDataToTextfield
+{
+
+    self.P_Businesser_Btn_Btn.hidden=YES;
+    self.P_shop_Btn_Btn.hidden=YES;
+    self.PE_DataBtn_Btn.hidden=YES;
+    
+    self.PE_BigBtn.hidden=YES;
+    
+    
+    self.LimitRebate = [self.ProDic objectForKey:@"LimitRate"];//最低返利
+    self.RebatesType = [self.ProDic objectForKey:@"RemateType"];//返利类别
+    
+    oneID = [NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"ClassParentID"]];
+    
+    twoID =[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"ClassID"]];
+    
+    BusinessID =[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"MerchantID"]];
+    
+    self.P_Businesser.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"MerchantName"]];
+//    self.P_shop.text=@"无";
+        
+    NSString *strID;
+
+    if ([[self.ProDic objectForKey:@"ServiceShos"] count]>1)
+    {
+        strID = [[[self.ProDic objectForKey:@"ServiceShos"] objectAtIndex:0] objectForKey:@"MerchantShopId"];
+        self.P_shop.text =[[[self.ProDic objectForKey:@"ServiceShos"] objectAtIndex:0] objectForKey:@"MerchantShopName"];
+        
+        for (int i=1; i<[[self.ProDic objectForKey:@"ServiceShos"] count]; i++) {
+            
+            NSDictionary * data = [[self.ProDic objectForKey:@"ServiceShos"]objectAtIndex:i];
+            
+            strID =[NSString stringWithFormat:@"%@,%@",strID,[data objectForKey:@"MerchantShopId"]];
+            self.P_shop.text =[NSString stringWithFormat:@"%@,%@",self.P_shop.text,[data objectForKey:@"MerchantShopName"]];
+
+        }
+
+    }
+    else if ([[self.ProDic objectForKey:@"ServiceShos"] count]==1)
+    {
+        for (NSDictionary *data in [self.ProDic objectForKey:@"ServiceShos"])
+        {
+        strID=[NSString stringWithFormat:@"%@",[data objectForKey:@"MerchantShopId"]];
+        self.P_shop.text =[NSString stringWithFormat:@"%@",[data objectForKey:@"MerchantShopName"]];
+        }
+    }
+
+    ShopID = strID;
+
+    
+    self.P_one.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"ClassParentName"]];
+    self.P_two.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"ClassName"]];
+    self.P_name.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"SvcName"]];
+    self.P_smallname.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"SvcSimpleName"]];
+    if ([self.P_smallname.text isEqualToString:@"<null>"])
+    {
+        self.P_smallname.text=@"";
+    }
+    self.P_tags.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"Tags"]];
+    self.P_remind.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"Explain"]];
+    self.P_introduce.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"Introduction"]];
+
+    if (self.P_remind.text==nil||[self.P_remind.text isEqualToString:@""])
+    {
+        self.P_remind_lab.text = @"特别提醒";
+
+    }else
+    {
+        self.P_remind_lab.text = @"";
+    }
+    if (self.P_introduce.text==nil||[self.P_introduce.text isEqualToString:@""])
+    {
+        self.P_introduce_lab.text = @"产品简介";
+    }else
+    {
+        self.P_introduce_lab.text = @"";
+    }
+
+    self.PE_Data.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"ShelfTime"]];
+    
+    self.PE_Oldprice.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"OriginalPrice"]];
+    self.PE_Newprice.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"Price"]];
+    
+    float aaa= [[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"CommissionRate"]] floatValue];
+    self.PE_Scale.text=[NSString stringWithFormat:@"%0.2f",aaa];
+    
+
+
+    self.PE_KEY1.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"KeyVaildDateS"]];
+
+    self.PE_KEY2.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"KeyVaildDateE"]];
+    
+    
+    self.PE_Num.text=[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"Quantity"]];
+    
+    
+    [self.PE_AlltimeBtn setImage:[UIImage imageNamed:@"comm_check_box_selected.png"] forState:UIControlStateSelected];
+    [self.PE_AlltimeBtn setImage:[UIImage imageNamed:@"comm_check_box_def.png"] forState:UIControlStateNormal];
+    [self.PE_PastBtn setImage:[UIImage imageNamed:@"comm_check_box_selected.png"] forState:UIControlStateSelected];
+    [self.PE_PastBtn setImage:[UIImage imageNamed:@"comm_check_box_def.png"] forState:UIControlStateNormal];
+    [self.PE_DontBtn setImage:[UIImage imageNamed:@"comm_check_box_selected.png"] forState:UIControlStateSelected];
+    [self.PE_DontBtn setImage:[UIImage imageNamed:@"comm_check_box_def.png"] forState:UIControlStateNormal];
+    
+    if ([[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"IsAnyTimeReturn"]]isEqualToString:@"Yes"])
+    {
+        self.PE_AlltimeBtn.selected=YES;
+    }else if ([[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"IsAnyTimeReturn"]]isEqualToString:@"No"])
+    {
+       self.PE_AlltimeBtn.selected=NO;
+    }
+    
+    if ([[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"IsExpiredReturn"]]isEqualToString:@"Yes"])
+    {
+        self.PE_PastBtn.selected=YES;
+    }else if ([[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"IsExpiredReturn"]]isEqualToString:@"No"])
+    {
+        self.PE_PastBtn.selected=NO;
+    }
+    
+    if ([[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"IsReservation"]]isEqualToString:@"Yes"])
+    {
+        self.PE_DontBtn.selected=YES;
+    }else if ([[NSString stringWithFormat:@"%@",[self.ProDic objectForKey:@"IsReservation"]]isEqualToString:@"No"])
+    {
+        self.PE_DontBtn.selected=NO;
+    }
+
+
+    if ([self.ProductStatus isEqualToString:@"1"])
+    {
+        self.remindlabel.text=@"赶快完善产品信息，提交审核哦！";
+        self.P_Businesser_Btn_Btn.hidden=NO;
+        self.P_shop_Btn_Btn.hidden=NO;
+        self.PE_DataBtn_Btn.hidden=NO;
+    }
+    else if ([self.ProductStatus isEqualToString:@"3"])
+    {
+        self.remindlabel.text=@"该产品销售中，不能修改信息哦！";
+        [self allenableno];
+    }
+    else if ([self.ProductStatus isEqualToString:@"2"])
+    {
+        self.remindlabel.text=@"该产品审核中，不能修改信息哦！";
+        [self allenableno];
+        [self setRightButtonWithTitle:@"操作" action:@selector(RightBtn)];
+        
+    }
+
+    else if ([self.ProductStatus isEqualToString:@"6"])
+    {
+        self.remindlabel.text=@"该产品已下架！";
+        [self allenableno];
+        
+    }
+    else if ([self.ProductStatus isEqualToString:@"8"])
+    {
+        self.remindlabel.text=@"该产品属违规产品！";
+        [self allenableno];
+    }
+
+    // 初始化pickerView
+    [self initWithPickerView];
+    
+    [self.m_datePicker setHidden:YES];
+    [self.m_toolbar setHidden:YES];
+
+}
+
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+
+    if ((textField == self.P_name)||(textField == self.P_smallname)||(textField == self.P_tags)||(textField == self.PE_Num)||(textField == self.PE_Scale)||(textField == self.PE_Oldprice)||(textField == self.PE_Newprice))
+    {
+        [textField resignFirstResponder];
+    }
+    return YES;
+}
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    if (textField == self.P_name) {
+        [self hiddenNumPadDone:nil];
+        [self.ProDetailScroview setContentOffset:CGPointMake(0, 141) animated:YES];
+    }
+    else if (textField == self.P_smallname){
+        [self hiddenNumPadDone:nil];
+        [self.ProDetailScroview setContentOffset:CGPointMake(0, 187) animated:YES];
+    }
+    else if (textField == self.P_tags){
+        [self hiddenNumPadDone:nil];
+        [self.ProDetailScroview setContentOffset:CGPointMake(0, 233) animated:YES];
+    }
+    else if ((textField == self.PE_Num)||(textField == self.PE_Scale)||(textField == self.PE_Oldprice)||(textField == self.PE_Newprice))
+    {
+        [self showNumPadDone:nil];
+        [self.ProDetailScroview setContentOffset:CGPointMake(0, 550) animated:YES];
+
+    }
+    else
+    {
+        [self hiddenNumPadDone:nil];
+    }
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(textFieldChange) name:UITextFieldTextDidChangeNotification object:self.PE_Scale];
+
+    
+    return YES;
+}
+
+-(void)textFieldChange
+{
+    
+    if (self.PE_Scale.text.length==1||[self.PE_Scale.text isEqualToString:@"0"])
+    {
+        
+        if ([IsSpecial isEqualToString:@"True"])
+        {
+            
+        }
+        else
+        {
+            if ([self.PE_Scale.text isEqualToString:@"0"])
+            {
+                self.PE_Scale.text=@"1";
+            }
+        }
+        
+    }
+    
+    if (self.PE_Scale.text.length>=3)
+    {
+        if ([[NSString stringWithFormat:@"%@",self.PE_Scale.text] floatValue]>100)
+        {
+            self.PE_Scale.text=@"100";
+        }
+    }
+  
+}
+
+
+
+- (void)textFieldDidEndEditing:(UITextField *)textField;
+{
+    if (textField == self.PE_Scale)
+    {
+        //没有最低返利设置
+        if ([self.LimitRebate isEqualToString:@""]) {
+            
+            
+        }//有最低返利设定
+        else{
+            
+            if ([self.PE_Scale.text floatValue]<[self.LimitRebate floatValue]*100) {
+                
+                self.PE_Scale.text= [NSString stringWithFormat:@"%.0f",[self.LimitRebate floatValue]*100] ;
+                
+                NSNumber *f =[NSNumber numberWithFloat:[self.LimitRebate floatValue]];
+                
+                NSString *percentStr = [NSNumberFormatter localizedStringFromNumber:f numberStyle:NSNumberFormatterPercentStyle];
+                UIAlertView *alert = [[UIAlertView alloc]initWithTitle:nil message:[NSString stringWithFormat:@"您有最低返利设定，您所发布产品的返利比例最低设置为%@",percentStr] delegate:nil cancelButtonTitle:nil otherButtonTitles:@"确定", nil];
+                [alert show];
+            }
+            
+        }
+        
+    }
+    
+}
+
+
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    NSString *Numbers=@"0123456789\n.";
+    NSCharacterSet *cs;
+    
+    if (textField == self.PE_Oldprice) {
+        
+        array1 = [self.PE_Oldprice.text componentsSeparatedByString:@"."];
+        
+        if ( array1.count >= 2 ) {
+            
+            Numbers =@"0123456789\n";
+        }
+        
+        cs = [[NSCharacterSet characterSetWithCharactersInString:Numbers] invertedSet];
+        NSString *filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+        BOOL basicTest = [string isEqualToString:filtered];
+        if(!basicTest)
+        {
+            [SVProgressHUD showErrorWithStatus:@"请正确输入!"];
+            return NO;
+        }
+        
+        return YES;
+        
+    }
+    else if (textField == self.PE_Newprice)
+    {
+        
+        array2 = [self.PE_Newprice.text componentsSeparatedByString:@"."];
+        
+        if ( array2.count >= 2 ) {
+            
+            Numbers =@"0123456789\n";
+        }
+        
+        cs = [[NSCharacterSet characterSetWithCharactersInString:Numbers] invertedSet];
+        NSString *filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+        BOOL basicTest = [string isEqualToString:filtered];
+        if(!basicTest)
+        {
+            [SVProgressHUD showErrorWithStatus:@"请正确输入!"];
+            return NO;
+        }
+        
+    }
+    array1 = [self.PE_Oldprice.text componentsSeparatedByString:@"."];
+    array2 = [self.PE_Newprice.text componentsSeparatedByString:@"."];
+    
+    
+    //其他的类型不需要检测，直接写入
+    return YES;
+}
+
+
+- (void)textViewDidBeginEditing:(UITextView *)textView;
+{
+    if (textView == self.P_remind) {
+        
+        [self.ProDetailScroview setContentOffset:CGPointMake(0, 326) animated:YES];
+
+    }
+    else if (textView == self.P_introduce){
+        
+        [self.ProDetailScroview setContentOffset:CGPointMake(0, 418) animated:YES];
+    }
+
+}
+
+
+-(void)textViewDidChange:(UITextView *)textView
+{
+    if (textView.tag==1)
+    {
+        if (textView.text.length == 0) {
+            self.P_remind_lab.text = @"特别提醒";
+            
+        }else{
+            self.P_remind_lab.text = @"";
+        }
+    }else if (textView.tag==2)
+    {
+        if (textView.text.length == 0) {
+            self.P_introduce_lab.text = @"产品简介";
+            
+        }else{
+            self.P_introduce_lab.text = @"";
+        }
+        
+    }
+}
+
+
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView;
+{
+    [self hiddenNumPadDone:nil];
+    return YES;
+}
+
+
+-(void)allenableno
+{
+
+    self.P_name.enabled=self.P_smallname.enabled=self.P_tags.enabled=self.PE_Num.enabled=self.PE_Scale.enabled=self.PE_Oldprice.enabled=self.PE_Newprice.enabled=NO;
+    self.P_remind.editable=self.P_introduce.editable=NO;
+
+    self.P_Businesser_Btn.enabled=self.P_shop_Btn.enabled=self.P_one_Btn.enabled=self.P_two_Btn.enabled=NO;
+    self.P_Businesser.enabled=self.P_shop.enabled=self.P_one.enabled=self.P_two.enabled=NO;
+    
+
+    self.PE_Data.enabled=self.PE_DataBtn.enabled=self.PE_KEY1.enabled=self.PE_KEY2.enabled=self.PE_KEYBtn1.enabled=self.PE_KEYBtn2.enabled=NO;
+    self.PE_BigBtn.hidden=NO;
+
+}
+
+-(IBAction)ChoseBtn:(UIButton *)sender
+{
+    
+    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    
+    if (sender.tag==1)
+    {
+        DowncellViewController*downVC=[[DowncellViewController alloc]initWithNibName:@"DowncellViewController" bundle:nil];
+        downVC.Itemstyle = @"Business";
+        downVC.Chosedelegate = self;
+        
+        
+        [self.navigationController pushViewController:downVC animated:YES];
+
+    }else if (sender.tag==2)
+    {
+        if (self.P_Businesser.text==nil||[self.P_Businesser.text isEqualToString:@""])
+        {
+            [SVProgressHUD showErrorWithStatus:@"请先选择商户"];
+            return;
+        }
+        ChoseShopViewController*downVC=[[ChoseShopViewController alloc]initWithNibName:@"ChoseShopViewController" bundle:nil];
+        
+        downVC.chosemerchantId=BusinessID;
+        
+        downVC.Choseshopdelegate =self;
+        
+        [self.navigationController pushViewController:downVC animated:YES];
+    }else if (sender.tag==3)
+    {
+        DowncellViewController*downVC=[[DowncellViewController alloc]initWithNibName:@"DowncellViewController" bundle:nil];
+        
+        downVC.Itemstyle = @"B_one";
+        downVC.Chosedelegate = self;
+        [self.navigationController pushViewController:downVC animated:YES];
+
+    }else if (sender.tag==4)
+    {
+        if (self.P_one.text==nil||[self.P_one.text isEqualToString:@""])
+        {
+            [SVProgressHUD showErrorWithStatus:@"请先选择一级类型"];
+            return;
+        }
+        
+        DowncellViewController*downVC=[[DowncellViewController alloc]initWithNibName:@"DowncellViewController" bundle:nil];        
+        downVC.Itemstyle = @"B_two";
+        downVC.Needtwo = oneID;
+        downVC.Chosedelegate = self;
+        [self.navigationController pushViewController:downVC animated:YES];
+
+    }
+
+}
+
+
+- (void)ChosesbusinessValue:(NSString *)value code:(NSString *)Bcode Special:(NSString *)Specialstring LimitRebate:(NSString *)LimitRebatestring RebatesType:(NSString *)RebatesTypestring;//选择商户
+{
+    
+    if ([self.P_Businesser.text isEqualToString:value]) {
+        return;
+    }
+    
+    self.P_Businesser.text =value;
+    BusinessID = Bcode;
+    IsSpecial = Specialstring;
+    
+    self.P_shop.text =@"";
+    ShopID =@"";
+    
+    self.LimitRebate = LimitRebatestring;
+    self.RebatesType = RebatesTypestring;//返利类别
+    
+}
+
+-(void)ChosesshopValue:(NSString *)value code:(NSString *)shopcode
+{
+    if ([self.P_shop.text isEqualToString:value]) {
+        return;
+    }
+    self.P_shop.text =value;
+    ShopID =shopcode;
+}
+
+
+//////////////
+- (void)ChosesoneValue:(NSString *)value code:(NSString *)onecode
+{
+    if ([self.P_one.text isEqualToString:value]) {
+        return;
+    }
+    self.P_one.text = value;
+    oneID = onecode;
+    
+    
+    self.P_two.text = @"";
+    twoID = @"";
+}
+
+/////////////
+- (void)ChosestwoValue:(NSString *)value code:(NSString *)twocode
+{
+    if ([self.P_two.text isEqualToString:value]) {
+        return;
+    }
+    self.P_two.text = value;
+    twoID = twocode;
+    
+}
+
+
+
+-(IBAction)Btnselected:(UIButton *)sender
+{
+
+    if (sender.tag==31)
+    {
+        if (self.PE_PastBtn.selected)
+        {
+            self.PE_PastBtn.selected=NO;
+        }
+        else
+        {
+            self.PE_PastBtn.selected=YES;
+        }
+    }else if (sender.tag==32)
+    {
+        if (self.PE_AlltimeBtn.selected)
+        {
+            self.PE_AlltimeBtn.selected=NO;
+        }
+        else
+        {
+            self.PE_AlltimeBtn.selected=YES;
+        }
+    }
+    else if (sender.tag==33)
+    {
+        if (self.PE_DontBtn.selected)
+        {
+            self.PE_DontBtn.selected=NO;
+        }
+        else
+        {
+            self.PE_DontBtn.selected=YES;
+        }
+    }
+    
+    
+}
+
+
+- (void) togglePicker{
+    
+    
+    NSDateFormatter *formatter=[[NSDateFormatter alloc] init];
+    
+    [formatter setDateFormat:@"YYY/MM/dd HH:mm"];
+    
+    NSString *str = [formatter stringFromDate:self.m_datePicker.date];
+    
+    self.m_dataString = [NSString stringWithFormat:@"%@",str];
+    
+    
+}
+
+
+
+#pragma mark - BtnClicked
+- (IBAction)timeChoose:(id)sender {
+    
+    self.KeyString=@"3";
+    
+    [self.view endEditing:YES];
+    
+    self.m_datePicker.hidden = NO;
+    self.m_toolbar.hidden = NO;
+    [self.m_datePicker setDatePickerMode:UIDatePickerModeDateAndTime];
+    
+    NSTimeInterval secondDay = 24 * 60 * 60;
+    NSDate * today = [[NSDate alloc]init];
+    NSDate *min = [today dateByAddingTimeInterval:secondDay];
+    self.m_datePicker.minimumDate=min;//不能选明日之前的。设最小日期；
+    
+    [self togglePicker];
+}
+
+-(IBAction)choseKEY1:(id)sender
+{
+    self.KeyString=@"1";
+    [self.view endEditing:YES];
+    
+    self.m_datePicker.hidden = NO;
+    self.m_toolbar.hidden = NO;
+    [self.m_datePicker setDatePickerMode:UIDatePickerModeDate];
+
+    self.m_datePicker.minimumDate=[NSDate date];//不能选今日之前的。设最小日期；
+    
+    [self togglePicker];
+
+}
+
+-(IBAction)choseKEY2:(id)sender
+{
+    self.KeyString=@"2";
+    
+    [self.view endEditing:YES];
+    
+    self.m_datePicker.hidden = NO;
+    self.m_toolbar.hidden = NO;
+    [self.m_datePicker setDatePickerMode:UIDatePickerModeDate];
+
+    NSDateFormatter *formatter=[[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyy/MM/dd"];
+    NSDate *minDate = [formatter dateFromString:self.PE_KEY1.text];
+    self.m_datePicker.minimumDate=minDate;//不能选KEY1之前的。设最小日期；
+
+    [self togglePicker];
+
+}
+
+
+#pragma 初始化pickerView
+- (void)initWithPickerView{
+	
+    UIWindow *window = self.navigationController.view.window;
+	//  datePickerView初始化
+	self.m_datePicker = [[UIDatePicker alloc]initWithFrame:CGRectMake(0, [UIScreen mainScreen].bounds.size.height - 210, WindowSizeWidth, 200)];
+    [self.m_datePicker setDatePickerMode:UIDatePickerModeDateAndTime];
+	[self.m_datePicker addTarget:self action:@selector(togglePicker) forControlEvents:UIControlEventValueChanged];
+    self.m_datePicker.backgroundColor = [UIColor whiteColor];
+	[window addSubview:self.m_datePicker];
+    
+    
+    
+    UIToolbar *pickerBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.m_datePicker.frame.origin.y - 44, WindowSizeWidth, 44)];
+    pickerBar.barStyle = UIBarStyleBlackTranslucent;
+    
+    UIBarButtonItem *cancelBarButton = [[UIBarButtonItem alloc] initWithTitle:@"取消"
+                                                                        style:UIBarButtonItemStyleDone
+                                                                       target:self
+                                                                       action:@selector(doPCAPickerCancel)];
+    
+    
+    UIBarButtonItem *spaceButtonItem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                                    target:nil
+                                                                                    action:nil];
+    
+    
+    UIBarButtonItem *lastButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"完成"
+                                                                       style:UIBarButtonItemStyleDone
+                                                                      target:self
+                                                                      action:@selector(doPCAPickerDone)];
+    
+    NSArray *pickArray = [NSArray arrayWithObjects: cancelBarButton, spaceButtonItem, lastButtonItem, nil];
+    [pickerBar setItems:pickArray animated:YES];
+    [window addSubview:pickerBar];
+    pickerBar.backgroundColor = [UIColor clearColor];
+    self.m_toolbar = pickerBar;
+    
+    [window addSubview:self.m_toolbar];
+    
+    
+    
+}
+
+#pragma mark - PickerBar按钮//完成
+- (void)doPCAPickerDone{
+    
+    [self.m_datePicker setHidden:YES];
+    
+    [self.m_toolbar setHidden:YES];
+    
+    
+    if ([self.KeyString isEqualToString:@"1"])
+    {
+        
+        self.PE_KEY1.text = [[NSString stringWithFormat:@"%@",self.m_dataString] substringToIndex:10];
+            
+    }
+    else if ([self.KeyString isEqualToString:@"2"])
+    {
+        
+        self.PE_KEY2.text = [[NSString stringWithFormat:@"%@",self.m_dataString] substringToIndex:10];
+   
+    }
+    else if ([self.KeyString isEqualToString:@"3"])
+        
+    {
+            self.PE_Data.text = [NSString stringWithFormat:@"%@",self.m_dataString];
+        
+    }
+}
+
+- (void)doPCAPickerCancel{
+    
+    [self.m_datePicker setHidden:YES];
+    
+    [self.m_toolbar setHidden:YES];
+    
+    
+}
+
+
+-(BOOL)textlegth
+{
+    
+    if(self.P_Businesser.text.length==0||[self.P_Businesser.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请选择所属商户"];
+        return NO;
+    }
+    else if(self.P_shop.text.length==0||[self.P_shop.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请选择所属店铺"];
+        return NO;
+    }
+    else if(self.P_one.text.length==0||[self.P_one.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请选择商品一级类型"];
+        return NO;
+    }
+    else if(self.P_two.text.length==0||[self.P_two.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请选择商品二级类型"];
+        return NO;
+    }
+    else if(self.P_name.text.length==0||[self.P_name.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写产品名称"];
+        return NO;
+    }
+    else if(self.P_smallname.text.length==0||[self.P_smallname.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写产品简称"];
+        return NO;
+    }
+    else if(self.P_tags.text.length==0||[self.P_tags.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写产品标签"];
+        return NO;
+    }
+    else if(self.P_remind.text.length==0||[self.P_remind.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写特别提醒"];
+        return NO;
+    }
+    else if(self.P_introduce.text.length==0||[self.P_introduce.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写产品简介"];
+        return NO;
+    }
+    if(self.PE_Data.text.length==0||[self.PE_Data.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请选择下架日期"];
+        return NO;
+    }
+    else if(self.PE_Oldprice.text.length==0||[self.PE_Oldprice.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写原来价钱"];
+        return NO;
+    }
+    else if(self.PE_Newprice.text.length==0||[self.PE_Newprice.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写城与城价钱"];
+        return NO;
+    }
+    else if(self.PE_Scale.text.length==0||[self.PE_Scale.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写返利比例"];
+        return NO;
+    }
+    else if(self.PE_KEY1.text.length==0||[self.PE_KEY1.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请选择KEY值有效期"];
+        return NO;
+    }
+    else if(self.PE_KEY2.text.length==0||[self.PE_KEY2.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请选择KEY值有效期"];
+        return NO;
+    }
+    else if(self.PE_Num.text.length==0||[self.PE_Num.text isEqualToString:@""])
+    {
+        [SVProgressHUD showErrorWithStatus:@"请填写产品数量"];
+        return NO;
+    }
+    
+    return YES;
+
+    
+}
+
+-(void)SetDataToDIC
+{
+    [self.ALLDic setObject:ShopID forKey:@"mctShopIDs"];
+    [self.ALLDic setObject:[self.ProDic objectForKey:@"ServiceID"] forKey:@"ServiceID"];
+    [self.ALLDic setObject:self.P_Businesser.text forKey:@"P_Businesser"];
+    [self.ALLDic setObject:BusinessID forKey:@"chose.merchantId"];
+
+    [self.ALLDic setObject:self.P_shop.text forKey:@"P_shop"];
+    [self.ALLDic setObject:self.P_one.text forKey:@"P_one"];
+    [self.ALLDic setObject:self.P_two.text forKey:@"P_two"];
+    [self.ALLDic setObject:twoID forKey:@"chose.codetwo"];
+
+    [self.ALLDic setObject:self.P_name.text forKey:@"P_name"];
+    [self.ALLDic setObject:self.P_smallname.text forKey:@"P_smallname"];
+    [self.ALLDic setObject:self.P_tags.text forKey:@"P_tags"];
+    [self.ALLDic setObject:self.P_remind.text forKey:@"P_remind"];
+    [self.ALLDic setObject:self.P_introduce.text forKey:@"P_introduce"];
+    
+    [self.ALLDic setObject:self.PE_Data.text forKey:@"PE_Data"];
+    [self.ALLDic setObject:self.PE_Oldprice.text forKey:@"PE_Oldprice"];
+    [self.ALLDic setObject:self.PE_Newprice.text forKey:@"PE_Newprice"];
+    [self.ALLDic setObject:self.PE_Scale.text forKey:@"PE_Scale"];
+    [self.ALLDic setObject:self.PE_KEY1.text forKey:@"PE_KEY1"];
+    [self.ALLDic setObject:self.PE_KEY2.text forKey:@"PE_KEY2"];
+    [self.ALLDic setObject:self.PE_Num.text forKey:@"PE_Num"];
+    
+    if (self.PE_PastBtn.selected)
+    {
+        [self.ALLDic setObject:@"1" forKey:@"PE_PastBtn"];
+    }
+    else
+    {
+        [self.ALLDic setObject:@"0" forKey:@"PE_PastBtn"];
+    }
+    if (self.PE_AlltimeBtn.selected)
+    {
+        [self.ALLDic setObject:@"1" forKey:@"PE_AlltimeBtn"];
+    }
+    else
+    {
+        [self.ALLDic setObject:@"0" forKey:@"PE_AlltimeBtn"];
+    }
+    if (self.PE_DontBtn.selected)
+    {
+        [self.ALLDic setObject:@"1" forKey:@"PE_DontBtn"];
+    }
+    else
+    {
+        [self.ALLDic setObject:@"0" forKey:@"PE_DontBtn"];
+    }
+    
+//    NSLog(@"%@",[self.ALLDic objectForKey:@"PE_DontBtn"]);
+
+}
+
+
+
+
+
+-(IBAction)ToNext:(id)sender
+{
+  if ([self textlegth])
+   {
+       //判断日期的大小
+       NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+       [dateFormatter setDateFormat:@"YYY/MM/dd"];
+       NSDate *tempDate1 = [dateFormatter dateFromString:[NSString stringWithFormat:@"%@",self.PE_KEY1.text]];
+       NSDate *tempDate2 = [dateFormatter dateFromString:[NSString stringWithFormat:@"%@",self.PE_KEY2.text]];
+       NSTimeInterval timeBetween = [tempDate1 timeIntervalSinceDate:tempDate2];
+       if (timeBetween>0) {
+           [SVProgressHUD showErrorWithStatus:@"KEY值结束日期必须大于开始日期"];
+           
+           return;
+       }
+    
+       [self SetDataToDIC];
+       
+       [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+
+    
+    PimageViewController *PimageVC=[[PimageViewController alloc]initWithNibName:@"PimageViewController" bundle:nil];
+    
+    if ([self.ProductStatus isEqualToString:@"1"])
+    {
+        PimageVC.P_AddORSubmit=@"21";
+    }else if([self.ProductStatus isEqualToString:@"2"])
+    {
+        PimageVC.P_AddORSubmit=@"22";
+    }else if([self.ProductStatus isEqualToString:@"3"])
+    {
+        PimageVC.P_AddORSubmit=@"23";
+    }else if([self.ProductStatus isEqualToString:@"4"])
+    {
+        PimageVC.P_AddORSubmit=@"24";
+    }else if([self.ProductStatus isEqualToString:@"5"])
+    {
+        PimageVC.P_AddORSubmit=@"25";
+    }else if([self.ProductStatus isEqualToString:@"6"])
+    {
+        PimageVC.P_AddORSubmit=@"26";
+    }else if([self.ProductStatus isEqualToString:@"7"])
+    {
+        PimageVC.P_AddORSubmit=@"27";
+    }else if([self.ProductStatus isEqualToString:@"8"])
+    {
+        PimageVC.P_AddORSubmit=@"28";
+    }
+    
+    PimageVC.AllDic=self.ALLDic;
+
+    
+    [self.navigationController pushViewController:PimageVC animated:YES];
+    
+  }
+
+}
+
+-(void)RightBtn
+{
+    UIActionSheet *sheet  = [[UIActionSheet alloc] initWithTitle:@"选择" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"复制产品",@"通过审核", nil];
+    sheet.tag = 101;
+    [sheet showInView:self.view];
+}
+
+- (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (actionSheet.tag == 101)
+    {
+        if (buttonIndex==0)
+        {
+            [self IstureCopy];
+        }
+        if (buttonIndex==1)
+        {
+            [self IsturePass];
+        }
+    }
+}
+
+
+-(void)IstureCopy
+{
+    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil
+                                                       message:@"您确定复制该产品？"
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"确定", nil];
+    alertView.tag = 10001;
+    [alertView show];
+}
+
+-(void)IsturePass
+{
+    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil
+                                                       message:@"您确定通过产品的审核，并且出售？"
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"确定", nil];
+    alertView.tag = 10002;
+    [alertView show];
+}
+
+
+#pragma mark UIAlertViewDelegate Method
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    
+    if ( alertView.tag == 10001 ) {
+        if ( buttonIndex == 1 ) {
+            [self copyproduct];
+        }else{
+            
+        }
+    }else if (alertView.tag == 10002)
+    {
+        if ( buttonIndex == 1 ) {
+            [self Passproduct];
+        }else{
+            
+        }
+        
+    }
+    
+}
+
+
+//复制
+-(void)copyproduct
+{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  memberId,@"memberId",
+                                  [self.ProDic objectForKey:@"ServiceID"],@"serviceId",
+                                  key,@"key",
+                                  nil];
+    
+    
+    [SVProgressHUD showWithStatus:@"数据中"];
+    [httpClient request:@"ServiceCopy.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            [SVProgressHUD dismiss];
+            NSString *msg=[json valueForKey:@"msg"];
+            [SVProgressHUD showSuccessWithStatus:msg];
+            [self.Copydelegate CopyValue:@"copy"];
+            [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(CopyDataOver) userInfo:nil repeats:NO];
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+    
+}
+
+//通过审核
+-(void)Passproduct
+{
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSMutableDictionary *param = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                  memberId,@"memberId",
+                                  [self.ProDic objectForKey:@"ServiceID"],@"serviceId",
+                                  key,@"key",
+                                  nil];
+    
+    [SVProgressHUD showWithStatus:@"数据请求中…"];
+    [httpClient request:@"SvcAudit.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            [SVProgressHUD dismiss];
+            NSString *msg=[json valueForKey:@"msg"];
+            [SVProgressHUD showSuccessWithStatus:msg];
+  
+            [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(CopyDataOver) userInfo:nil repeats:NO];
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+//        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        [SVProgressHUD showErrorWithStatus:@"操作失败，请稍后再试！"];
+    }];
+    
+}
+
+
+
+
+
+
+
+
+
+
+-(void)CopyDataOver
+{
+    for (UIViewController *controller in self.navigationController.viewControllers)
+    {
+        if ([controller isKindOfClass:[BusinesserlistViewController class]]) {
+            [self.navigationController popToViewController:controller animated:YES];
+        }
+    }
+}
+
+
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+@end

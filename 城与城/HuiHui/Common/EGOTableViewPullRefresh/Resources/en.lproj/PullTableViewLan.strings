@@ -1,0 +1,11 @@
+/* 
+  PullTableViewLan.strings
+  baozhifu
+
+  Created by mac on 13-8-13.
+  Copyright (c) 2013年 mac. All rights reserved.
+*/
+pullDown="Pull down to refresh...";
+releaseTo="Release to refresh...";
+loading="Loading...";
+loadMore="Load more";

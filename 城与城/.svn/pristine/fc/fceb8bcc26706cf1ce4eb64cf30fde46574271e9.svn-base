@@ -1,0 +1,1117 @@
+//
+//  OrderAndPayTypeViewController.m
+//  HuiHui
+//
+//  Created by mac on 14-6-25.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//
+
+#import "OrderAndPayTypeViewController.h"
+
+#import "OrderTypeCell.h"
+
+#import "CommonUtil.h"
+
+#import "SVProgressHUD.h"
+
+#import "AppHttpClient.h"
+
+#import "PaymentQueViewController.h"
+
+#import "PayStyleViewController.h"
+
+#import "AlipayViewController.h"
+
+#import "ForgetPswdViewController.h"
+
+
+@interface OrderAndPayTypeViewController ()
+
+@property (weak, nonatomic) IBOutlet UITableView *m_tableView;
+
+@property (strong, nonatomic) IBOutlet UIView *m_footerView;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_payButton;
+
+@property (weak, nonatomic) IBOutlet UIView *m_passView;
+
+@property (weak, nonatomic) IBOutlet UITextField *m_passwordTextField;
+
+// 确认支付
+- (IBAction)sureSubmitOrder:(id)sender;
+
+- (IBAction)huihuiPayClicked:(id)sender;
+
+// 忘记密码
+- (IBAction)forgetPSWD:(id)sender;
+
+@end
+
+@implementation OrderAndPayTypeViewController
+
+@synthesize m_dic;
+
+@synthesize m_typeDic;
+
+@synthesize m_typeString;
+
+@synthesize m_WuliutypeString;
+
+@synthesize isCharge;
+
+@synthesize m_orderId;
+
+@synthesize m_zhifubao;
+
+@synthesize m_WuliutypeDic;
+
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        
+        m_dic = [[NSMutableDictionary alloc]initWithCapacity:0];
+     
+        m_typeDic = [[NSMutableDictionary alloc]initWithCapacity:0];
+        
+        m_WuliutypeDic = [[NSMutableDictionary alloc]initWithCapacity:0];
+
+        isCharge = NO;
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    [self setTitle:@"确认订单"];
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+    // tableView的2.3行进行赋值
+    [self.m_typeDic setValue:@"0" forKey:@"2"];
+    [self.m_typeDic setValue:@"0" forKey:@"3"];
+    [self.m_typeDic setValue:@"0" forKey:@"4"];
+    [self.m_typeDic setValue:@"0" forKey:@"5"];
+    
+    [self.m_WuliutypeDic setValue:@"1" forKey:@"1"];
+    [self.m_WuliutypeDic setValue:@"0" forKey:@"2"];
+
+    // 设置tableView的footerView
+    self.m_tableView.tableFooterView = self.m_footerView;
+    
+    // 隐藏诲诲支付时的输入密码所在的view
+    self.m_payButton.hidden = NO;
+    
+    self.m_passView.hidden = YES;
+    
+    // 赋值是否支持支付宝支付
+    self.m_zhifubao = [NSString stringWithFormat:@"%@",[CommonUtil getValueByKey:kIsAlipay]];
+    
+    self.m_typeString = @"";
+    
+    // 请求数据获取总价和诲诲余额
+    [self requestPriceSubmit];
+
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    self.isCharge = NO;
+    
+    [self hideTabBar:YES];
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    if ( !self.isCharge ) {
+        
+        [self hideTabBar:NO];
+        
+    }
+
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)leftClicked{
+    
+    [self.view endEditing:YES];
+    
+    [self  goBack];
+}
+
+// 请求数据返回余额和总价钱
+- (void)requestPriceSubmit{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           [NSString stringWithFormat:@"%@",self.m_orderId],@"ordIds",
+                           nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"MemberBalance.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            self.m_tableView.hidden = NO;
+            
+            //            NSString *msg = [json valueForKey:@"msg"];
+            
+            //            [SVProgressHUD showSuccessWithStatus:msg];
+            
+            [SVProgressHUD dismiss];
+            
+            NSMutableDictionary *dic = [json valueForKey:@"memberBalanceInfo"];
+            
+            NSString *totalPrice = [NSString stringWithFormat:@"%@",[dic objectForKey:@"Total"]];
+            
+            NSString *balance = [NSString stringWithFormat:@"%.2f",floor([[dic objectForKey:@"Balance"] doubleValue]*100)/100];
+            
+            [self.m_dic setValue:totalPrice forKey:@"payTotalAmount"];
+            
+            [self.m_dic setValue:balance forKey:@"Balance"];
+            
+            // 刷新数据
+            [self.m_tableView reloadData];
+            
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+    
+}
+
+#pragma mark - UITabeViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+//    return 6;
+    //如果支持物流送货的
+    return 7;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    if ( indexPath.row == 0 ) {
+        
+        static NSString *cellIdentifier = @"OrderTypeCellIdentifier";
+        
+        OrderTypeCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        
+        if ( cell == nil ) {
+            
+            NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"OrderTypeCell" owner:self options:nil];
+            
+            cell = (OrderTypeCell *)[nib objectAtIndex:0];
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+        }
+        
+        // 赋值
+        cell.m_productNameLabel.text = [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"SvcSimpleName"]];
+        cell.m_unitPrice.text = [NSString stringWithFormat:@"￥%@",[self.m_dic objectForKey:@"Price"]];
+        cell.m_count.text = [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"quantity"]];
+        cell.m_totalPrice.text = [NSString stringWithFormat:@"￥%@",[self.m_dic objectForKey:@"payTotalAmount"]];
+        
+        
+        return cell;
+
+    }else if ( indexPath.row == 1 ){
+        
+        static NSString *cellIdentifier = @"CellIdentifier";
+        
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        
+        if ( cell == nil ) {
+            
+            cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+        }
+        
+        
+        cell.textLabel.text = @"支付方式";
+        
+        cell.textLabel.font = [UIFont systemFontOfSize:14.0f];
+        
+        cell.textLabel.textColor = [UIColor colorWithRed:170/255.0 green:170/255.0 blue:170/255.0 alpha:1.0];
+        
+        cell.backgroundColor = [UIColor colorWithRed:234/255.0 green:234/255.0 blue:234/255.0 alpha:1.0];
+        
+        return cell;
+        
+        
+    }else if ( indexPath.row !=6 ){
+        
+        static NSString *cellIdentifier = @"ChoosePayTypeCellIdentifier";
+        
+        ChoosePayTypeCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        
+        if ( cell == nil ) {
+            
+            NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"OrderTypeCell" owner:self options:nil];
+            
+            cell = (ChoosePayTypeCell *)[nib objectAtIndex:1];
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+        }
+        
+        // 赋值
+        
+        if ( indexPath.row == 2 ) {
+            
+            // 判断是否支持支付宝支付 0：不支持；1：支持
+            if ( [self.m_zhifubao isEqualToString:@"1"] ) {
+                
+                cell.hidden = NO;
+                
+                cell.m_titleLabel.text = @"支付宝支付";
+                
+                cell.m_imageView.image = [UIImage imageNamed:@"alipay_icon.png"];
+                
+                cell.m_imageView.frame = CGRectMake(8, 5, 40, 30);
+                
+                cell.m_banlanceLabel.hidden = YES;
+                
+            }else{
+                
+                
+                cell.hidden = YES;
+            }
+            
+        }else if ( indexPath.row == 3 ) {
+            
+            cell.m_titleLabel.text = @"银联安全支付";
+            
+            cell.m_imageView.image = [UIImage imageNamed:@"YinlianIcon.png"];
+            
+            cell.m_imageView.frame = CGRectMake(cell.m_imageView.frame.origin.x, 12, cell.m_imageView.frame.size.width, 19);
+            
+            cell.m_banlanceLabel.hidden = YES;
+            
+        }else  if ( indexPath.row == 4 ) {
+            
+            cell.m_titleLabel.text = @"城与城余额支付";
+            
+            cell.m_imageView.image = [UIImage imageNamed:@"HuiHuiIcon.png"];
+            
+            cell.m_imageView.frame = CGRectMake(cell.m_imageView.frame.origin.x, 7, cell.m_imageView.frame.size.width, 30);
+
+            cell.m_banlanceLabel.hidden = NO;
+            
+            cell.m_banlanceLabel.text = [NSString stringWithFormat:@"余额:%@",[self.m_dic objectForKey:@"Balance"]];
+
+            
+        }else   if ( indexPath.row == 5 ){
+            
+            cell.m_titleLabel.text = @"微信支付";
+            
+            cell.m_imageView.image = [UIImage imageNamed:@"weixin.png"];
+            
+            cell.m_imageView.frame = CGRectMake(cell.m_imageView.frame.origin.x, 7, cell.m_imageView.frame.size.width, 30);
+            
+            cell.m_banlanceLabel.hidden = YES;
+            
+        }
+        
+        NSString *string = [self.m_typeDic objectForKey:[NSString stringWithFormat:@"%li",(long)indexPath.row]];
+        
+        if ( [string isEqualToString:@"1"] ) {
+            
+            cell.m_chooseBtn.selected = YES;
+            
+        }else{
+            
+            cell.m_chooseBtn.selected = NO;
+
+        }
+        
+        cell.m_chooseBtn.tag = indexPath.row;
+        
+        [cell.m_chooseBtn addTarget:self action:@selector(choosePayTypeClicked:) forControlEvents:UIControlEventTouchUpInside];
+        
+        return cell;
+        
+    }else
+    {
+        static NSString *cellIdentifier = @"ChooseGetTypeCellCellIdentifier";
+        
+        ChooseGetTypeCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        
+        if ( cell == nil ) {
+            
+            NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"OrderTypeCell" owner:self options:nil];
+            
+            cell = (ChooseGetTypeCell *)[nib objectAtIndex:2];
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+        }
+        
+        UIImage*selectedimage=[UIImage imageNamed:@"comm_check_box_selected.png"];
+        UIImage*unselectedimage=[UIImage imageNamed:@"comm_check_box_def.png"];
+        [cell.m_chooseBtnself setImage:selectedimage forState:UIControlStateSelected];
+        [cell.m_chooseBtnself setImage:unselectedimage forState:UIControlStateNormal];
+        [cell.m_chooseBtnwuliu setImage:selectedimage forState:UIControlStateSelected];
+        [cell.m_chooseBtnwuliu setImage:unselectedimage forState:UIControlStateNormal];
+        
+        NSString *string = [self.m_WuliutypeDic objectForKey:@"2"];
+        if ( [string isEqualToString:@"1"] ) {
+            cell.m_chooseBtnself.selected = NO;
+            cell.m_chooseBtnwuliu.selected = YES;
+        }else{
+            cell.m_chooseBtnself.selected = YES;
+            cell.m_chooseBtnwuliu.selected = NO;
+        }
+        [cell.m_chooseBtnself addTarget:self action:@selector(chooseWuliuTypeClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [cell.m_chooseBtnwuliu addTarget:self action:@selector(chooseWuliuTypeClicked:) forControlEvents:UIControlEventTouchUpInside];
+
+        
+        return cell;
+    }
+
+}
+
+#pragma mark - UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    if ( indexPath.row == 0 ) {
+        
+        return 150.0f;
+
+    }else if ( indexPath.row == 1 ){
+        
+        return 25.0f;
+        
+    }else{
+        
+        // 判断是否支持支付宝支付 0：不支持；1：支持
+        if ( [self.m_zhifubao isEqualToString:@"1"] ) {
+            
+            return 44.0f;
+            
+        }else{
+            
+            // 如果不支持支付宝支付的话则隐藏某一行
+            if ( indexPath.row == 2 ) {
+                
+                return 0.0f;
+                
+            }else{
+                
+                return 44.0f;
+
+            }
+            
+            
+        }
+    }
+
+}
+
+- (void)choosePayTypeClicked:(id)sender{
+    
+    [self.view endEditing:YES];
+    
+    UIButton *btn = (UIButton *)sender;
+    
+    if ( btn.tag == 2 ) {
+        // 选择支付宝
+        [self.m_typeDic setValue:@"1" forKey:@"2"];
+
+        [self.m_typeDic setValue:@"0" forKey:@"3"];
+        
+        [self.m_typeDic setValue:@"0" forKey:@"4"];
+        
+        [self.m_typeDic setValue:@"0" forKey:@"5"];
+
+        
+        self.m_typeString = @"2";
+        
+        
+        // 隐藏输入密码的view
+        self.m_passView.hidden = YES;
+        
+        self.m_payButton.hidden = NO;
+
+        
+    }else if ( btn.tag == 3 ) {
+        
+        // 选择银联
+        [self.m_typeDic setValue:@"0" forKey:@"2"];
+
+        [self.m_typeDic setValue:@"1" forKey:@"3"];
+
+        [self.m_typeDic setValue:@"0" forKey:@"4"];
+        
+        [self.m_typeDic setValue:@"0" forKey:@"5"];
+
+
+        self.m_typeString = @"1";
+        
+        
+        // 隐藏输入密码的view
+        self.m_passView.hidden = YES;
+        
+        self.m_payButton.hidden = NO;
+        
+        
+    }else if ( btn.tag == 4 ){
+        
+        // 选择诲诲支付
+        [self.m_typeDic setValue:@"0" forKey:@"2"];
+
+        [self.m_typeDic setValue:@"0" forKey:@"3"];
+        
+        [self.m_typeDic setValue:@"1" forKey:@"4"];
+        
+        [self.m_typeDic setValue:@"0" forKey:@"5"];
+
+
+        self.m_typeString = @"0";
+
+    }else{
+        
+        
+        // 选择微信支付
+        [self.m_typeDic setValue:@"0" forKey:@"2"];
+        
+        [self.m_typeDic setValue:@"0" forKey:@"3"];
+        
+        [self.m_typeDic setValue:@"0" forKey:@"4"];
+        
+        [self.m_typeDic setValue:@"1" forKey:@"5"];
+
+        
+        self.m_typeString = @"3";
+        
+        
+        // 隐藏输入密码的view
+        self.m_passView.hidden = YES;
+        
+        self.m_payButton.hidden = NO;
+
+    }
+    
+
+    // 刷新列表
+    [self.m_tableView reloadData];
+    
+}
+
+- (void)chooseWuliuTypeClicked:(id)sender{
+    
+    [self.view endEditing:YES];
+    
+    UIButton *btn = (UIButton *)sender;
+    
+    if ( btn.tag == 1 ) {
+        // 选择支付宝
+        [self.m_WuliutypeDic setValue:@"1" forKey:@"1"];
+        
+        [self.m_WuliutypeDic setValue:@"0" forKey:@"2"];
+        
+        // 隐藏输入密码的view
+        self.m_passView.hidden = YES;
+        self.m_payButton.hidden = NO;
+        
+        self.m_WuliutypeString = @"0";
+        
+        
+    }else if ( btn.tag == 2 ) {
+        
+        // 选择银联
+        [self.m_WuliutypeDic setValue:@"0" forKey:@"1"];
+        
+        [self.m_WuliutypeDic setValue:@"1" forKey:@"2"];
+        
+        self.m_WuliutypeString = @"1";
+        
+        
+        // 隐藏输入密码的view
+        self.m_passView.hidden = YES;
+        
+        self.m_payButton.hidden = NO;
+        
+        
+    }    // 刷新列表
+    [self.m_tableView reloadData];
+    
+}
+
+- (IBAction)sureSubmitOrder:(id)sender {
+    
+    NSLog(@"total = %@",[self.m_dic objectForKey:@"payTotalAmount"]);
+    
+    // 确认哪种支付方式进行付款
+    
+    NSLog(@"typeString = %@",self.m_typeString);
+    
+    if ( self.m_typeString.length == 0 ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"请选择一种支付方式"];
+        
+        return;
+        
+    }
+    
+    // 判断是哪种支付方式
+    if ( [self.m_typeString isEqualToString:@"2"] ) {
+        // 表示是支付宝支付
+        AlipayViewController *VC = [[AlipayViewController alloc]initWithNibName:@"AlipayViewController" bundle:nil];
+        [self.navigationController pushViewController:VC animated:YES];
+        
+        
+    }else if ( [self.m_typeString isEqualToString:@"1"] ) {
+        // 表示是银联支付
+        [self requestRechargeSubmit];
+        
+    }else if ( [self.m_typeString isEqualToString:@"0"] ){
+     
+        // 表示是诲诲余额支付
+        [self paymentSafeRequest];
+        
+    }else if ( [self.m_typeString isEqualToString:@"3"] ){
+        
+        // 微信支付        
+        // 判断是否安装了微信
+        if ( [WXApi isWXAppInstalled] ) {
+           
+            // 点击去支付后将数据保存起来用于微信支付的赋值
+            [CommonUtil addValue:[NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"SvcSimpleName"]] andKey:WEIXIN_NAME];
+            [CommonUtil addValue:[NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"payTotalAmount"]] andKey:WEIXIN_PRICE];
+            [CommonUtil addValue:[NSString stringWithFormat:@"%@",self.m_orderId] andKey:WEIXIN_OREDENO];
+            // 表示商品购买
+            [CommonUtil addValue:@"1" andKey:WEIXIN_PAYTYPE];
+
+            
+            //创建支付签名对象
+            payRequsestHandler *req = [payRequsestHandler alloc];
+            //初始化支付签名对象
+            [req init:APP_ID mch_id:MCH_ID];
+            //设置密钥
+            [req setKey:PARTNER_ID];
+            
+            //}}}
+            
+            //获取到实际调起微信支付的参数后，在app端调起支付
+            NSMutableDictionary *dict = [req sendPay_demo];
+            
+            if(dict == nil){
+                //错误提示
+                NSString *debug = [req getDebugifo];
+                
+                [SVProgressHUD showErrorWithStatus:debug];
+                
+                //            [self alert:@"提示信息" msg:debug];
+                
+                //            NSLog(@"%@\n\n",debug);
+                
+            }else{
+                
+                //            NSLog(@"%@\n\n",[req getDebugifo]);
+                //[self alert:@"确认" msg:@"下单成功，点击OK后调起支付！"];
+                
+                NSMutableString *stamp  = [dict objectForKey:@"timestamp"];
+                
+                //调起微信支付
+                PayReq* req             = [[PayReq alloc] init];
+                req.openID              = [dict objectForKey:@"appid"];
+                req.partnerId           = [dict objectForKey:@"partnerid"];
+                req.prepayId            = [dict objectForKey:@"prepayid"];
+                req.nonceStr            = [dict objectForKey:@"noncestr"];
+                req.timeStamp           = stamp.intValue;
+                req.package             = [dict objectForKey:@"package"];
+                req.sign                = [dict objectForKey:@"sign"];
+                
+                NSLog(@"dict = %@",dict);
+                
+                [WXApi sendReq:req];
+                
+            }
+
+            
+        }else{
+            
+            // 微信没有安装
+            [SVProgressHUD showErrorWithStatus:@"您没有安装微信"];
+            
+        }
+        
+        
+        
+    }else{
+        
+        
+        
+    }
+    
+}
+
+/*
+
+// 微信根据code获取access_token
+- (void)weixinAccessToken:(NSNotification *)notification{
+    
+    
+    NSLog(@"notification.userInfo = %@",notification.userInfo);
+    
+    NSString *code = [NSString stringWithFormat:@"%@",[notification.userInfo objectForKey:@"codeKey"]];
+    
+    // AppID：wx67aeb251adaae095  AppSecret：eb7c53df9cbea1f5877336cf283d3696
+    
+    
+    //    https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code
+    
+    
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    
+    NSString *appId = @"wx67aeb251adaae095";
+    NSString *appSecret = @"eb7c53df9cbea1f5877336cf283d3696";
+    
+    
+    
+    NSString *urlString = [NSString stringWithFormat:@"https://api.weixin.qq.com/sns/oauth2/access_token?appid=%@&secret=%@&code=%@&grant_type=authorization_code",appId,appSecret,code];
+    
+    
+    [SVProgressHUD showWithStatus:@"accessToken请求中"];
+    [httpClient request:urlString parameters:nil success:^(NSJSONSerialization* json) {
+        
+        NSLog(@"json = %@",json);
+        
+        NSString *openid = [NSString stringWithFormat:@"%@",[json valueForKey:@"openid"]];
+        
+        NSLog(@"openId = %@",openid);
+        
+        [SVProgressHUD showErrorWithStatus:openid];
+      
+        //        json内容
+        //        "access_token" = "OezXcEiiBSKSxW0eoylIeBBTGZ3r3qT6a3bIja2Ti40w-uOtSJ6obQ25uitUUZ3YZH2N3-ZSoCx9UGV0AKIgZxMhQfLepUQYhU-1rhEjI0-vWG3zxNILVWUTh4PRatel_jyCjak2XNBFzoEo2H3qRQ";
+        //        "expires_in" = 7200;
+        //        openid = "oHKh2ju29inGttN_JAjXv77FBgmE";
+        //        "refresh_token" = "OezXcEiiBSKSxW0eoylIeBBTGZ3r3qT6a3bIja2Ti40w-uOtSJ6obQ25uitUUZ3YtuAQsv1ht-ljfv5b2prgmKB2lNBcRnFMGRFxATpDIS4w00bn6yBw3IDTdZDCPWPTQmzKePiCMUAhjJimeKBHwQ";
+        //        scope = "snsapi_userinfo";
+        
+        
+        
+        //        BOOL success = [[json valueForKey:@"status"] boolValue];
+        //        if (success) {
+        //
+        //
+        //
+        //
+        //        } else {
+        //
+        //            NSString *msg = [json valueForKey:@"msg"];
+        //            [SVProgressHUD showErrorWithStatus:msg];
+        //
+        //        }
+        
+        
+        
+    } failure:^(NSError *error) {
+        
+        //NSLog(@"failed:%@", error);
+        //        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+    
+}
+
+
+*/
+
+
+- (IBAction)huihuiPayClicked:(id)sender {
+    
+    [self.view endEditing:YES];
+    
+    
+    if ( self.m_passwordTextField.text.length == 0 ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"请输入密码！"];
+        
+        return;
+    }
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           [NSString stringWithFormat:@"%@",self.m_orderId],@"ordIds",
+                           [NSString stringWithFormat:@"%@",self.m_passwordTextField.text],@"password",
+                           nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"ConfirmPayment.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showSuccessWithStatus:msg];
+            
+            [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(goLastView) userInfo:nil repeats:NO];
+            
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            NSString *errorCode = [json valueForKey:@"ErrorCode"];
+            
+            if ( [errorCode isEqualToString:@"1"] ) {
+                
+                [SVProgressHUD dismiss];
+                
+                // 支付密码未设置，请先设置
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:msg
+                                                                  delegate:self
+                                                         cancelButtonTitle:@"取消"
+                                                         otherButtonTitles:@"立即设置",nil];
+                alertView.tag = 123894;
+                
+                [alertView show];
+                
+                
+            }else{
+                
+                [SVProgressHUD showErrorWithStatus:msg];
+            }
+            
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+}
+
+- (IBAction)forgetPSWD:(id)sender {
+    
+    [self.view endEditing:YES];
+    
+    // 进入忘记支付密码页面
+    ForgetPswdViewController *viewController = [[ForgetPswdViewController alloc]initWithNibName:@"ForgetPswdViewController" bundle:nil];
+    [self.navigationController pushViewController:viewController animated:YES];
+
+}
+
+- (void)goLastView{
+    
+    [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count - 3] animated:YES];
+    
+}
+
+// 验证用户是否填写了支付问题的网络请求
+- (void)paymentSafeRequest{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"svcId"]],@"svcId",
+                           nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"PaymentCheck_2.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        if (success) {
+          
+            [SVProgressHUD dismiss];
+            
+            // 成功后显示输入密码的view
+            self.m_passView.hidden = NO;
+            
+            self.m_payButton.hidden = YES;
+            
+            
+        } else {
+            
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD dismiss];
+            
+            // 隐藏输入密码的view
+            self.m_passView.hidden = YES;
+            
+            self.m_payButton.hidden = NO;
+            
+            //            false(1：用户信息丢失，请重新登录;2：您的账户余额不足；3：支付密码未设置 true(验证成功)
+            if ( [msg isEqualToString:@"1"] ) {
+                // 1: 用户信息丢失，请重新登录
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"用户信息丢失，请重新登录"
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }else if ( [msg isEqualToString:@"2"] ){
+                
+                NSString *vldStatus = [json valueForKey:@"RealNameAuStatus"];
+                
+                // 保存用户的状态
+                [CommonUtil addValue:vldStatus andKey:REALAUSTATUS];
+                
+                // 6：您的账户余额不足
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"您的账户余额不足"
+                                                                  delegate:self
+                                                         cancelButtonTitle:@"取消"
+                                                         otherButtonTitles:@"立即充值",nil];
+                alertView.tag = 123893;
+                
+                [alertView show];
+                
+            }else if ( [msg isEqualToString:@"3"] ){
+                
+                // 7：支付密码未设置
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:@"支付密码未设置"
+                                                                  delegate:self
+                                                         cancelButtonTitle:@"取消"
+                                                         otherButtonTitles:@"立即设置",nil];
+                alertView.tag = 123894;
+                
+                [alertView show];
+                
+                
+            }else {
+                
+                UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                                   message:msg
+                                                                  delegate:nil
+                                                         cancelButtonTitle:@"确定"
+                                                         otherButtonTitles:nil];
+                
+                [alertView show];
+                
+            }
+            
+        }
+        
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+}
+
+// 请求充值的接口，请求服务器返回报文提交启动银联支付的插件
+- (void)requestRechargeSubmit{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"payTotalAmount"]], @"amount",
+                           self.m_orderId,@"ordersId",
+                           nil];
+    [SVProgressHUD showWithStatus:@"信息提交中"];
+    [httpClient request:@"UnionMobileRechargeBuy.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            self.isCharge = YES;
+            
+            NSString *respXml = [json valueForKey:@"respXml"];
+            
+            [SVProgressHUD dismiss];
+            
+            NSInteger type = [[json valueForKey:@"tranEnvironment"] integerValue];
+            
+            // 请求服务器成功后将报文提交银联插件 生产测试  0 生产 1 测试
+            UIViewController *viewCtrl = nil;
+            viewCtrl = [LTInterface getHomeViewControllerWithType:type strOrder:respXml andDelegate:self];
+            
+            if ( isIOS7 ) {
+                
+                [self.navigationController pushViewController:viewCtrl animated:NO];
+                
+            }else{
+                
+                [self.navigationController pushViewController:viewCtrl animated:YES];
+                
+            }
+            
+        } else {
+            
+            self.isCharge = NO;
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+}
+
+- (void)returnWithResult:(NSString *)strResult{
+    
+    // 有值则表示交易结果，若为空则用户未进行交易。
+    if ( strResult == nil ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"您取消了交易操作"];
+        
+    }else{
+        
+        // 0000 表示成功，其他表示失败
+        NSRange range;
+        
+        range = [strResult rangeOfString:@"<respCode>0000</respCode>"];
+        
+        if ( range.location != NSNotFound ) {
+            
+            // 充值成功后调用购买支付的接口
+            
+            [SVProgressHUD showSuccessWithStatus:@"购买成功"];
+            
+            // 购买成功返回页面
+            [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(goLastView) userInfo:nil repeats:NO];
+            
+            
+        }else{
+            
+            [SVProgressHUD showErrorWithStatus:@"交易失败"];
+            
+        }
+    }
+}
+
+#pragma mark - UIAlertViewDelegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    
+    if ( alertView.tag == 11983 ) {
+        if ( buttonIndex == 0 ) {
+            
+            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:2] animated:YES];
+        }
+   
+    }else if ( alertView.tag == 123894 ){
+        if ( buttonIndex == 1 ) {
+            
+            // 未设置支付密码，进入支付密码设置的页面
+            PaymentQueViewController *viewController = [[PaymentQueViewController alloc]initWithNibName:@"PaymentQueViewController" bundle:nil];
+            [self.navigationController pushViewController:viewController animated:YES];
+            
+        }else{
+            
+            
+        }
+        
+    }else if ( alertView.tag == 123893 ){
+        if ( buttonIndex == 1 ) {
+            // 余额不足跳转到充值的页面
+            PayStyleViewController *VC = [[PayStyleViewController alloc]initWithNibName:@"PayStyleViewController" bundle:nil];
+            VC.m_typeString = @"1";
+            [self.navigationController pushViewController:VC animated:YES];
+            
+        }else{
+            
+            
+        }
+        
+    }else{
+        
+        
+    }
+}
+
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidBeginEditing:(UITextField *)textField{
+    
+    if ( textField == self.m_passwordTextField ) {
+        
+        [self hiddenNumPadDone:nil];
+        
+        // tableView往上移动
+        [self.m_tableView  setContentOffset:CGPointMake(0, 260) animated:YES];
+        
+    }
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField{
+    
+    [textField resignFirstResponder];
+    
+    [self.m_tableView  setContentOffset:CGPointMake(0, 0) animated:YES];
+
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    
+    [textField resignFirstResponder];
+    
+    [self.m_tableView  setContentOffset:CGPointMake(0, 0) animated:YES];
+    
+    return YES;
+}
+
+@end

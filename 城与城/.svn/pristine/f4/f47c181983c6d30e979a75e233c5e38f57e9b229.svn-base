@@ -1,0 +1,28 @@
+//
+//  AHlistViewController.h
+//  HuiHui
+//
+//  Created by 冯海强 on 14-10-21.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "ImageCache.h"
+#import "CheckAHPhoneViewController.h"
+
+@interface AHlistViewController : BaseViewController<UITableViewDelegate,UITableViewDataSource,KaiFasuccessDelegate>
+{
+    NSString * AH_WAIT;//开发中
+    NSString * AH_OLD;//已签约
+    
+}
+
+// 记录是哪个类型（待付款，已入住）
+@property (nonatomic, strong) NSString          *m_typeString;
+
+@property (weak, nonatomic) ImageCache *imageCache;
+
+@property (weak, nonatomic) IBOutlet UIWebView *daili_webview;
+
+
+@end

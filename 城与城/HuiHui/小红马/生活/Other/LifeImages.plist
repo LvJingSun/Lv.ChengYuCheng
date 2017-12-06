@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>images</key>
+		<array>
+			<dict>
+				<key>titleName</key>
+				<string>城与城生活服务</string>
+				<key>imageName</key>
+				<string>Life_image.png</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<key>images</key>
+		<array>
+			<dict>
+				<key>titleName</key>
+				<string>城与城生活服务</string>
+				<key>imageName</key>
+				<string>Life_image.png</string>
+			</dict>
+		</array>
+	</dict>
+	<dict>
+		<key>images</key>
+		<array>
+			<dict>
+				<key>titleName</key>
+				<string>城与城生活服务</string>
+				<key>imageName</key>
+				<string>Life_image.png</string>
+			</dict>
+		</array>
+	</dict>
+</array>
+</plist>

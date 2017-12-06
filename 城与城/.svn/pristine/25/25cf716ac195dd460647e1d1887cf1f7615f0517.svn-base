@@ -1,0 +1,378 @@
+//
+//  MenuSettingViewController.m
+//  HuiHui
+//
+//  Created by mac on 15-8-16.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import "MenuSettingViewController.h"
+
+@interface MenuSettingViewController ()
+
+@property (weak, nonatomic) IBOutlet UITextField *m_total;
+
+@property (weak, nonatomic) IBOutlet UITextField *m_jian;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_manlijianBtn;
+
+@property (weak, nonatomic) IBOutlet UIButton *m_waimaiBtn;
+
+@property (weak, nonatomic) IBOutlet UIView *m_manlijianView;
+
+
+// 满立减按钮触发的事件
+- (IBAction)manlijianBtnClicked:(id)sender;
+// 是否支持外卖的按钮触发的事件
+- (IBAction)waimaiBtnClicked:(id)sender;
+
+@end
+
+@implementation MenuSettingViewController
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+        isManlijian = NO;
+        
+        isWaimai = NO;
+    }
+    
+    return self;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    [self setTitle:@"菜单设置"];
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+    [self setRightButtonWithTitle:@"设置" action:@selector(settingClicked)];
+    
+    // 请求数据进行赋值
+    [self infoRequest];
+
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+}
+
+- (void)settingClicked{
+    
+    [self.view endEditing:YES];
+    
+    NSLog(@"%@,%@",self.m_total.text,self.m_jian.text);
+    
+    // 如果支持满立减的话则要输入满立减的值
+    if ( isManlijian ) {
+       
+        if ( self.m_total.text.length == 0 ) {
+            
+            [SVProgressHUD showErrorWithStatus:@"请输入满的价钱"];
+            
+            return;
+            
+        }
+        
+        if ( self.m_jian.text.length == 0 ) {
+            
+            [SVProgressHUD showErrorWithStatus:@"请输入减的价钱"];
+            
+            return;
+            
+        }
+        
+        
+    }
+    
+    // 请求数据
+    [self settingRequest];
+    
+}
+
+- (void)infoRequest{
+    
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    
+    // IsZCHowMuchLess 是不是支持满立减（0否，1是）
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,@"MemberID",
+                           key,@"Key",
+                       
+                           nil];
+    
+    
+    NSLog(@"params = %@",param);
+    
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    
+    [httpClient request:@"GetMerchantMLJ.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        NSString *msg = [json valueForKey:@"msg"];
+        
+        NSLog(@"json = %@",json);
+        
+        
+        if (success) {
+            
+            [SVProgressHUD dismiss];
+            
+            // 获取支持外卖和支持满立减的参数
+            NSString *l_isWaimai = [NSString stringWithFormat:@"%@",[json valueForKey:@"IsZCWaiMai"]];
+
+            
+            NSString *l_isManlijian = [NSString stringWithFormat:@"%@",[json valueForKey:@"IsZCHowMuchLess"]];
+            
+            if ( [l_isWaimai isEqualToString:@"1"] ) {
+                
+                // 表示支持外卖
+                [self.m_waimaiBtn setImage:[UIImage imageNamed:@"login_gouxuan1.png"] forState:UIControlStateNormal];
+
+                isWaimai = 1;
+                
+            }else{
+                
+                [self.m_waimaiBtn setImage:[UIImage imageNamed:@"login_gouxuan2.png"] forState:UIControlStateNormal];
+
+                isWaimai = 0;
+                
+            }
+            
+            if ( [l_isManlijian isEqualToString:@"1"] ) {
+                
+                // 支持满立减
+                [self.m_manlijianBtn setImage:[UIImage imageNamed:@"login_gouxuan1.png"] forState:UIControlStateNormal];
+
+                isManlijian = 1;
+                
+                self.m_manlijianView.hidden = NO;
+                
+                
+                // 赋值 满立减的值进行赋值 如果不为0的话则表示设置过进行编辑的，如果为0的话则表示没设置过
+                NSString *manString = [json valueForKey:@"Man"];
+                
+                NSString *jianString = [json valueForKey:@"Jian"];
+                
+                if ( [manString isEqualToString:@"0"] ) {
+                    
+                    self.m_total.text = @"";
+                    
+                }else{
+                    
+                    self.m_total.text = manString;
+                    
+                }
+                
+                if ( [jianString isEqualToString:@"0"] ) {
+                    
+                    self.m_jian.text = @"";
+                    
+                }else{
+                    
+                    self.m_jian.text = jianString;
+                    
+                }
+
+                
+            }else{
+                
+                
+                [self.m_manlijianBtn setImage:[UIImage imageNamed:@"login_gouxuan2.png"] forState:UIControlStateNormal];
+                
+                isManlijian = 0;
+                
+                self.m_manlijianView.hidden = YES;
+
+                
+            }
+
+            
+        }else{
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+    }];
+    
+}
+
+- (void)settingRequest{
+    
+    NSLog(@"isManlijian = %i",isManlijian);
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    
+    NSString *man = @"";
+    NSString *jian = @"";
+    
+    if ( isManlijian == 1 ) {
+        
+        jian = [NSString stringWithFormat:@"%@",self.m_jian.text];
+        man = [NSString stringWithFormat:@"%@",self.m_total.text];
+        
+    }else{
+        
+        jian = @"";
+        
+        man = @"";
+        
+    }
+    
+    // IsZCHowMuchLess 是不是支持满立减（0否，1是）
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,@"MemberID",
+                           key,@"Key",
+                           
+                           [NSString stringWithFormat:@"%i",isManlijian],@"IsZCHowMuchLess",
+                           [NSString stringWithFormat:@"%i",isWaimai],@"IsZCWaiMai",
+                           
+                           jian,@"MinuesPrice",
+                           man,@"MoreThanPrice",
+                           
+                           nil];
+    
+    
+    NSLog(@"params = %@",param);
+    
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    
+    [httpClient request:@"SetCloudMenuActivity.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        NSString *msg = [json valueForKey:@"msg"];
+        
+        NSLog(@"json = %@",json);
+        
+        
+        if (success) {
+            
+            //            [SVProgressHUD dismiss];
+            // 设置成功了之后返回上一级
+            [SVProgressHUD showSuccessWithStatus:msg];
+            
+            [self goBack];
+            
+            
+        }else{
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+    }];
+}
+
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidBeginEditing:(UITextField *)textField{
+
+    [self showNumPadDone:nil];
+    
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField{
+
+    [textField resignFirstResponder];
+
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    
+    [textField resignFirstResponder];
+    
+    return YES;
+}
+
+- (IBAction)manlijianBtnClicked:(id)sender {
+    
+    isManlijian = !isManlijian;
+    
+    if ( isManlijian ) {
+        
+        // 设置按钮的背景图片
+        [self.m_manlijianBtn setImage:[UIImage imageNamed:@"login_gouxuan1.png"] forState:UIControlStateNormal];
+        
+        self.m_manlijianView.hidden = NO;
+        
+    }else{
+        
+        // 设置按钮的背景图片
+        [self.m_manlijianBtn setImage:[UIImage imageNamed:@"login_gouxuan2.png"] forState:UIControlStateNormal];
+        
+        self.m_manlijianView.hidden = YES;
+
+    }
+    
+    NSLog(@"manlijian = %i",isManlijian);
+    
+}
+
+- (IBAction)waimaiBtnClicked:(id)sender {
+
+    isWaimai = !isWaimai;
+    
+    if ( isWaimai ) {
+        
+        // 设置按钮的背景图片
+        [self.m_waimaiBtn setImage:[UIImage imageNamed:@"login_gouxuan1.png"] forState:UIControlStateNormal];
+        
+    }else{
+        
+        // 设置按钮的背景图片
+        [self.m_waimaiBtn setImage:[UIImage imageNamed:@"login_gouxuan2.png"] forState:UIControlStateNormal];
+    }
+    
+    NSLog(@"isWaimai = %i",isWaimai);
+
+    
+}
+
+
+@end

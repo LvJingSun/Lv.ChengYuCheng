@@ -1,0 +1,126 @@
+//
+//  HH_ProductListViewController.h
+//  HuiHui
+//
+//  Created by mac on 14-11-10.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//  搜索点击进入的商品分类
+
+#import "BaseViewController.h"
+
+#import "GrayPageControl.h"
+
+//#import "BMKMapView.h"
+
+//#import "BMapKit.h"
+
+#import "PullTableView.h"
+
+#import "ImageCache.h"
+
+#import "DBHelper.h"
+
+#import "UITableView+DataSourceBlocks.h"
+
+#import "TableViewWithBlock.h"
+
+#import "LeftCell.h"
+
+#import "MiddleCell.h"
+
+#import "RightCell.h"
+
+@class TableViewWithBlock;
+
+@interface HH_ProductListViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate,UISearchBarDelegate,PullTableViewDelegate,DPRequestDelegate>{
+    
+    NSInteger pageIndex;
+    NSString *selectCity;
+    
+    ImageCache *imageCache;
+    
+    // 记录商户请求的Index
+    NSInteger  m_pageIndex;
+    
+    DBHelper *dbhelp;
+    
+    //产品
+    BOOL leftOpened;//类别
+    BOOL middleOpened;//类别
+    BOOL leftOpened2;//区域
+    BOOL middleOpened2;//区域
+    BOOL rightOpened;
+    
+    NSString *OneID;//一级类别ID；类别一级
+    //    NSString *TwoID;//二级类别ID；类别二级
+    NSString *OneID2;//一级类别ID2；区域//地区的ID
+    NSString *TwoID2;//二级类别ID2；区域//商圈的ID
+    NSString *PaixuID;//排序ID
+    
+    NSString *NeedOpenTwo;//是否需要打开第二级；(分类)
+    NSString *NeedOpenTwo2;//是否需要打开第二级；（地区）
+    
+    //大众点评
+    NSInteger  DP_pageIndex;//点评页数
+    
+}
+
+@property (nonatomic, strong) NSString          *TwoID;// classId
+
+// 用于传值显示在分类的按钮上
+@property (nonatomic, strong) NSString          *m_titleString;
+
+@property (nonatomic, strong) NSMutableArray        *m_array;
+
+// 记录经纬度的值
+@property (nonatomic, strong) NSString              *m_longtiString;
+
+@property (nonatomic, strong) NSString              *m_latiString;
+
+@property (nonatomic, strong) NSMutableArray        *m_productList;
+
+@property (strong, nonatomic) NSMutableArray        *keyItems;
+
+@property (nonatomic, strong) NSString              *m_order;
+
+@property (nonatomic, strong) NSString              *m_sort;
+// 记录是否是最后一页
+@property (nonatomic,strong) NSString               *m_isLastPage;
+//产品
+@property (nonatomic,strong) IBOutlet TableViewWithBlock * LeftTableview;//类别一级
+@property (nonatomic,strong) IBOutlet TableViewWithBlock * MiddleTableview;//类别二级
+@property (nonatomic,strong) IBOutlet TableViewWithBlock * LeftTableview2;//地区一级
+@property (nonatomic,strong) IBOutlet TableViewWithBlock * MiddleTableview2;//地区二级
+@property (nonatomic,strong) IBOutlet TableViewWithBlock * RightTableview;//排序
+
+@property(nonatomic,strong) NSMutableArray * LeftArray;
+@property(nonatomic,strong) NSMutableArray * LeftArrayID;
+@property(nonatomic,strong) NSMutableArray * MiddleArray;
+@property(nonatomic,strong) NSMutableArray * MiddleArrayID;
+@property(nonatomic,strong) NSMutableArray * LeftArray2;
+@property(nonatomic,strong) NSMutableArray * LeftArrayID2;
+@property(nonatomic,strong) NSMutableArray * MiddleArray2;
+@property(nonatomic,strong) NSMutableArray * MiddleArrayID2;
+@property(nonatomic,strong) NSMutableArray * RightArray;
+// 修改商品列表的展示形式
+@property (nonatomic, strong) NSMutableDictionary *m_keyDic;
+// 存放数据
+@property (nonatomic, strong) NSMutableArray      *m_list;
+// 判断筛选的条件是否是离我最近，如果是理我最近的，则显示分区的形式，如果不是则显示列表的形式
+//@property (nonatomic, assign) BOOL                isNearestForMe;
+// 记录经纬度
+@property (nonatomic, strong) NSString            *m_string;
+
+
+@property (nonatomic, strong) NSString            *dp_isfenqu;//加到分区数组里；
+
+//大众点评
+@property (nonatomic, strong) NSMutableArray      *DPdealsarray;//产品数组
+
+
+// 存储搜索关键字的字符
+@property (nonatomic, strong) NSString  *m_serchString;
+
+
+
+@end

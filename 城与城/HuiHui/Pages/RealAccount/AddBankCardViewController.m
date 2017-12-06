@@ -1,0 +1,289 @@
+//
+//  AddBankCardViewController.m
+//  baozhifu
+//
+//  Created by mac on 13-7-23.
+//  Copyright (c) 2013年 mac. All rights reserved.
+//
+
+#import "AddBankCardViewController.h"
+#import "BusinessOutletsViewController.h"
+#import "SVProgressHUD.h"
+#import "CommonUtil.h"
+#import "AppHttpClient.h"
+
+@interface AddBankCardViewController ()
+
+@property (weak, nonatomic) IBOutlet UIScrollView *bankImageView;
+
+@property (weak, nonatomic) IBOutlet UITextField *cardNo;
+
+@property (weak, nonatomic) IBOutlet UITextField *cardName;
+
+@property (weak, nonatomic) IBOutlet UITextField *idcard;
+
+@property (weak, nonatomic) IBOutlet UIButton *prevButton;
+
+@property (weak, nonatomic) IBOutlet UIButton *nextButton;
+
+@property (weak, nonatomic) IBOutlet UITextField *bankStation;
+
+@property (weak, nonatomic) IBOutlet UIView *m_titleView;
+
+@property (weak, nonatomic) IBOutlet UIScrollView *m_scrollerView;
+
+
+
+- (IBAction)naviBank:(id)sender;
+
+- (IBAction)submit:(id)sender;
+
+- (IBAction)selectBankStation:(id)sender;
+
+@end
+
+@implementation AddBankCardViewController
+ 
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        self.bankImages = [[NSArray alloc] initWithObjects:@"0100",@"0102",@"0103",@"0104",@"0105",@"0302",@"0303",@"0305",@"0306",@"0308",@"0309",nil];
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    [self setTitle:@"添加银行卡"];
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+   
+    
+    self.m_scrollerView.userInteractionEnabled = YES;
+    
+    UITapGestureRecognizer *singleFingerOne= [[UITapGestureRecognizer alloc] initWithTarget:self
+                                                                                     action:@selector(fingerIncident:)];
+    //手指数
+    singleFingerOne.numberOfTouchesRequired = 1;
+    //点击次数
+    singleFingerOne.numberOfTapsRequired = 1;
+    //设置代理方法
+    singleFingerOne.delegate= self;
+    
+    [self.m_scrollerView addGestureRecognizer:singleFingerOne];
+        
+    // 设置scrollerView可以滚动
+    [self.m_scrollerView setContentSize:CGSizeMake(WindowSizeWidth, 480)];
+    
+    self.bankImageView.showsHorizontalScrollIndicator = NO;
+    self.bankImageView.showsVerticalScrollIndicator=NO;
+    self.bankImageView.pagingEnabled=YES;
+    self.bankImageView.delegate = self;
+    self.cardNo.delegate = self;
+    
+    self.cardName.text = [CommonUtil getValueByKey:REAL_ACCOUNT_NAME];
+    self.idcard.text = [CommonUtil getValueByKey:REAL_ACCOUNT_IDCARD];
+    
+    CGFloat width = self.bankImageView.bounds.size.width;
+    CGFloat height = self.bankImageView.bounds.size.height - 2;
+    NSInteger count = [self.bankImages count];
+    for (NSInteger index = 0; index < count; index++) {
+        UIImageView *imageView = [self getImageView:[NSString stringWithFormat:@"bank_logo_%@.png", [self.bankImages objectAtIndex:index]]];
+        imageView.frame = CGRectMake(width * index, 0, width, height);
+        [self.bankImageView addSubview:imageView];
+    }
+    self.bankImageView.contentSize = CGSizeMake(width * count, height);
+    [self showButton];
+}
+
+- (void)fingerIncident:(UITapGestureRecognizer *)sender
+{
+    
+    [self hidenKeyboard];
+    
+}
+
+- (UIImageView *)getImageView:(NSString *)imageName {
+    UIImage *image = [UIImage imageNamed:imageName];
+    UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+    imageView.contentMode = UIViewContentModeCenter;
+    return imageView;
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    [self hideTabBar:YES];
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    [self hideTabBar:NO];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+}
+
+#pragma mark 隐藏键盘的方法
+-(void)hidenKeyboard {
+    [self.cardNo resignFirstResponder];
+    [self.cardName resignFirstResponder];
+    [self.idcard resignFirstResponder];
+}
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField{
+    
+    if ( textField == self.cardNo ) {
+        
+        [self showNumPadDone:nil];
+        
+    }else{
+        
+        [self hiddenNumPadDone:nil];
+    }
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)sender {
+    [self hidenKeyboard];
+    return YES;
+}
+
+//UITextField的协议方法，当开始编辑时监听
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    if (textField == self.cardName) {
+        self.needHiddenDone = YES;
+    }
+    if (textField == self.cardNo
+        || textField == self.idcard) {
+       self.needHiddenDone = NO;
+    }
+    self.activeField = textField;
+    return YES;
+}
+
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    [self computerPageIndex];
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    [self computerPageIndex];
+}
+
+- (void)computerPageIndex {
+    int index = fabs(self.bankImageView.contentOffset.x) / self.bankImageView.frame.size.width;
+
+    if (self.currentPage != index) {
+        self.currentPage = index;
+        [self showButton];
+        self.bankStation.text = @"";
+    }
+}
+
+- (void)showButton {
+    if (self.currentPage <= 0) {
+        self.prevButton.hidden = YES;
+    } else {
+        self.prevButton.hidden = NO;
+    }
+    if (self.currentPage >= [self.bankImages count] - 1) {
+        self.nextButton.hidden = YES;
+    } else {
+        self.nextButton.hidden = NO;
+    }
+}
+
+- (IBAction)naviBank:(id)sender {
+    NSInteger pageIndex = self.currentPage;
+    UIButton *button = (UIButton *)sender;
+    if (button.tag == 1001) {
+        pageIndex--;
+    } else {
+        pageIndex++;
+    }
+    if (pageIndex <= 0) {
+        pageIndex = 0;
+    }
+    if (pageIndex >= [self.bankImages count]) {
+        pageIndex = [self.bankImages count] - 1;
+    }
+    CGPoint point = CGPointMake(pageIndex * self.bankImageView.bounds.size.width, 0);
+    [self.bankImageView setContentOffset:point animated:YES];
+}
+
+- (IBAction)selectBankStation:(id)sender {
+    BusinessOutletsViewController *viewController = [[BusinessOutletsViewController alloc] initWithNibName:@"BusinessOutletsViewController" bundle:nil];
+    viewController.bankCode = [self.bankImages objectAtIndex:self.currentPage];
+    viewController.bankViewController = self;
+    [self.navigationController pushViewController:viewController animated:YES];
+}
+
+- (void)setSelectBankStation:(NSDictionary *)info {
+    self.bankStation.text = [info objectForKey:@"OrgName"];
+    bankStationCode = [info objectForKey:@"OrgValue"];
+}
+
+- (IBAction)submit:(id)sender {
+    
+   
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *bankStation = self.bankStation.text;
+    if (bankStation.length == 0) {
+        [SVProgressHUD showErrorWithStatus:@"请选择银行网点"];
+        return;
+    }
+    NSString *cardNo = self.cardNo.text;
+    if (cardNo.length == 0) {
+        [SVProgressHUD showErrorWithStatus:@"请输入卡号"];
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           [self.bankImages objectAtIndex:self.currentPage],   @"orgCode",
+                           cardNo, @"cardNumber",
+                           bankStationCode, @"orgValue",
+                           nil];
+    [SVProgressHUD showWithStatus:@"信息提交中"];
+    [httpClient request:@"BankCarAdd.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showSuccessWithStatus:msg];
+            [self.navigationController popViewControllerAnimated:YES];
+        } else {
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+
+
+}
+
+@end

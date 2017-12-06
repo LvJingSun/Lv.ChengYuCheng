@@ -1,0 +1,358 @@
+//
+//  AddCardLevelViewController.m
+//  HuiHui
+//
+//  Created by mac on 15-7-28.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import "AddCardLevelViewController.h"
+
+
+@interface AddCardLevelViewController ()
+
+@property (weak, nonatomic) IBOutlet UIScrollView *m_scrollerView;
+
+@property (weak, nonatomic) IBOutlet UITextField *m_levelName;
+
+@property (weak, nonatomic) IBOutlet UITextField *m_levelGrade;
+
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+
+@property (weak, nonatomic) IBOutlet UITextView *m_description;
+
+// 保存等级的按钮
+- (IBAction)saveLevel:(id)sender;
+// 背景点击后触发的事件
+- (IBAction)topcotrol:(id)sender;
+
+@end
+
+@implementation AddCardLevelViewController
+
+@synthesize m_levelId;
+
+@synthesize m_typeString;
+
+@synthesize m_dic;
+
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        m_dic = [[NSMutableDictionary alloc]initWithCapacity:0];
+        
+    }
+    return self;
+}
+
+
+- (void)viewDidLoad {
+    
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    if ( self.m_levelId.length != 0 ) {
+        
+        self.title = @"编辑会员等级";
+        
+        self.m_typeString = @"Modify";
+        
+        self.tipLabel.text = @"";
+        
+        // 赋值
+        self.m_levelName.text = [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"GradeName"]];
+        self.m_levelGrade.text = [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"GradeLevel"]];
+        self.m_description.text = [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:@"Description"]];
+        
+//        [self setRightButtonWithTitle:@"删除等级" action:@selector(deleteLevel)];
+        
+
+    }else{
+        
+        self.title = @"新增会员等级";
+        
+        self.m_typeString = @"Add";
+
+        // 默认值为空
+        self.m_levelName.text = @"";
+        self.m_levelGrade.text = @"";
+        self.m_description.text = @"";
+
+    }
+    
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+
+    // 设置scrollerView的滚动范围
+    [self.m_scrollerView setContentSize:CGSizeMake(self.m_scrollerView.frame.size.width, self.view.frame.size.height)];
+
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+    
+}
+
+- (void)deleteLevel{
+    
+    [self.view endEditing:YES];
+    
+    // 删除会员等级
+    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:nil
+                                                       message:@"您确定删除此会员等级?"
+                                                      delegate:self
+                                             cancelButtonTitle:@"取消"
+                                             otherButtonTitles:@"确定", nil];
+    alertView.tag = 1043;
+    [alertView show];
+    
+    
+}
+
+- (IBAction)topcotrol:(id)sender {
+    
+    [self.view endEditing:YES];
+    
+}
+
+- (IBAction)saveLevel:(id)sender {
+    
+    [self.view endEditing:YES];
+    
+    
+    if ( self.m_levelName.text.length == 0 ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"请填写会员卡等级名称"];
+        
+        return;
+    }
+    
+    if ( self.m_levelGrade.text.length == 0 ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"请填写会员卡等级级别"];
+        
+        return;
+    }
+    
+    if ( self.m_description.text.length == 0 ) {
+        
+        [SVProgressHUD showErrorWithStatus:@"请填写会员卡等级描述"];
+        
+        return;
+    }
+    
+    // 请求数据
+    [self saveLevelRequest];
+    
+}
+
+// 新增会员卡等级请求数据
+- (void)saveLevelRequest{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    //    NSString *merchantId = [CommonUtil getValueByKey:MERCHANTID];
+    
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,@"MemberID",
+                           key,@"Key",
+                           [NSString stringWithFormat:@"%@",self.m_levelId],@"VIPCardGradeID",
+                           [NSString stringWithFormat:@"%@",self.m_levelName.text],@"GradeName",
+                           [NSString stringWithFormat:@"%@",self.m_levelGrade.text],@"GradeLevel",
+                           [NSString stringWithFormat:@"%@",self.m_description.text],@"Description",
+                           [NSString stringWithFormat:@"%@",self.m_typeString],@"Type",nil];
+    
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    
+    NSLog(@"params = %@",param);
+    
+    [httpClient request:@"VIPCardGrade.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        if (success) {
+            
+//            [SVProgressHUD dismiss];
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showSuccessWithStatus:msg];
+            
+            
+            NSLog(@"json = %@",json);
+            
+            // 存储数据用于返回上一级刷新数据
+            [CommonUtil addValue:@"1" andKey:@"levelGradeKey"];
+            
+           [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(leftClicked) userInfo:nil repeats:NO];
+            
+        } else {
+            
+            // 存储数据用于返回上一级刷新数据
+            [CommonUtil addValue:@"0" andKey:@"levelGradeKey"];
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+        }
+        
+        
+    } failure:^(NSError *error) {
+        
+        // 存储数据用于返回上一级刷新数据
+        [CommonUtil addValue:@"0" andKey:@"levelGradeKey"];
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+        
+    }];
+    
+ 
+    
+}
+
+// 新增会员卡等级请求数据
+- (void)deleteLevelRequest{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    //    NSString *merchantId = [CommonUtil getValueByKey:MERCHANTID];
+    
+    
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,@"MemberID",
+                           key,@"Key",
+                           [NSString stringWithFormat:@"%@",self.m_levelId],@"VIPCardGradeID",nil];
+    
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    
+    NSLog(@"params = %@",param);
+    
+    [httpClient request:@"VIPCardGrade.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        if (success) {
+            
+            [SVProgressHUD dismiss];
+            
+            NSLog(@"json = %@",json);
+            
+            // 存储数据用于返回上一级刷新数据
+            [CommonUtil addValue:@"1" andKey:@"levelGradeKey"];
+            
+            [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(leftClicked) userInfo:nil repeats:NO];
+            
+        } else {
+            
+            // 存储数据用于返回上一级刷新数据
+            [CommonUtil addValue:@"0" andKey:@"levelGradeKey"];
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+        }
+        
+        
+    } failure:^(NSError *error) {
+        
+        // 存储数据用于返回上一级刷新数据
+        [CommonUtil addValue:@"0" andKey:@"levelGradeKey"];
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+        
+    }];
+    
+    
+    
+}
+
+#pragma mark - UITextFieldDelegate
+- (void)textFieldDidBeginEditing:(UITextField *)textField{
+
+    if ( textField != self.m_levelGrade ) {
+        
+        [self showNumPadDone:nil];
+
+    }else{
+        
+        [self hiddenNumPadDone:nil];
+
+    }
+
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    
+    [textField resignFirstResponder];
+    
+    return YES;
+}
+
+#pragma mark - UITextViewDelegate
+- (void)textViewDidBeginEditing:(UITextView *)textView;{
+   
+    [self hiddenNumPadDone:nil];
+    
+}
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    if (textView.text.length == 0) {
+        self.tipLabel.text = @"请填写会员卡等级描述";
+    }else{
+        self.tipLabel.text = @"";
+    }
+}
+
+#pragma mark - UIAlertViewDelegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if ( alertView.tag == 1043 ) {
+        
+        if ( buttonIndex == 1 ) {
+            // 删除会员等级
+            [self deleteLevelRequest];
+            
+        }
+    }
+    
+    
+}
+
+
+@end

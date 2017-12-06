@@ -1,0 +1,13 @@
+//
+//  GG_HomeViewController.h
+//  HuiHui
+//
+//  Created by mac on 2017/8/30.
+//  Copyright © 2017年 MaxLinksTec. All rights reserved.
+//
+
+#import "GameGoldBasicViewController.h"
+
+@interface GG_HomeViewController : GameGoldBasicViewController
+
+@end

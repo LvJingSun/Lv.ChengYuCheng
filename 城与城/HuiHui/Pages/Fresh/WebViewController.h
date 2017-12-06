@@ -1,0 +1,43 @@
+//
+//  WebViewController.h
+//  HuiHui
+//
+//  Created by mac on 14-6-11.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//  二维码扫描后进入的网页页面
+
+#import "BaseViewController.h"
+
+@interface WebViewController : BaseViewController<UIWebViewDelegate,QQApiInterfaceDelegate,TencentSessionDelegate,UIAlertViewDelegate>{
+    
+    TencentOAuth                *tencentOAuth;
+    
+    NSMutableArray *_downloadImages;
+    NSString *_shareimageURL;
+
+}
+
+// 存储url的字符
+@property (nonatomic, strong) NSString      *m_scanString;
+// 判断是来自于扫一扫还是聊天里的网址  1表示扫一扫页面的  2表示聊天页面跳转以及本地里面的按钮跳转
+@property (nonatomic, strong) NSString      *m_typeString;
+
+// 用于分享的网址字符
+@property (nonatomic, strong) NSString      *m_shareString;
+// 记录导航栏的标题的字符
+@property (nonatomic, strong) NSString      *m_titleString;
+
+
+// 动画的三个数组
+@property (nonatomic, strong) NSArray           *m_values;
+
+@property (nonatomic, strong) NSArray           *m_keyTimes;
+
+@property (nonatomic, strong) NSArray           *m_Funtions;
+
+
+@property (nonatomic, strong) NSMutableDictionary      *m_TakeOrderdic;
+//根据url解析 进入下一个界面的参数字典
+@property (nonatomic, strong) NSMutableDictionary      *m_PushNextdic;
+
+@end

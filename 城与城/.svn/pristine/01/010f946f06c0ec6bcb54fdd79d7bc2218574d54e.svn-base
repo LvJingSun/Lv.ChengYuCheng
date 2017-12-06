@@ -1,0 +1,11 @@
+/* 
+  PullTableViewLan.strings
+  baozhifu
+
+  Created by mac on 13-8-13.
+  Copyright (c) 2013年 mac. All rights reserved.
+*/
+pullDown="下拉刷新";
+releaseTo="下拉刷新";
+loading="加载中...";
+loadMore="加载更多";

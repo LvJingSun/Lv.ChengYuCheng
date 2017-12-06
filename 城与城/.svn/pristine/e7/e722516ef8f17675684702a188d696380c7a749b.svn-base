@@ -1,0 +1,304 @@
+//
+//  HH_advCityListViewController.m
+//  HuiHui
+//
+//  Created by mac on 15-4-15.
+//  Copyright (c) 2015年 MaxLinksTec. All rights reserved.
+//
+
+#import "HH_advCityListViewController.h"
+
+#import "AreaCell.h"
+
+@interface HH_advCityListViewController ()
+
+@property (weak, nonatomic) IBOutlet UITableView *m_tableView;
+
+@end
+
+@implementation HH_advCityListViewController
+
+@synthesize m_cityList;
+
+@synthesize m_dic;
+
+@synthesize delegate;
+
+@synthesize m_cityName;
+
+@synthesize m_cityId;
+
+
++ (HH_advCityListViewController *)shareobject{
+    
+    static HH_advCityListViewController *VC = nil;
+    
+    if ( VC == nil){
+        
+        VC = [[HH_advCityListViewController alloc]init];
+    }
+    
+    return VC;
+    
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        
+        m_cityList = [[NSMutableArray alloc]initWithCapacity:0];
+        
+        m_dic = [[NSMutableDictionary alloc]initWithCapacity:0];
+        
+    }
+    return self;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    
+    [self setTitle:@"城市选择"];
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+//    [self setRightButtonWithTitle:@"确定" action:@selector(sureChooseClicked)];
+    
+    self.m_tableView.hidden = YES;
+    
+    // 请求城市列表的数据
+    [self getCityListSubmit];
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self hideTabBar:YES];
+    
+    if ( self.m_cityList.count != 0 ) {
+        
+        if ( self.m_cityName.length == 0 ) {
+            
+            for (int i = 0; i < self.m_cityList.count; i++) {
+                [self.m_dic setValue:@"0" forKey:[NSString stringWithFormat:@"%i",i]];
+            }
+            
+            [self.m_tableView reloadData];
+           
+            
+        }else{
+            
+            // 判断是否包含该城市
+            [self cityChoose];
+        
+            
+        }
+    }
+    
+   
+  
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+}
+
+//- (void)sureChooseClicked{
+//    
+//    
+//}
+
+- (void)cityChoose{
+    
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:self.m_cityId,@"CityId",self.m_cityName,@"CityName", nil];
+    
+    NSInteger index = -1;
+    
+    if ( [self.m_cityList containsObject:dic] ) {
+        
+        index = [self.m_cityList indexOfObject:dic];
+        
+        [self.m_dic setValue:@"1" forKey:[NSString stringWithFormat:@"%i",index]];
+        
+    }
+    
+    for (int i = 0; i < self.m_cityList.count; i++) {
+        
+        if ( index == i ) {
+            
+            [self.m_dic setValue:@"1" forKey:[NSString stringWithFormat:@"%i",index]];
+            
+        }else{
+            
+            [self.m_dic setValue:@"0" forKey:[NSString stringWithFormat:@"%i",i]];
+            
+        }
+    }
+    
+    [self.m_tableView reloadData];
+
+}
+
+- (void)getCityListSubmit{
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+//    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+//    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+//    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+//                           memberId,     @"memberid",
+//                           key,   @"key",
+//                           @"", @"merchantId",
+//                           nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"UpAdCity.ashx" parameters:nil success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            
+            [SVProgressHUD dismiss];
+        
+            self.m_tableView.hidden = NO;
+            
+            if ( self.m_cityList.count != 0 ) {
+                
+                [self.m_cityList removeAllObjects];
+            }
+            
+            if ( self.m_dic.count != 0 ) {
+                
+                [self.m_dic removeAllObjects];
+            }
+            
+            self.m_cityList = [json valueForKey:@"UpAdCityList"];
+            
+            // 赋值 - 记录选中了哪一个城市
+            [self cityChoose];
+            
+//            // 刷新列表
+//            [self.m_tableView reloadData];
+            
+        } else {
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+    } failure:^(NSError *error) {
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+    }];
+
+}
+
+#pragma mark - UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    return 1;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return self.m_cityList.count;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *cellIdentifier = @"AreaCellIdentifier";
+    
+    AreaCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    
+    if ( cell == nil ) {
+        
+        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"AreaCell" owner:self options:nil];
+        
+        cell = (AreaCell *)[nib objectAtIndex:0];
+        
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+        
+    }
+    
+    // 赋值
+    if ( self.m_cityList.count != 0 ) {
+        
+        NSDictionary *dic = [self.m_cityList objectAtIndex:indexPath.row];
+        
+        cell.m_cityName.text = [NSString stringWithFormat:@"%@",[dic objectForKey:@"CityName"]];
+        
+        NSString *string = [NSString stringWithFormat:@"%@",[self.m_dic objectForKey:[NSString stringWithFormat:@"%i",indexPath.row]]];
+        
+        // 根据值来判断是否选中某一个
+        if ( [string isEqualToString:@"1"] ) {
+            
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+       
+        }else{
+            
+            cell.accessoryType = UITableViewCellAccessoryNone;
+            
+        }
+       
+    }
+
+    return cell;
+    
+}
+
+#pragma mark - UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    return 55.0f;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    // 选中某行后设置dic里面的值为1
+    for (int i = 0; i < self.m_cityList.count; i++) {
+        
+        if ( i == indexPath.row ) {
+            
+            [self.m_dic setValue:@"1" forKey:[NSString stringWithFormat:@"%i",indexPath.row]];
+
+        }else{
+            
+            [self.m_dic setValue:@"0" forKey:[NSString stringWithFormat:@"%i",i]];
+
+        }
+        
+    }
+
+    [self.m_tableView reloadData];
+    
+    // 代理方法
+    if ( delegate && [delegate respondsToSelector:@selector(getCityList:)] ) {
+        
+        NSMutableDictionary *dic = [self.m_cityList objectAtIndex:indexPath.row];
+        
+        [delegate performSelector:@selector(getCityList:) withObject:dic];
+        
+    }
+    
+    [self goBack];
+    
+}
+
+
+@end

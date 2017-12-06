@@ -1,0 +1,358 @@
+//
+//  CashWithdrawalsViewController.m
+//  baozhifu
+//
+//  Created by mac on 13-11-5.
+//  Copyright (c) 2013年 mac. All rights reserved.
+//
+
+#import "CashWithdrawalsViewController.h"
+
+#import "CashDrawalsCell.h"
+
+#import "AppHttpClient.h"
+
+#import "SVProgressHUD.h"
+
+#import "CommonUtil.h"
+
+#import "TakeMoneyViewController.h"
+
+#import "CashDetailViewController.h"
+
+#import "RealAccountResultViewController.h"
+
+#import "RealAccountViewController.h"
+
+@interface CashWithdrawalsViewController ()
+
+@property (weak, nonatomic) IBOutlet UIView *m_titleView;
+
+@property (weak, nonatomic) IBOutlet PullTableView *m_tableView;
+
+@property (weak, nonatomic) IBOutlet UILabel *m_emptyLabel;
+
+// 提现按钮触发的事件
+- (IBAction)crashWithDrawal:(id)sender;
+
+@end
+
+@implementation CashWithdrawalsViewController
+
+@synthesize m_recordsArr;
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+{
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    if (self) {
+        // Custom initialization
+        
+        pageIndex = 1;
+        
+        m_recordsArr = [[NSMutableArray alloc]initWithCapacity:0];
+    }
+    return self;
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    // Do any additional setup after loading the view from its nib.
+    [self setTitle:@"提现记录"];
+    
+    [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+    [self setRightButtonWithTitle:@"提现" action:@selector(tixianBtnClicked)];
+    
+    [self.m_tableView setDelegate:self];
+    [self.m_tableView setDataSource:self];
+    [self.m_tableView setPullDelegate:self];
+    self.m_tableView.pullBackgroundColor = [UIColor whiteColor];
+    self.m_tableView.useRefreshView = YES;
+    self.m_tableView.useLoadingMoreView= YES;
+    
+    // 隐藏
+    self.m_emptyLabel.hidden = YES;
+    
+    self.m_tableView.hidden = YES;
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated{
+    
+    [super viewWillAppear:animated];
+    
+    [self hideTabBar:YES];
+
+    pageIndex = 1;
+    
+    // 请求数据 ========
+    [self loadData];
+}
+
+- (void)viewWillDisappear:(BOOL)animated{
+    
+    [super viewWillDisappear:animated];
+    
+    [self hideTabBar:NO];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (void)viewDidUnload {
+    [self setM_titleView:nil];
+    [self setM_tableView:nil];
+    [self setM_emptyLabel:nil];
+    [super viewDidUnload];
+}
+
+- (void)leftClicked{
+    
+    [self goBack];
+}
+
+- (void)tixianBtnClicked{
+    
+    // 根据用户的身份验证的状态来判断进入哪个页面
+    
+    // 进入我的银行卡的页面
+    NSString *string = [CommonUtil getValueByKey:REALAUSTATUS];
+    
+    if ([string isEqualToString:@"Valid"]) {
+        
+        // 进入提现的界面
+        TakeMoneyViewController *VC = [[TakeMoneyViewController alloc]initWithNibName:@"TakeMoneyViewController" bundle:nil];
+        VC.m_inString = self.m_IncomeString;
+        [self.navigationController pushViewController:VC animated:YES];
+
+        
+    } else if ([string isEqualToString:@"NotCertified"]) {
+        
+        // 未认证 进入实名认证页面
+        RealAccountViewController *viewController = [[RealAccountViewController alloc] initWithNibName:@"RealAccountViewController" bundle:nil];
+        [self.navigationController pushViewController:viewController animated:YES];
+        
+    } else {
+        
+        // 其他的进入认证结果页面
+        RealAccountResultViewController *viewController = [[RealAccountResultViewController alloc] initWithNibName:@"RealAccountResultViewController" bundle:nil];
+        //viewController.message = [self.appMore objectForKey:@"realAuReason"];
+        //viewController.status = vldStatus;
+        [self.navigationController pushViewController:viewController animated:YES];
+        
+    }
+
+}
+
+#pragma mark - UITableViewDataSource
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    
+    return 1;
+    
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    
+    return [self.m_recordsArr count];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    static NSString *cellIdentifier = @"CashDrawalsCellIdentifier";
+    
+    CashDrawalsCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+    
+    if ( cell == nil ) {
+        
+        NSArray *nib = [[NSBundle mainBundle]loadNibNamed:@"CashDrawalsCell" owner:self options:nil];
+        
+        cell = (CashDrawalsCell *)[nib objectAtIndex:0];
+        
+        // 设置cell的点击选择状态
+        cell.selectionStyle = UITableViewCellSelectionStyleGray;
+        
+        
+        // 添加分割线
+        UIImageView *imgV = [[UIImageView alloc]initWithFrame:CGRectMake(0, 69, WindowSizeWidth, 1)];
+        
+        imgV.backgroundColor = [UIColor colorWithRed:221/255.0 green:221/255.0 blue:221/255.0 alpha:0.5];
+        
+        [cell addSubview:imgV];
+    }
+    
+    // 赋值
+    if ( self.m_recordsArr.count != 0 ) {
+        
+        NSDictionary *item = [self.m_recordsArr objectAtIndex:indexPath.row];
+        
+        cell.m_priceLabel.text = [NSString stringWithFormat:@"%.2f",[[item objectForKey:@"Amount"] floatValue]];
+        
+        cell.m_timeLabel.text = [NSString stringWithFormat:@"%@",[item objectForKey:@"CreateDate"]];
+        
+        cell.m_bankLabel.text = [NSString stringWithFormat:@"%@",[item objectForKey:@"BankName"]];
+        
+        cell.m_accountLabel.text = [NSString stringWithFormat:@"%@",[item objectForKey:@"AccountNo"]];
+        
+       
+        // 根据状态来判断如何显示
+        if ( [[item objectForKey:@"Status"] isEqualToString:@"HasCompleted"] ) {
+            
+            cell.m_statusLabel.text = [NSString stringWithFormat:@"（已完成）"];
+            
+            cell.m_statusLabel.textColor = [UIColor colorWithRed:51/255.0 green:152/255.0 blue:24/255.0 alpha:1.0];
+       
+        }else if ( [[item objectForKey:@"Status"] isEqualToString:@"Pending"] ){
+            
+            cell.m_statusLabel.text = [NSString stringWithFormat:@"（处理中）"];
+          
+            cell.m_statusLabel.textColor = [UIColor colorWithRed:252/255.0 green:14/255.0 blue:44/255.0 alpha:1.0];
+        
+        }else if ( [[item objectForKey:@"Status"] isEqualToString:@"HasRefused"] ){
+            
+            cell.m_statusLabel.text = [NSString stringWithFormat:@"（失败）"];
+            
+            cell.m_statusLabel.textColor = [UIColor colorWithRed:252/255.0 green:14/255.0 blue:44/255.0 alpha:1.0];
+            
+        }else{
+            
+            cell.m_statusLabel.text = [NSString stringWithFormat:@"（处理中）"];
+            
+            cell.m_statusLabel.textColor = [UIColor colorWithRed:252/255.0 green:14/255.0 blue:44/255.0 alpha:1.0];
+        }
+        
+        // 计算label的坐标
+        CGSize size = [cell.m_priceLabel.text sizeWithFont:[UIFont systemFontOfSize:20.0f] constrainedToSize:CGSizeMake(MAXFLOAT, 29) lineBreakMode:NSLineBreakByWordWrapping];
+        
+        cell.m_priceLabel.frame = CGRectMake(15, 11, size.width, 29);
+        
+        cell.m_statusLabel.frame = CGRectMake(cell.m_priceLabel.frame.origin.x + size.width, 15, 79, 21);
+                
+    }
+
+    return cell;
+    
+}
+
+#pragma mark - UITableViewDelegate
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    
+    return 70.0f;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+        
+    NSMutableDictionary *item = [self.m_recordsArr objectAtIndex:indexPath.row];
+
+    // 进入提现详情
+    CashDetailViewController *VC = [[CashDetailViewController alloc]initWithNibName:@"CashDetailViewController" bundle:nil];
+    VC.m_items = item;
+    [self.navigationController pushViewController:VC animated:YES];
+    
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+}
+
+
+#pragma mark - PullTableViewDelegate
+- (void)pullTableViewDidTriggerRefresh:(PullTableView*)pullTableView {
+    pageIndex = 1;
+    
+    [self loadData];
+}
+
+- (void)pullTableViewDidTriggerLoadMore:(PullTableView*)pullTableView {
+    pageIndex++;
+    
+    [self performSelector:@selector(loadData) withObject:nil];
+}
+
+- (void)loadData {
+    
+    // 判断网络是否存在
+    if ( ![self isConnectionAvailable] ) {
+        
+        return;
+    }
+    
+    NSString *memberId = [CommonUtil getValueByKey:MEMBER_ID];
+    NSString *key = [CommonUtil getServerKey];
+    AppHttpClient* httpClient = [AppHttpClient sharedClient];
+    NSDictionary *param = [NSDictionary dictionaryWithObjectsAndKeys:
+                           memberId,     @"memberId",
+                           key,   @"key",
+                           [NSString stringWithFormat:@"%d", pageIndex],   @"pageIndex",
+                           nil];
+    [SVProgressHUD showWithStatus:@"数据加载中"];
+    [httpClient request:@"MemberWithdrawalsRecord.ashx" parameters:param success:^(NSJSONSerialization* json) {
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        if (success) {
+            [SVProgressHUD dismiss];
+            NSMutableArray *resultList = [json valueForKey:@"WithdrawalsRecord"];
+            
+            self.m_IncomeString = [json valueForKey:@"Income"];
+            
+            if (pageIndex == 1) {
+                if (resultList == nil || resultList.count == 0) {
+                    [self.m_recordsArr removeAllObjects];
+                    self.m_tableView.hidden = YES;
+                    
+                    self.m_emptyLabel.hidden = NO;
+                    
+                    self.m_emptyLabel.text = @"暂时没有提现记录！";
+
+                    return;
+                    
+                } else {
+                    
+                    [self.m_recordsArr removeAllObjects];
+
+                    self.m_recordsArr = resultList;
+                    
+                    self.m_emptyLabel.hidden = YES;
+                    
+                    self.m_tableView.hidden = NO;
+                    
+                }
+            } else {
+                
+                self.m_tableView.hidden = NO;
+                
+                if (resultList == nil || resultList.count == 0) {
+                    
+                    pageIndex--;
+                    
+                } else {
+                    
+                    [self.m_recordsArr addObjectsFromArray:resultList];
+                }
+            }
+            [self.m_tableView reloadData];
+        } else {
+            if (pageIndex > 1) {
+                pageIndex--;
+            }
+            NSString *msg = [json valueForKey:@"msg"];
+            [SVProgressHUD showErrorWithStatus:msg];
+        }
+        self.m_tableView.pullTableIsRefreshing = NO;
+        self.m_tableView.pullTableIsLoadingMore = NO;
+    
+    } failure:^(NSError *error) {
+        if (pageIndex > 1) {
+            pageIndex--;
+        }
+        //NSLog(@"failed:%@", error);
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+        self.m_tableView.pullTableIsRefreshing = NO;
+        self.m_tableView.pullTableIsLoadingMore = NO;
+    }];
+}
+
+
+@end

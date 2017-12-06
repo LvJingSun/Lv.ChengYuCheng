@@ -1,0 +1,16 @@
+//
+//  MywalletViewController.h
+//  HuiHui
+//
+//  Created by 冯海强 on 14-8-9.
+//  Copyright (c) 2014年 MaxLinksTec. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface MywalletViewController : BaseViewController<UITableViewDataSource,UITableViewDelegate>
+
+
+@property (nonatomic, strong) NSMutableDictionary *appMore;
+
+@end

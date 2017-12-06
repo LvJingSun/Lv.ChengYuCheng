@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>14442719-A42E-4501-A888-7447EEC313FD</string>
+	<key>IDESourceControlProjectName</key>
+	<string>HuiHui</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>B433BD9F-9134-48B4-9E6D-B5E1C99EC8D2</key>
+		<string>https://192.168.3.100:8443/svn/MX_CCP_HuiHui</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>HuiHui.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>B433BD9F-9134-48B4-9E6D-B5E1C99EC8D2</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>B433BD9F-9134-48B4-9E6D-B5E1C99EC8D2</key>
+		<string>https://192.168.3.100:8443/svn/MX_CCP_HuiHui</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://192.168.3.100:8443/svn/MX_CCP_HuiHui/HuiHui.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>B433BD9F-9134-48B4-9E6D-B5E1C99EC8D2</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>B433BD9F-9134-48B4-9E6D-B5E1C99EC8D2</string>
+			<key>IDESourceControlWCCName</key>
+			<string>chengyucheng08_27</string>
+		</dict>
+	</array>
+</dict>
+</plist>
