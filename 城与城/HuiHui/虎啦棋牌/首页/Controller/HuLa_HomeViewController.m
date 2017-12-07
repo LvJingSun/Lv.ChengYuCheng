@@ -12,6 +12,18 @@
 #import "HuLaHomeFrame.h"
 #import "HuLaHomeCell.h"
 #import "HL_HomeSectionView.h"
+#import "HL_HomeMoreGameSectionView.h"
+#import "HL_GameDownLoadModel.h"
+#import "HL_GameDownLoadFrame.h"
+#import "HL_GameDownLoadCell.h"
+#import "HL_NoticeModel.h"
+#import "HL_NoticeFrame.h"
+#import "HL_NoticeCell.h"
+#import "HL_ScrollHornModel.h"
+#import "HL_ScrollHornFrame.h"
+#import "HL_ScrollHornCell.h"
+#import "HL_HornTextModel.h"
+//#import "HL_HornTextView.h"
 
 #import "H_BecomeDelegateCell.h"
 #import "H_BecomeDelegateModel.h"
@@ -25,6 +37,8 @@
 #import "H_MyTeamFrame.h"
 #import "H_MyTeamCell.h"
 #import "H_MyTeamHeadCell.h"
+#import "H_MyTeamHeadModel.h"
+#import "H_MyTeamHeadFrame.h"
 
 #import "H_MyMoneyModel.h"
 #import "H_MyMoneyFrame.h"
@@ -37,6 +51,8 @@
 
 #import "ToMeViewController.h"
 #import "TuiJian_ShareView.h"
+
+#import "HL_MyInfoViewController.h"
 
 #import <TencentOpenAPI/TencentOAuth.h>
 #import <QuartzCore/QuartzCore.h>
@@ -59,9 +75,17 @@
 
 @property (nonatomic, strong) NSArray *dataArray;
 
+@property (nonatomic, strong) NSArray *gameArray;
+
+@property (nonatomic, strong) NSArray *noticeArray;
+
+@property (nonatomic, strong) NSArray *hornArray;
+
 @property (nonatomic, strong) NSArray *becomeArray;
 
 @property (nonatomic, strong) NSArray *tuijianArray;
+
+@property (nonatomic, strong) NSArray *myteamHeadArray;
 
 @property (nonatomic, strong) NSArray *myteamArray;
 
@@ -72,6 +96,172 @@
 @end
 
 @implementation HuLa_HomeViewController
+
+-(NSArray *)myteamHeadArray {
+    
+    if (_myteamHeadArray == nil) {
+        
+        H_MyTeamHeadModel *model = [[H_MyTeamHeadModel alloc] init];
+        
+        model.title1 = @"全部推荐(人数)";
+        
+        model.content1 = @"0人";
+        
+        model.title2 = @"直接推荐(人数)";
+        
+        model.content2 = @"0人";
+        
+        model.title3 = @"间接推荐(人数)";
+        
+        model.content3 = @"0人";
+        
+        model.title4 = @"三级推荐(人数)";
+        
+        model.content4 = @"0人";
+        
+        H_MyTeamHeadFrame *frame = [[H_MyTeamHeadFrame alloc] init];
+        
+        frame.headModel = model;
+        
+        NSMutableArray *mut = [NSMutableArray array];
+        
+        [mut addObject:frame];
+        
+        _myteamHeadArray = mut;
+        
+    }
+    
+    return _myteamHeadArray;
+    
+}
+
+-(NSArray *)hornArray {
+    
+    if (_hornArray == nil) {
+        
+        HL_HornTextModel *model1 = [[HL_HornTextModel alloc] init];
+        
+        model1.textStr = @"红烧吕小布充值了300游戏币";
+        
+        HL_HornTextModel *model2 = [[HL_HornTextModel alloc] init];
+        
+        model2.textStr = @"绝世大魔王充值了50游戏币";
+        
+        NSMutableArray *temp = [NSMutableArray array];
+        
+        [temp addObject:model1];
+        
+        [temp addObject:model2];
+        
+        HL_ScrollHornModel *scrModel = [[HL_ScrollHornModel alloc] init];
+        
+        scrModel.hornTextArray = temp;
+        
+        HL_ScrollHornFrame *frame = [[HL_ScrollHornFrame alloc] init];
+        
+        frame.scrollHornModel = scrModel;
+        
+        NSMutableArray *mut = [NSMutableArray array];
+        
+        [mut addObject:frame];
+        
+        _hornArray = mut;
+        
+    }
+    
+    return _hornArray;
+    
+}
+
+-(NSArray *)noticeArray {
+    
+    if (_noticeArray == nil) {
+        
+        HL_NoticeModel *model = [[HL_NoticeModel alloc] init];
+        
+        model.title = @"今日通知";
+        
+        model.notice1 = @"通知通知通知通知";
+        
+        model.notice2 = @"内容通知内容通知";
+        
+        HL_NoticeFrame *frame = [[HL_NoticeFrame alloc] init];
+        
+        frame.noticeModel = model;
+        
+        NSMutableArray *mut = [NSMutableArray array];
+        
+        [mut addObject:frame];
+        
+        _noticeArray = mut;
+        
+    }
+    
+    return _noticeArray;
+    
+}
+
+-(NSArray *)gameArray {
+    
+    if (_gameArray == nil) {
+        
+        HL_GameDownLoadModel *model1 = [[HL_GameDownLoadModel alloc] init];
+        
+        model1.gameName = @"虎啦棋牌";
+        
+        model1.downloadCount = @"150";
+        
+        HL_GameDownLoadFrame *frame1 = [[HL_GameDownLoadFrame alloc] init];
+        
+        frame1.gameModel = model1;
+        
+        HL_GameDownLoadModel *model2 = [[HL_GameDownLoadModel alloc] init];
+        
+        model2.gameName = @"虎啦棋牌";
+        
+        model2.downloadCount = @"150";
+        
+        HL_GameDownLoadFrame *frame2 = [[HL_GameDownLoadFrame alloc] init];
+        
+        frame2.gameModel = model2;
+        
+        HL_GameDownLoadModel *model3 = [[HL_GameDownLoadModel alloc] init];
+        
+        model3.gameName = @"虎啦棋牌";
+        
+        model3.downloadCount = @"150";
+        
+        HL_GameDownLoadFrame *frame3 = [[HL_GameDownLoadFrame alloc] init];
+        
+        frame3.gameModel = model3;
+        
+        HL_GameDownLoadModel *model4 = [[HL_GameDownLoadModel alloc] init];
+        
+        model4.gameName = @"虎啦棋牌";
+        
+        model4.downloadCount = @"150";
+        
+        HL_GameDownLoadFrame *frame4 = [[HL_GameDownLoadFrame alloc] init];
+        
+        frame4.gameModel = model4;
+        
+        NSMutableArray *mut = [NSMutableArray array];
+        
+        [mut addObject:frame1];
+        
+        [mut addObject:frame2];
+        
+        [mut addObject:frame3];
+        
+        [mut addObject:frame4];
+        
+        _gameArray = mut;
+        
+    }
+    
+    return _gameArray;
+    
+}
 
 //获取我的佣金数据
 - (void)requestForMoney {
@@ -420,7 +610,7 @@
 
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     
-    return 2;
+    return 5;
     
 }
 
@@ -432,19 +622,44 @@
         
     }else if (section == 1) {
         
+        //更多游戏
+        return self.gameArray.count;
+        
+    }else if (section == 2) {
+        
+        //今日通知
+        return self.noticeArray.count;
+        
+    }else if (section == 3) {
+        
+        //小喇叭 滚动
+        return self.hornArray.count;
+        
+    }else if (section == 4) {
+        
+        //四类分组
+        
         if (selectIndex == 1) {
+            
+            //成为代理
             
             return self.becomeArray.count;
             
         }else if (selectIndex == 2) {
             
+            //推荐代理
+            
             return self.tuijianArray.count;
             
         }else if (selectIndex == 3) {
             
-            return self.myteamArray.count + 1;
+            //我的团队
+            
+            return self.myteamArray.count + self.myteamHeadArray.count;
             
         }else if (selectIndex == 4) {
+            
+            //我的佣金
             
             return self.mymoneyArray.count + 1;
             
@@ -461,6 +676,21 @@
     HuLaHomeFrame *frame = self.dataArray[0];
     
     if (section == 1) {
+        
+        //更多游戏
+        HL_HomeMoreGameSectionView *sectionView = [[HL_HomeMoreGameSectionView alloc] init];
+        
+        sectionView.frame = CGRectMake(0, 0, _WindowViewWidth, sectionView.height);
+        
+        sectionView.lookBlock = ^{
+            
+            //更多游戏点击查看
+            
+        };
+        
+        return sectionView;
+        
+    }else if (section == 4) {
         
         if (frame.hulaModel.isAgent) {
             
@@ -676,6 +906,12 @@
     
     if (section == 1) {
         
+        HL_HomeMoreGameSectionView *sectionview = [[HL_HomeMoreGameSectionView alloc] init];
+        
+        return sectionview.height;
+        
+    }else if (section == 4) {
+        
         if (frame.hulaModel.isAgent) {
             
             HL_HomeSectionView *sectionview = [[HL_HomeSectionView alloc] init];
@@ -704,6 +940,15 @@
         
         cell.frameModel = frame;
         
+        cell.delegate_Block = ^{
+            
+            //代理等级点击
+            HL_MyInfoViewController *vc = [[HL_MyInfoViewController alloc] init];
+            
+            [self.navigationController pushViewController:vc animated:YES];
+            
+        };
+        
         cell.bindBlock = ^{
             
             HuLaHomeBindAlertView *alert = [[HuLaHomeBindAlertView alloc] init];
@@ -724,6 +969,8 @@
         
         cell.ToOther_Block = ^{
             
+            //给他人充值点击
+            
             ToMeViewController *vc = [[ToMeViewController alloc] init];
             
             [self.navigationController pushViewController:vc animated:YES];
@@ -731,6 +978,8 @@
         };
         
         cell.ToMe_Block = ^{
+            
+            //充值点击
             
             if (frame.hulaModel.isBind) {
                 
@@ -748,9 +997,48 @@
             
         };
         
+        cell.Send_Block = ^{
+            
+            //赠送点击
+            
+        };
+        
         return cell;
         
     }else if (indexPath.section == 1) {
+        
+        //更多游戏
+        HL_GameDownLoadCell *cell = [[HL_GameDownLoadCell alloc] init];
+        
+        HL_GameDownLoadFrame *frame = self.gameArray[indexPath.row];
+        
+        cell.frameModel = frame;
+        
+        return cell;
+        
+    }else if (indexPath.section == 2) {
+        
+        //今日通知
+        HL_NoticeCell *cell = [[HL_NoticeCell alloc] init];
+        
+        HL_NoticeFrame *frame = self.noticeArray[indexPath.row];
+        
+        cell.frameModel = frame;
+        
+        return cell;
+        
+    }else if (indexPath.section == 3) {
+        
+        //小喇叭
+        HL_ScrollHornCell *cell = [[HL_ScrollHornCell alloc] init];
+        
+        HL_ScrollHornFrame *frame = self.hornArray[indexPath.row];
+        
+        cell.frameModel = frame;
+        
+        return cell;
+        
+    }else if (indexPath.section == 4) {
         
         if (selectIndex == 1) {
             
@@ -883,6 +1171,10 @@
                 
                 H_MyTeamHeadCell *cell = [[H_MyTeamHeadCell alloc] init];
                 
+                H_MyTeamHeadFrame *frame = self.myteamHeadArray[indexPath.row];
+                
+                cell.frameModel = frame;
+                
                 return cell;
                 
             }else {
@@ -956,6 +1248,89 @@
     
 }
 
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (indexPath.section == 0) {
+        
+        HuLaHomeFrame *frame = self.dataArray[indexPath.row];
+        
+        return frame.height;
+        
+    }else if (indexPath.section == 1) {
+        
+        //更多游戏
+        HL_GameDownLoadFrame *frame = self.gameArray[indexPath.row];
+        
+        return frame.height;
+        
+    }else if (indexPath.section == 2) {
+        
+        //今日通知
+        HL_NoticeFrame *frame = self.noticeArray[indexPath.row];
+        
+        return frame.height;
+        
+    }else if (indexPath.section == 3) {
+        
+        //小喇叭
+        HL_ScrollHornFrame *frame = self.hornArray[indexPath.row];
+        
+        return frame.height;
+        
+    }else if (indexPath.section == 4) {
+        
+        if (selectIndex == 1) {
+            
+            H_BecomeDelegateFrame *frame = self.becomeArray[indexPath.row];
+            
+            return frame.height;
+            
+        }else if (selectIndex == 2) {
+            
+            H_TuiJianFrame *frame = self.tuijianArray[indexPath.row];
+            
+            return frame.height;
+            
+        }else if (selectIndex == 3) {
+            
+            if (indexPath.row == 0) {
+                
+                H_MyTeamHeadFrame *frame = self.myteamHeadArray[indexPath.row];
+                
+                return frame.height;
+                
+            }else {
+                
+                H_MyTeamFrame *frame = self.myteamArray[indexPath.row - 1];
+                
+                return frame.height;
+                
+            }
+            
+        }else if (selectIndex == 4) {
+            
+            if (indexPath.row == 0) {
+                
+                H_MyMoneyHeadCell *cell = [[H_MyMoneyHeadCell alloc] init];
+                
+                return cell.height;
+                
+            }else {
+                
+                H_MyMoneyFrame *frame = self.mymoneyArray[indexPath.row - 1];
+                
+                return frame.height;
+                
+            }
+            
+        }
+        
+    }
+    
+    return 0;
+    
+}
+
 //短信发送完成代理
 -(void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result {
     
@@ -1008,8 +1383,7 @@
 }
 
 //发送给好友
--(void)shareTogoodFriend
-{
+-(void)shareTogoodFriend {
     
     WXMediaMessage *message = [WXMediaMessage message];//发送消息的多媒体内容
     
@@ -1087,8 +1461,8 @@
 }
 
 // 检查是否安装了QQ的客户端
--(BOOL)checkIsVaildQQType
-{
+-(BOOL)checkIsVaildQQType {
+    
     if ([QQApi isQQInstalled] &&[QQApi isQQSupportApi]) {
         return YES;
     }else
@@ -1105,8 +1479,8 @@
     
 }
 
-- (void)handleSendResult:(QQApiSendResultCode)sendResult
-{
+- (void)handleSendResult:(QQApiSendResultCode)sendResult {
+    
     switch (sendResult)
     {
         case EQQAPIAPPNOTREGISTED:
@@ -1329,68 +1703,6 @@
         self.alertView.noticeLab.text = @"查询失败，请稍后再试！";
         
     }];
-    
-}
-
--(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if (indexPath.section == 0) {
-        
-        HuLaHomeFrame *frame = self.dataArray[indexPath.row];
-        
-        return frame.height;
-        
-    }else if (indexPath.section == 1) {
-        
-        if (selectIndex == 1) {
-            
-            H_BecomeDelegateFrame *frame = self.becomeArray[indexPath.row];
-            
-            return frame.height;
-            
-        }else if (selectIndex == 2) {
-            
-            H_TuiJianFrame *frame = self.tuijianArray[indexPath.row];
-            
-            return frame.height;
-            
-        }else if (selectIndex == 3) {
-            
-            if (indexPath.row == 0) {
-                
-                H_MyTeamHeadCell *cell = [[H_MyTeamHeadCell alloc] init];
-                
-                return cell.height;
-                
-            }else {
-                
-                H_MyTeamFrame *frame = self.myteamArray[indexPath.row - 1];
-                
-                return frame.height;
-                
-            }
-            
-        }else if (selectIndex == 4) {
-            
-            if (indexPath.row == 0) {
-                
-                H_MyMoneyHeadCell *cell = [[H_MyMoneyHeadCell alloc] init];
-                
-                return cell.height;
-                
-            }else {
-                
-                H_MyMoneyFrame *frame = self.mymoneyArray[indexPath.row - 1];
-                
-                return frame.height;
-                
-            }
-            
-        }
-        
-    }
-    
-    return 0;
     
 }
 

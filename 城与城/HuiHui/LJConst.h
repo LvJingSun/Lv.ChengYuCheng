@@ -30,6 +30,8 @@
 #define FSB_NAVTextColor [UIColor whiteColor]
 //线的颜色
 #define FSB_LineCOLOR [UIColor colorWithRed:239/255.f green:239/255.f blue:239/255.f alpha:1.0]
+//虎啦棋牌首页分组高度
+#define SectionHeight 10.0f
 
 #import "CommonUtil.h"
 

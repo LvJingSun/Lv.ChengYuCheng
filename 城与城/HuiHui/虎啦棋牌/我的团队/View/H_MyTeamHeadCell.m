@@ -8,6 +8,29 @@
 
 #import "H_MyTeamHeadCell.h"
 #import "LJConst.h"
+#import "H_MyTeamHeadModel.h"
+#import "H_MyTeamHeadFrame.h"
+#import "H_MyTeamCountView.h"
+
+@interface H_MyTeamHeadCell ()
+
+@property (nonatomic, weak) H_MyTeamCountView *oneView;
+
+@property (nonatomic, weak) H_MyTeamCountView *twoView;
+
+@property (nonatomic, weak) H_MyTeamCountView *threeView;
+
+@property (nonatomic, weak) H_MyTeamCountView *fourView;
+
+@property (nonatomic, weak) UILabel *huiyuanmingLab;
+
+@property (nonatomic, weak) UILabel *jibieLab;
+
+@property (nonatomic, weak) UILabel *renshuLab;
+
+@property (nonatomic, weak) UILabel *shouyiLab;
+
+@end
 
 @implementation H_MyTeamHeadCell
 
@@ -33,21 +56,15 @@
         
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = FSB_ViewBGCOLOR;
         
-        CGFloat Width = _WindowViewWidth * 0.25;
+        UILabel *name = [[UILabel alloc] init];
         
-        CGFloat nameX = 0;
+        self.huiyuanmingLab = name;
         
-        CGFloat nameY = 0;
+        name.textColor = [UIColor whiteColor];
         
-        CGFloat nameW = Width;
-        
-        CGFloat nameH = 50;
-        
-        UILabel *name = [[UILabel alloc] initWithFrame:CGRectMake(nameX, nameY, nameW, nameH)];
-        
-        name.textColor = FSB_StyleCOLOR;
+        name.backgroundColor = FSB_StyleCOLOR;
         
         name.textAlignment = NSTextAlignmentCenter;
         
@@ -57,11 +74,15 @@
         
         [self addSubview:name];
         
-        UILabel *level = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(name.frame), nameY, nameW, nameH)];
+        UILabel *level = [[UILabel alloc] init];
+        
+        self.jibieLab = level;
         
         level.text = @"代理级别";
         
-        level.textColor = FSB_StyleCOLOR;
+        level.textColor = [UIColor whiteColor];
+        
+        level.backgroundColor = FSB_StyleCOLOR;
         
         level.textAlignment = NSTextAlignmentCenter;
         
@@ -69,11 +90,15 @@
         
         [self addSubview:level];
         
-        UILabel *delegate = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(level.frame), nameY, nameW, nameH)];
+        UILabel *delegate = [[UILabel alloc] init];
+        
+        self.renshuLab = delegate;
         
         delegate.text = @"代理人数";
         
-        delegate.textColor = FSB_StyleCOLOR;
+        delegate.textColor = [UIColor whiteColor];
+        
+        delegate.backgroundColor = FSB_StyleCOLOR;
         
         delegate.textAlignment = NSTextAlignmentCenter;
         
@@ -81,11 +106,15 @@
         
         [self addSubview:delegate];
         
-        UILabel *member = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(delegate.frame), nameY, nameW, nameH)];
+        UILabel *member = [[UILabel alloc] init];
+        
+        self.shouyiLab = member;
         
         member.text = @"会员人数";
         
-        member.textColor = FSB_StyleCOLOR;
+        member.textColor = [UIColor whiteColor];
+        
+        member.backgroundColor = FSB_StyleCOLOR;
         
         member.textAlignment = NSTextAlignmentCenter;
         
@@ -93,17 +122,77 @@
         
         [self addSubview:member];
         
-        UILabel *line = [[UILabel alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(name.frame), _WindowViewWidth, 1)];
-        
-        line.backgroundColor = FSB_ViewBGCOLOR;
-        
-        [self addSubview:line];
-        
-        self.height = CGRectGetMaxY(line.frame);
-        
     }
     
     return self;
+    
+}
+
+-(void)setFrameModel:(H_MyTeamHeadFrame *)frameModel {
+    
+    _frameModel = frameModel;
+    
+    [self setRect];
+    
+    [self setContent];
+    
+}
+
+- (void)setRect {
+    
+    H_MyTeamCountView *view1 = [[H_MyTeamCountView alloc] initWithFrame:self.frameModel.OneF];
+    
+    self.oneView = view1;
+    
+    [self addSubview:view1];
+    
+    H_MyTeamCountView *view2 = [[H_MyTeamCountView alloc] initWithFrame:self.frameModel.TwoF];
+    
+    self.twoView = view2;
+    
+    [self addSubview:view2];
+    
+    H_MyTeamCountView *view3 = [[H_MyTeamCountView alloc] initWithFrame:self.frameModel.ThreeF];
+    
+    self.threeView = view3;
+    
+    [self addSubview:view3];
+    
+    H_MyTeamCountView *view4 = [[H_MyTeamCountView alloc] initWithFrame:self.frameModel.FourF];
+    
+    self.fourView = view4;
+    
+    [self addSubview:view4];
+    
+    self.huiyuanmingLab.frame = self.frameModel.huiyuanmingF;
+    
+    self.jibieLab.frame = self.frameModel.jibieF;
+    
+    self.renshuLab.frame = self.frameModel.renshuF;
+    
+    self.shouyiLab.frame = self.frameModel.shouyiF;
+    
+}
+
+- (void)setContent {
+    
+    H_MyTeamHeadModel *model = self.frameModel.headModel;
+    
+    self.oneView.title = model.title1;
+    
+    self.oneView.content = model.content1;
+    
+    self.twoView.title = model.title2;
+    
+    self.twoView.content = model.content2;
+    
+    self.threeView.title = model.title3;
+    
+    self.threeView.content = model.content3;
+    
+    self.fourView.title = model.title4;
+    
+    self.fourView.content = model.content4;
     
 }
 

@@ -35,15 +35,15 @@
 
 @property (nonatomic, assign) CGRect gameIDF;
 
-@property (nonatomic, assign) CGRect money_typeF;
-
-@property (nonatomic, assign) CGRect roomcard_typeF;
+@property (nonatomic, assign) CGRect sendF;
 
 @property (nonatomic, assign) CGRect rechargeF;
 
 @property (nonatomic, assign) CGRect rechargeOtherF;
 
 @property (nonatomic, assign) CGRect content_imgF;
+
+@property (nonatomic, assign) CGRect lineF;
 
 @property (nonatomic, assign) CGRect view_typeF;
 

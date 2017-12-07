@@ -17,9 +17,9 @@
 
 @property (nonatomic, copy) dispatch_block_t bindBlock;
 
-//@property (nonatomic, copy) dispatch_block_t YB_Block;
-//
-//@property (nonatomic, copy) dispatch_block_t FK_Block;
+@property (nonatomic, copy) dispatch_block_t delegate_Block;
+
+@property (nonatomic, copy) dispatch_block_t Send_Block;
 
 @property (nonatomic, copy) dispatch_block_t ToOther_Block;
 

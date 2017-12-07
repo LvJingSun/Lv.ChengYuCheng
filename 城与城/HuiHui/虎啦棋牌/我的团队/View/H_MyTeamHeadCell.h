@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+@class H_MyTeamHeadFrame;
 
 @interface H_MyTeamHeadCell : UITableViewCell
 
 + (instancetype)H_MyTeamHeadCellWithTableview:(UITableView *)tableview;
 
-@property (nonatomic, assign) CGFloat height;
+@property (nonatomic, strong) H_MyTeamHeadFrame *frameModel;
 
 @end

@@ -14,6 +14,7 @@
 #import "GetOutSuccessViewController.h"
 #import "GameRechargeAlertView.h"
 #import "NoticeAlertView.h"
+#import "GameTranViewController.h"
 
 @interface ToMeViewController ()<UITableViewDelegate,UITableViewDataSource,GameRechargeDelegate,UITextFieldDelegate> {
     
@@ -77,6 +78,8 @@
     
     [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
     
+    [self setRightButtonWithTitle:@"记录" action:@selector(rightClicked)];
+    
     self.view.backgroundColor = RH_ViewBGColor;
     
     [self allocWithTableview];
@@ -120,6 +123,15 @@
         }];
         
     }
+    
+}
+
+- (void)rightClicked {
+    
+    //记录按钮点击
+    GameTranViewController *vc = [[GameTranViewController alloc] init];
+    
+    [self.navigationController pushViewController:vc animated:YES];
     
 }
 

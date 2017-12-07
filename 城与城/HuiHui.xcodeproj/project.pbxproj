@@ -130,6 +130,10 @@
 		041C9F6E1999EB0D00F59F1C /* alipay_icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 041C9F6C1999EB0D00F59F1C /* alipay_icon@2x.png */; };
 		041CE7EA1876583100C29C9E /* CardVerifyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 041CE7E81876583100C29C9E /* CardVerifyViewController.m */; };
 		041CE7EB1876583100C29C9E /* CardVerifyViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 041CE7E91876583100C29C9E /* CardVerifyViewController.xib */; };
+		041E4FC51FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 041E4FC41FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.m */; };
+		041E4FC81FD8D51E00A78C86 /* HL_GameDownLoadModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 041E4FC71FD8D51E00A78C86 /* HL_GameDownLoadModel.m */; };
+		041E4FCB1FD8D59200A78C86 /* HL_GameDownLoadFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 041E4FCA1FD8D59200A78C86 /* HL_GameDownLoadFrame.m */; };
+		041E4FCE1FD8D81F00A78C86 /* HL_GameDownLoadCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 041E4FCD1FD8D81F00A78C86 /* HL_GameDownLoadCell.m */; };
 		041ED6261FAAA4010089E110 /* NoticeAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 041ED6251FAAA4010089E110 /* NoticeAlertView.m */; };
 		041ED6311FAAEF730089E110 /* HuLa_HomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 041ED6301FAAEF730089E110 /* HuLa_HomeViewController.m */; };
 		041ED6341FAAF6A10089E110 /* HuLaHomeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 041ED6331FAAF6A10089E110 /* HuLaHomeModel.m */; };
@@ -1406,6 +1410,26 @@
 		04D2052A1A007E38007E8072 /* PartyDetailCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04D205231A007E38007E8072 /* PartyDetailCell.xib */; };
 		04D2052B1A007E38007E8072 /* SignUpCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D205251A007E38007E8072 /* SignUpCell.m */; };
 		04D2052C1A007E38007E8072 /* SignUpCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04D205261A007E38007E8072 /* SignUpCell.xib */; };
+		04D252691FD8E1FC00616C81 /* HL_NoticeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252681FD8E1FC00616C81 /* HL_NoticeModel.m */; };
+		04D2526F1FD8E2BF00616C81 /* HL_NoticeFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D2526E1FD8E2BF00616C81 /* HL_NoticeFrame.m */; };
+		04D252721FD8E59400616C81 /* HL_NoticeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252711FD8E59400616C81 /* HL_NoticeCell.m */; };
+		04D252751FD8EDD000616C81 /* HL_HornTextModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252741FD8EDD000616C81 /* HL_HornTextModel.m */; };
+		04D252781FD8EEC500616C81 /* HL_HornTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252771FD8EEC500616C81 /* HL_HornTextView.m */; };
+		04D2527B1FD8F03C00616C81 /* HL_ScrollHornModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D2527A1FD8F03C00616C81 /* HL_ScrollHornModel.m */; };
+		04D2527E1FD8F09100616C81 /* HL_ScrollHornFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D2527D1FD8F09100616C81 /* HL_ScrollHornFrame.m */; };
+		04D252811FD8F21400616C81 /* HL_ScrollHornCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252801FD8F21400616C81 /* HL_ScrollHornCell.m */; };
+		04D252841FD909A600616C81 /* H_MyTeamCountView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252831FD909A600616C81 /* H_MyTeamCountView.m */; };
+		04D252871FD90BF200616C81 /* H_MyTeamHeadModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252861FD90BF200616C81 /* H_MyTeamHeadModel.m */; };
+		04D2528A1FD90CB300616C81 /* H_MyTeamHeadFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252891FD90CB300616C81 /* H_MyTeamHeadFrame.m */; };
+		04D2528D1FD9165D00616C81 /* GameTranModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D2528C1FD9165D00616C81 /* GameTranModel.m */; };
+		04D252901FD916EC00616C81 /* GameTranFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D2528F1FD916EC00616C81 /* GameTranFrame.m */; };
+		04D252931FD9198400616C81 /* GameTranCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252921FD9198400616C81 /* GameTranCell.m */; };
+		04D252961FD91B7900616C81 /* GameTranViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252951FD91B7900616C81 /* GameTranViewController.m */; };
+		04D2529F1FD91EDB00616C81 /* HL_MyInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D2529E1FD91EDB00616C81 /* HL_MyInfoViewController.m */; };
+		04D252A21FD91F4A00616C81 /* HL_MyInfoHeadView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252A11FD91F4A00616C81 /* HL_MyInfoHeadView.m */; };
+		04D252A81FD92BAD00616C81 /* HL_MyInfoModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252A71FD92BAD00616C81 /* HL_MyInfoModel.m */; };
+		04D252AB1FD92C1200616C81 /* HL_MyInfoFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252AA1FD92C1200616C81 /* HL_MyInfoFrame.m */; };
+		04D252AE1FD92D3D00616C81 /* HL_MyInfoCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04D252AD1FD92D3D00616C81 /* HL_MyInfoCell.m */; };
 		04D792C21AE8C18A00CDA0FC /* icon_180.png in Resources */ = {isa = PBXBuildFile; fileRef = 04D792C11AE8C18A00CDA0FC /* icon_180.png */; };
 		04D792C41AE8C2D600CDA0FC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 04D792C31AE8C2D600CDA0FC /* Images.xcassets */; };
 		04D792C71AE8C3A500CDA0FC /* bg750x1334.png in Resources */ = {isa = PBXBuildFile; fileRef = 04D792C51AE8C3A500CDA0FC /* bg750x1334.png */; };
@@ -2954,6 +2978,14 @@
 		041CE7E71876583000C29C9E /* CardVerifyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardVerifyViewController.h; sourceTree = "<group>"; };
 		041CE7E81876583100C29C9E /* CardVerifyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CardVerifyViewController.m; sourceTree = "<group>"; };
 		041CE7E91876583100C29C9E /* CardVerifyViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CardVerifyViewController.xib; sourceTree = "<group>"; };
+		041E4FC31FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_HomeMoreGameSectionView.h; sourceTree = "<group>"; };
+		041E4FC41FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_HomeMoreGameSectionView.m; sourceTree = "<group>"; };
+		041E4FC61FD8D51E00A78C86 /* HL_GameDownLoadModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_GameDownLoadModel.h; sourceTree = "<group>"; };
+		041E4FC71FD8D51E00A78C86 /* HL_GameDownLoadModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_GameDownLoadModel.m; sourceTree = "<group>"; };
+		041E4FC91FD8D59200A78C86 /* HL_GameDownLoadFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_GameDownLoadFrame.h; sourceTree = "<group>"; };
+		041E4FCA1FD8D59200A78C86 /* HL_GameDownLoadFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_GameDownLoadFrame.m; sourceTree = "<group>"; };
+		041E4FCC1FD8D81F00A78C86 /* HL_GameDownLoadCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_GameDownLoadCell.h; sourceTree = "<group>"; };
+		041E4FCD1FD8D81F00A78C86 /* HL_GameDownLoadCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_GameDownLoadCell.m; sourceTree = "<group>"; };
 		041ED6241FAAA4010089E110 /* NoticeAlertView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NoticeAlertView.h; sourceTree = "<group>"; };
 		041ED6251FAAA4010089E110 /* NoticeAlertView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NoticeAlertView.m; sourceTree = "<group>"; };
 		041ED62F1FAAEF730089E110 /* HuLa_HomeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HuLa_HomeViewController.h; sourceTree = "<group>"; };
@@ -4884,6 +4916,46 @@
 		04D205241A007E38007E8072 /* SignUpCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignUpCell.h; sourceTree = "<group>"; };
 		04D205251A007E38007E8072 /* SignUpCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SignUpCell.m; sourceTree = "<group>"; };
 		04D205261A007E38007E8072 /* SignUpCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SignUpCell.xib; sourceTree = "<group>"; };
+		04D252671FD8E1FC00616C81 /* HL_NoticeModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_NoticeModel.h; sourceTree = "<group>"; };
+		04D252681FD8E1FC00616C81 /* HL_NoticeModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_NoticeModel.m; sourceTree = "<group>"; };
+		04D2526D1FD8E2BF00616C81 /* HL_NoticeFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_NoticeFrame.h; sourceTree = "<group>"; };
+		04D2526E1FD8E2BF00616C81 /* HL_NoticeFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_NoticeFrame.m; sourceTree = "<group>"; };
+		04D252701FD8E59400616C81 /* HL_NoticeCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_NoticeCell.h; sourceTree = "<group>"; };
+		04D252711FD8E59400616C81 /* HL_NoticeCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_NoticeCell.m; sourceTree = "<group>"; };
+		04D252731FD8EDD000616C81 /* HL_HornTextModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_HornTextModel.h; sourceTree = "<group>"; };
+		04D252741FD8EDD000616C81 /* HL_HornTextModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_HornTextModel.m; sourceTree = "<group>"; };
+		04D252761FD8EEC500616C81 /* HL_HornTextView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_HornTextView.h; sourceTree = "<group>"; };
+		04D252771FD8EEC500616C81 /* HL_HornTextView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_HornTextView.m; sourceTree = "<group>"; };
+		04D252791FD8F03C00616C81 /* HL_ScrollHornModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_ScrollHornModel.h; sourceTree = "<group>"; };
+		04D2527A1FD8F03C00616C81 /* HL_ScrollHornModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_ScrollHornModel.m; sourceTree = "<group>"; };
+		04D2527C1FD8F09100616C81 /* HL_ScrollHornFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_ScrollHornFrame.h; sourceTree = "<group>"; };
+		04D2527D1FD8F09100616C81 /* HL_ScrollHornFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_ScrollHornFrame.m; sourceTree = "<group>"; };
+		04D2527F1FD8F21400616C81 /* HL_ScrollHornCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_ScrollHornCell.h; sourceTree = "<group>"; };
+		04D252801FD8F21400616C81 /* HL_ScrollHornCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_ScrollHornCell.m; sourceTree = "<group>"; };
+		04D252821FD909A600616C81 /* H_MyTeamCountView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H_MyTeamCountView.h; sourceTree = "<group>"; };
+		04D252831FD909A600616C81 /* H_MyTeamCountView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = H_MyTeamCountView.m; sourceTree = "<group>"; };
+		04D252851FD90BF200616C81 /* H_MyTeamHeadModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H_MyTeamHeadModel.h; sourceTree = "<group>"; };
+		04D252861FD90BF200616C81 /* H_MyTeamHeadModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = H_MyTeamHeadModel.m; sourceTree = "<group>"; };
+		04D252881FD90CB300616C81 /* H_MyTeamHeadFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = H_MyTeamHeadFrame.h; sourceTree = "<group>"; };
+		04D252891FD90CB300616C81 /* H_MyTeamHeadFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = H_MyTeamHeadFrame.m; sourceTree = "<group>"; };
+		04D2528B1FD9165D00616C81 /* GameTranModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameTranModel.h; sourceTree = "<group>"; };
+		04D2528C1FD9165D00616C81 /* GameTranModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameTranModel.m; sourceTree = "<group>"; };
+		04D2528E1FD916EC00616C81 /* GameTranFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameTranFrame.h; sourceTree = "<group>"; };
+		04D2528F1FD916EC00616C81 /* GameTranFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameTranFrame.m; sourceTree = "<group>"; };
+		04D252911FD9198400616C81 /* GameTranCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameTranCell.h; sourceTree = "<group>"; };
+		04D252921FD9198400616C81 /* GameTranCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameTranCell.m; sourceTree = "<group>"; };
+		04D252941FD91B7900616C81 /* GameTranViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameTranViewController.h; sourceTree = "<group>"; };
+		04D252951FD91B7900616C81 /* GameTranViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameTranViewController.m; sourceTree = "<group>"; };
+		04D2529D1FD91EDB00616C81 /* HL_MyInfoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_MyInfoViewController.h; sourceTree = "<group>"; };
+		04D2529E1FD91EDB00616C81 /* HL_MyInfoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_MyInfoViewController.m; sourceTree = "<group>"; };
+		04D252A01FD91F4A00616C81 /* HL_MyInfoHeadView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_MyInfoHeadView.h; sourceTree = "<group>"; };
+		04D252A11FD91F4A00616C81 /* HL_MyInfoHeadView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_MyInfoHeadView.m; sourceTree = "<group>"; };
+		04D252A61FD92BAD00616C81 /* HL_MyInfoModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_MyInfoModel.h; sourceTree = "<group>"; };
+		04D252A71FD92BAD00616C81 /* HL_MyInfoModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_MyInfoModel.m; sourceTree = "<group>"; };
+		04D252A91FD92C1200616C81 /* HL_MyInfoFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_MyInfoFrame.h; sourceTree = "<group>"; };
+		04D252AA1FD92C1200616C81 /* HL_MyInfoFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_MyInfoFrame.m; sourceTree = "<group>"; };
+		04D252AC1FD92D3D00616C81 /* HL_MyInfoCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_MyInfoCell.h; sourceTree = "<group>"; };
+		04D252AD1FD92D3D00616C81 /* HL_MyInfoCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_MyInfoCell.m; sourceTree = "<group>"; };
 		04D792C11AE8C18A00CDA0FC /* icon_180.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_180.png; sourceTree = "<group>"; };
 		04D792C31AE8C2D600CDA0FC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		04D792C51AE8C3A500CDA0FC /* bg750x1334.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg750x1334.png; sourceTree = "<group>"; };
@@ -7079,6 +7151,7 @@
 				041ED6471FAB0B680089E110 /* 推荐代理 */,
 				041ED6411FAB0B680089E110 /* 我的团队 */,
 				041ED64D1FAB0B690089E110 /* 我的佣金 */,
+				04D252971FD91EC300616C81 /* 我的资料 */,
 			);
 			path = "虎啦棋牌";
 			sourceTree = "<group>";
@@ -7109,6 +7182,12 @@
 			children = (
 				041ED6351FAAF8910089E110 /* HuLaHomeFrame.h */,
 				041ED6361FAAF8910089E110 /* HuLaHomeFrame.m */,
+				041E4FC91FD8D59200A78C86 /* HL_GameDownLoadFrame.h */,
+				041E4FCA1FD8D59200A78C86 /* HL_GameDownLoadFrame.m */,
+				04D2526D1FD8E2BF00616C81 /* HL_NoticeFrame.h */,
+				04D2526E1FD8E2BF00616C81 /* HL_NoticeFrame.m */,
+				04D2527C1FD8F09100616C81 /* HL_ScrollHornFrame.h */,
+				04D2527D1FD8F09100616C81 /* HL_ScrollHornFrame.m */,
 			);
 			path = Frame;
 			sourceTree = "<group>";
@@ -7118,6 +7197,14 @@
 			children = (
 				041ED6321FAAF6A10089E110 /* HuLaHomeModel.h */,
 				041ED6331FAAF6A10089E110 /* HuLaHomeModel.m */,
+				041E4FC61FD8D51E00A78C86 /* HL_GameDownLoadModel.h */,
+				041E4FC71FD8D51E00A78C86 /* HL_GameDownLoadModel.m */,
+				04D252671FD8E1FC00616C81 /* HL_NoticeModel.h */,
+				04D252681FD8E1FC00616C81 /* HL_NoticeModel.m */,
+				04D252731FD8EDD000616C81 /* HL_HornTextModel.h */,
+				04D252741FD8EDD000616C81 /* HL_HornTextModel.m */,
+				04D252791FD8F03C00616C81 /* HL_ScrollHornModel.h */,
+				04D2527A1FD8F03C00616C81 /* HL_ScrollHornModel.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -7136,8 +7223,18 @@
 			children = (
 				041ED6381FAB03240089E110 /* HuLaHomeCell.h */,
 				041ED6391FAB03240089E110 /* HuLaHomeCell.m */,
+				041E4FCC1FD8D81F00A78C86 /* HL_GameDownLoadCell.h */,
+				041E4FCD1FD8D81F00A78C86 /* HL_GameDownLoadCell.m */,
+				04D252701FD8E59400616C81 /* HL_NoticeCell.h */,
+				04D252711FD8E59400616C81 /* HL_NoticeCell.m */,
+				04D2527F1FD8F21400616C81 /* HL_ScrollHornCell.h */,
+				04D252801FD8F21400616C81 /* HL_ScrollHornCell.m */,
+				04D252761FD8EEC500616C81 /* HL_HornTextView.h */,
+				04D252771FD8EEC500616C81 /* HL_HornTextView.m */,
 				04FB4B8E1FB02C6100289020 /* HL_HomeSectionView.h */,
 				04FB4B8F1FB02C6100289020 /* HL_HomeSectionView.m */,
+				041E4FC31FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.h */,
+				041E4FC41FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -7203,6 +7300,8 @@
 			children = (
 				04A3F7AA1FAC42C400F39BF1 /* H_MyTeamFrame.h */,
 				04A3F7AB1FAC42C400F39BF1 /* H_MyTeamFrame.m */,
+				04D252881FD90CB300616C81 /* H_MyTeamHeadFrame.h */,
+				04D252891FD90CB300616C81 /* H_MyTeamHeadFrame.m */,
 			);
 			path = Frame;
 			sourceTree = "<group>";
@@ -7212,6 +7311,8 @@
 			children = (
 				04A3F7A71FAC427300F39BF1 /* H_MyTeamModel.h */,
 				04A3F7A81FAC427300F39BF1 /* H_MyTeamModel.m */,
+				04D252851FD90BF200616C81 /* H_MyTeamHeadModel.h */,
+				04D252861FD90BF200616C81 /* H_MyTeamHeadModel.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -7223,6 +7324,8 @@
 				04A3F7AE1FAC43F800F39BF1 /* H_MyTeamCell.m */,
 				046979991FB140EE00F08956 /* H_MyTeamHeadCell.h */,
 				0469799A1FB140EE00F08956 /* H_MyTeamHeadCell.m */,
+				04D252821FD909A600616C81 /* H_MyTeamCountView.h */,
+				04D252831FD909A600616C81 /* H_MyTeamCountView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -11342,6 +11445,63 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		04D252971FD91EC300616C81 /* 我的资料 */ = {
+			isa = PBXGroup;
+			children = (
+				04D252981FD91EC300616C81 /* Controller */,
+				04D252991FD91EC300616C81 /* Frame */,
+				04D2529A1FD91EC300616C81 /* Model */,
+				04D2529B1FD91EC300616C81 /* Other */,
+				04D2529C1FD91EC300616C81 /* View */,
+			);
+			path = "我的资料";
+			sourceTree = "<group>";
+		};
+		04D252981FD91EC300616C81 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				04D2529D1FD91EDB00616C81 /* HL_MyInfoViewController.h */,
+				04D2529E1FD91EDB00616C81 /* HL_MyInfoViewController.m */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		04D252991FD91EC300616C81 /* Frame */ = {
+			isa = PBXGroup;
+			children = (
+				04D252A91FD92C1200616C81 /* HL_MyInfoFrame.h */,
+				04D252AA1FD92C1200616C81 /* HL_MyInfoFrame.m */,
+			);
+			path = Frame;
+			sourceTree = "<group>";
+		};
+		04D2529A1FD91EC300616C81 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				04D252A61FD92BAD00616C81 /* HL_MyInfoModel.h */,
+				04D252A71FD92BAD00616C81 /* HL_MyInfoModel.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		04D2529B1FD91EC300616C81 /* Other */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Other;
+			sourceTree = "<group>";
+		};
+		04D2529C1FD91EC300616C81 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				04D252A01FD91F4A00616C81 /* HL_MyInfoHeadView.h */,
+				04D252A11FD91F4A00616C81 /* HL_MyInfoHeadView.m */,
+				04D252AC1FD92D3D00616C81 /* HL_MyInfoCell.h */,
+				04D252AD1FD92D3D00616C81 /* HL_MyInfoCell.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		04DDA4BC1A6CF4E5003455E1 /* Scenery */ = {
 			isa = PBXGroup;
 			children = (
@@ -11624,6 +11784,8 @@
 			children = (
 				04F607B21F94A26800486794 /* ToMeViewController.h */,
 				04F607B31F94A26800486794 /* ToMeViewController.m */,
+				04D252941FD91B7900616C81 /* GameTranViewController.h */,
+				04D252951FD91B7900616C81 /* GameTranViewController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -11633,6 +11795,8 @@
 			children = (
 				0422681E1FA2F8B700E9448E /* GameRechargeFrame.h */,
 				0422681F1FA2F8B700E9448E /* GameRechargeFrame.m */,
+				04D2528E1FD916EC00616C81 /* GameTranFrame.h */,
+				04D2528F1FD916EC00616C81 /* GameTranFrame.m */,
 			);
 			path = Frame;
 			sourceTree = "<group>";
@@ -11642,6 +11806,8 @@
 			children = (
 				0422681B1FA2F79200E9448E /* GameRechargeModel.h */,
 				0422681C1FA2F79200E9448E /* GameRechargeModel.m */,
+				04D2528B1FD9165D00616C81 /* GameTranModel.h */,
+				04D2528C1FD9165D00616C81 /* GameTranModel.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -11660,6 +11826,8 @@
 				04A028BA1FA2FC8800BA1811 /* GameRechargeCell.m */,
 				04A028BC1FA3068700BA1811 /* GameRechargeAlertView.h */,
 				04A028BD1FA3068700BA1811 /* GameRechargeAlertView.m */,
+				04D252911FD9198400616C81 /* GameTranCell.h */,
+				04D252921FD9198400616C81 /* GameTranCell.m */,
 				041ED6241FAAA4010089E110 /* NoticeAlertView.h */,
 				041ED6251FAAA4010089E110 /* NoticeAlertView.m */,
 			);
@@ -16996,6 +17164,7 @@
 				043A27F71ABA7C240026ABB1 /* HHQuanDetailViewController.m in Sources */,
 				045B2E5A183B006C00F811E4 /* BaseViewController.m in Sources */,
 				045B2E5E183B008100F811E4 /* StartViewController.m in Sources */,
+				04D252A81FD92BAD00616C81 /* HL_MyInfoModel.m in Sources */,
 				7F5FB9801A4C02DF00531A08 /* CtriphotelViewController.m in Sources */,
 				047460281FAC136F001A08FD /* H_BecomeDelegateCell.m in Sources */,
 				7F56D7BF1BB2B09700D421DC /* HCSStarRatingView.m in Sources */,
@@ -17017,6 +17186,7 @@
 				04448E0E1A7895DC0067337A /* SceneryOutPViewController.m in Sources */,
 				7F116B7F199A03B4003F1339 /* ExplainViewController.m in Sources */,
 				0479ABB11EEE25BE009847BE /* Life_Cell.m in Sources */,
+				04D2527B1FD8F03C00616C81 /* HL_ScrollHornModel.m in Sources */,
 				042C8FB11F3449DA0083FDCF /* RH_Send_RecordsViewController.m in Sources */,
 				7F50FCB2198F85CB00BDDEFE /* CXAHyperlinkLabel.m in Sources */,
 				7FCAB7FC1A358C750099DE09 /* Hotel_CitylistDB.m in Sources */,
@@ -17079,6 +17249,7 @@
 				7F7BCD0918D41FDE00B184CC /* DetailViewController.m in Sources */,
 				7F7BCD2818D41FDE00B184CC /* ShopdetailViewController.m in Sources */,
 				04792A811ECAE11900456436 /* FSB_ConsumptionCell.m in Sources */,
+				041E4FC81FD8D51E00A78C86 /* HL_GameDownLoadModel.m in Sources */,
 				0438960E1B607AD8005E6EA7 /* DownSheetCell.m in Sources */,
 				0427F25E1D937AF5001B3327 /* ZJScrollSegmentView.m in Sources */,
 				045D19651F28286900A98D4C /* GameScrollModel.m in Sources */,
@@ -17239,6 +17410,7 @@
 				0484CE8C19B413B200F53A91 /* NewCommentViewController.m in Sources */,
 				04B312A21A1F2A5E0094664E /* HH_CateChooseViewController.m in Sources */,
 				040E8C3B1A591985004B9DB0 /* orderChooseViewController.m in Sources */,
+				04D252811FD8F21400616C81 /* HL_ScrollHornCell.m in Sources */,
 				04FE7A28183C8FF5006071D3 /* bitstream.c in Sources */,
 				7FF31E501A1DCFAE00435690 /* groupChatCell.m in Sources */,
 				0400D93918F69BFD0098A1E4 /* ModifyCodeViewController.m in Sources */,
@@ -17269,6 +17441,7 @@
 				7FF31E861A1DCFAE00435690 /* EMTextView.m in Sources */,
 				04B3D0A91A369F4C005EAD01 /* FlightsDetailCell.m in Sources */,
 				04C97B5A1A1AE51400D6A255 /* QHCommonUtil.m in Sources */,
+				04D252961FD91B7900616C81 /* GameTranViewController.m in Sources */,
 				0498CBEA1F667C2B00C15DC8 /* Wallet_FSBViewController.m in Sources */,
 				04C97B511A1ADB6700D6A255 /* DAPagesContainer.m in Sources */,
 				04EA6CA21EEB86CF00A56183 /* ApplySubsidyModel.m in Sources */,
@@ -17279,6 +17452,7 @@
 				7F56D7C61BB2B28D00D421DC /* UIImage+Fit.m in Sources */,
 				04BD6D2F1A51494A000C2A7D /* Fl_ContactViewController.m in Sources */,
 				7F1DA6AC1AC8FD4400D0317A /* BcreateblockViewController.m in Sources */,
+				04D2528A1FD90CB300616C81 /* H_MyTeamHeadFrame.m in Sources */,
 				047460321FAC3303001A08FD /* H_TuiJianFrame.m in Sources */,
 				0484CE9319B4151A00F53A91 /* NewCommentwCell.m in Sources */,
 				041A33131F30090900D25182 /* RH_BottomShopCell.m in Sources */,
@@ -17322,6 +17496,7 @@
 				04EEE3F91F68CB180098A1CE /* GetOutSuccessViewController.m in Sources */,
 				0449F2AB1F67809400367C71 /* GetOut_TranFrame.m in Sources */,
 				7F4DA97A19E7D2510037B29D /* MJPhotoToolbar.m in Sources */,
+				04D252841FD909A600616C81 /* H_MyTeamCountView.m in Sources */,
 				7F5FB97E1A4C02DF00531A08 /* CtriphotelCell.m in Sources */,
 				0498CBED1F667D1000C15DC8 /* Wallet_FSB_HeadView.m in Sources */,
 				04DDA4E61A6CF4E5003455E1 /* SceneryFilterViewController.m in Sources */,
@@ -17393,12 +17568,15 @@
 				04A3F7AC1FAC42C400F39BF1 /* H_MyTeamFrame.m in Sources */,
 				04FE7A95183CACBC006071D3 /* AboutViewController.m in Sources */,
 				7F5FB9841A4C02DF00531A08 /* CPD_imagelistViewController.m in Sources */,
+				04D252871FD90BF200616C81 /* H_MyTeamHeadModel.m in Sources */,
 				0435AEF11A7B236900C516AE /* SEditTravellerViewController.m in Sources */,
 				0421DC1D183DAB8600044D88 /* FriendsCell.m in Sources */,
 				04772BBD1EE9323A009EA3D4 /* RH_CarInfoViewController.m in Sources */,
 				7F35114E1A78D3CF00BA9080 /* EMChatDaliBubbleView.m in Sources */,
+				04D252AE1FD92D3D00616C81 /* HL_MyInfoCell.m in Sources */,
 				7FF31E871A1DCFAE00435690 /* EMRemarkImageView.m in Sources */,
 				042040CE1FB2E8EA00ACDD82 /* HuLaHomeBindAlertView.m in Sources */,
+				04D252691FD8E1FC00616C81 /* HL_NoticeModel.m in Sources */,
 				7F2824231AD4FDC5006EA04F /* MyCarddetailTableViewCell.m in Sources */,
 				7FF31E591A1DCFAE00435690 /* PublicGroupDetailViewController.m in Sources */,
 				045D19611F28286900A98D4C /* GameScrollFrame.m in Sources */,
@@ -17419,10 +17597,12 @@
 				7FF31DE71A1DCFAE00435690 /* PSTGridLayoutInfo.m in Sources */,
 				7F7BCD1718D41FDE00B184CC /* MHImagePickerMutilSelector.m in Sources */,
 				7FF31E5F1A1DCFAE00435690 /* ApplyFriendCell.m in Sources */,
+				04D252AB1FD92C1200616C81 /* HL_MyInfoFrame.m in Sources */,
 				0464B6D41E67AA0C00BAC949 /* XWAlterview.m in Sources */,
 				04CA74641A358DB500125C90 /* FlightCityHelper.m in Sources */,
 				7F7C558B1A777A5000EE6E24 /* HistoryserviceUTableViewCell.m in Sources */,
 				0498CBDB1F667BB100C15DC8 /* GoldPriceFrame.m in Sources */,
+				04D2527E1FD8F09100616C81 /* HL_ScrollHornFrame.m in Sources */,
 				0449F2871F6771C000367C71 /* YCB_TranCell.m in Sources */,
 				04BCFF251F8F0B0B001F6B23 /* M_Record_Model.m in Sources */,
 				7FF31DF91A1DCFAE00435690 /* UIViewController+HUD.m in Sources */,
@@ -17459,6 +17639,7 @@
 				7FF31DD81A1DCFAE00435690 /* MWPhoto.m in Sources */,
 				044C5FE61ACA8716007DEACC /* HH_FanliViewController.m in Sources */,
 				0426722A1F5E3DF0006C0D49 /* HomeMenuModel.m in Sources */,
+				04D252901FD916EC00616C81 /* GameTranFrame.m in Sources */,
 				0478EC4C1E83ABE900DA20DB /* I_SuccessViewController.m in Sources */,
 				0447D2991B67142800629E6E /* CardLevelViewController.m in Sources */,
 				048D56C31E82261100B14173 /* T_Detail2Cell.m in Sources */,
@@ -17466,6 +17647,7 @@
 				04198DA6183EEE990026EE45 /* GrayPageControl.m in Sources */,
 				04DDA4E81A6CF4E5003455E1 /* SceneryIntroViewController.m in Sources */,
 				0432E4F81B57A59100C423C4 /* HH_MenuDetailViewController.m in Sources */,
+				04D2526F1FD8E2BF00616C81 /* HL_NoticeFrame.m in Sources */,
 				043A27F91ABA7C240026ABB1 /* MyquanquanViewController.m in Sources */,
 				0481A35D1EEA8A1700270EE2 /* RH_InsuranceInPutCell.m in Sources */,
 				047E892F1F0098FE0038D30C /* RH_InsListFrame.m in Sources */,
@@ -17511,6 +17693,7 @@
 				7FF31DD21A1DCFAE00435690 /* EmojiEmoticons.m in Sources */,
 				04C1AAB61A37DD240089EECA /* FlightsListViewController.m in Sources */,
 				7F7BCCF518D41FDE00B184CC /* CommentCell.m in Sources */,
+				041E4FC51FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.m in Sources */,
 				7FD0B4601BB12D6C00430DFA /* XBScrollPageController.m in Sources */,
 				0478EC491E83A07D00DA20DB /* C_FriendFrame.m in Sources */,
 				7F7BCCF918D41FDE00B184CC /* BankViewController.m in Sources */,
@@ -17579,6 +17762,7 @@
 				04FD43081845D3AA0006DA23 /* DynamicCell.m in Sources */,
 				04CE4E7D1FBBE9F7001723A8 /* BuyDelegateModel.m in Sources */,
 				0449F27E1F67709D00367C71 /* Wallet_YCB_RecordViewController.m in Sources */,
+				04D252A21FD91F4A00616C81 /* HL_MyInfoHeadView.m in Sources */,
 				046CDCBF1D62A87F00DD38FE /* InterestShopViewController.m in Sources */,
 				7FD0B46B1BB138CA00430DFA /* CPSHH_TakeOrderViewController.m in Sources */,
 				04C1AABD1A381F8B0089EECA /* FlightsDetailViewController.m in Sources */,
@@ -17622,6 +17806,7 @@
 				7FF31DE21A1DCFAE00435690 /* PSTCollectionViewData.m in Sources */,
 				0434553E184D90BC00F1FFF4 /* SearchNumberViewController.m in Sources */,
 				0413DCAB1EFA155600E5FF6A /* RH_SwitchCarViewController.m in Sources */,
+				041E4FCB1FD8D59200A78C86 /* HL_GameDownLoadFrame.m in Sources */,
 				7F223FC919935F6E00E2128B /* JPinYinUtil.m in Sources */,
 				0422647718F4DED60037C86F /* ExplanationViewController.m in Sources */,
 				04C22D3719499025003163EE /* ZanListViewController.m in Sources */,
@@ -17745,6 +17930,7 @@
 				7FD0771E1905011700FE2071 /* TableViewWithBlock.m in Sources */,
 				047E89321F00A2EB0038D30C /* RH_InsListCell.m in Sources */,
 				049720C91F05E4B00005D16E /* New_MyWalletViewController.m in Sources */,
+				04D252721FD8E59400616C81 /* HL_NoticeCell.m in Sources */,
 				040F21DD18F395BE0092392B /* MemberListViewController.m in Sources */,
 				045AFF3918BC74E100ADFF43 /* PayStyleViewController.m in Sources */,
 				047CECF31F3BEAC200654E66 /* GameResultLab.m in Sources */,
@@ -17784,6 +17970,7 @@
 				042C8FB41F3454350083FDCF /* RH_Send_RecordModel.m in Sources */,
 				04AD43C918EBB45B007C8A9F /* KZColorCompareView.m in Sources */,
 				7F61001A1BAADFC900A10A35 /* EditorCustomerservicerViewController.m in Sources */,
+				041E4FCE1FD8D81F00A78C86 /* HL_GameDownLoadCell.m in Sources */,
 				045D19721F28286900A98D4C /* FSB_GameHeadView.m in Sources */,
 				047E89541F00FF0E0038D30C /* F_H_CellFrame.m in Sources */,
 				045F5E501F7220130018972B /* Home_ScrollView.m in Sources */,
@@ -17874,6 +18061,7 @@
 				7FF31E621A1DCFAE00435690 /* RealtimeSearchUtil.m in Sources */,
 				049B08CF18FD028000FA8667 /* SBJsonParser.m in Sources */,
 				049CAA671F70A0B000270AD6 /* Gold_OutFrame.m in Sources */,
+				04D2528D1FD9165D00616C81 /* GameTranModel.m in Sources */,
 				B8F39C5E1CB000C800140E68 /* NSString+PinYin4Cocoa.m in Sources */,
 				04C3EC9C1B561067006D0988 /* HH_CustomMenuCell.m in Sources */,
 				043AF4E11B8AFA3600F25608 /* HH_ShareMenuViewController.m in Sources */,
@@ -17885,6 +18073,7 @@
 				0427F25B1D937AF5001B3327 /* UIViewController+ZJScrollPageController.m in Sources */,
 				0440B9031871722B003ACCFF /* BaseData.m in Sources */,
 				049720D21F05E4B00005D16E /* MyWallet_HeadView.m in Sources */,
+				04D252931FD9198400616C81 /* GameTranCell.m in Sources */,
 				7FF31FCC1A1DDC8500435690 /* UIImage+MultiFormat.m in Sources */,
 				0440B9041871722B003ACCFF /* NSDictionary+GetData.m in Sources */,
 				7F5FB98A1A4C02DF00531A08 /* CtriphotellistCell.m in Sources */,
@@ -17922,6 +18111,7 @@
 				04772B8F1EE8D0AC009EA3D4 /* RH_HomePersonHeadView.m in Sources */,
 				040EFCA71872579100898128 /* AppHttpClient.m in Sources */,
 				042C8FB81F3455E60083FDCF /* RH_Send_RecordFrame.m in Sources */,
+				04D252781FD8EEC500616C81 /* HL_HornTextView.m in Sources */,
 				0461821118729A3600FC5877 /* DBHelper.m in Sources */,
 				042C8FC81F3460580083FDCF /* RH_Get_RecordCell.m in Sources */,
 				04C717971F09D42E009306E4 /* Z_SearchCell.m in Sources */,
@@ -17973,6 +18163,7 @@
 				7F7BCD4A18D41FDE00B184CC /* ShopListCell.m in Sources */,
 				049A68C41F621CFD0003275D /* Home_FenLeiViewController.m in Sources */,
 				04AD895B1BD244430068C30A /* MenuOrderListTableViewCell.m in Sources */,
+				04D252751FD8EDD000616C81 /* HL_HornTextModel.m in Sources */,
 				7F3EB2531A82064E000F81C7 /* ModifyNoteViewController.m in Sources */,
 				7FF31E5C1A1DCFAE00435690 /* ContactsViewController.m in Sources */,
 				0427F25C1D937AF5001B3327 /* ZJContentView.m in Sources */,
@@ -17995,6 +18186,7 @@
 				04C400221B16B632004028A0 /* Quan_detailViewController.m in Sources */,
 				049D8F491877BC3B0068E4A8 /* AreaDB.m in Sources */,
 				04792A7D1ECAE11900456436 /* FSB_ProfitHeadView.m in Sources */,
+				04D2529F1FD91EDB00616C81 /* HL_MyInfoViewController.m in Sources */,
 				04BDD3B91A22CD8B006C0621 /* ChoosecategoryCell.m in Sources */,
 				7F0398B519935E6E00729D28 /* HH_cityListViewController.m in Sources */,
 				04D01C011F0601230055FB8E /* TransferAccountsViewController.m in Sources */,

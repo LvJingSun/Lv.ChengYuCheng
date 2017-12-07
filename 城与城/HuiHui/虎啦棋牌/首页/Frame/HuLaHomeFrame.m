@@ -146,23 +146,31 @@
     
     CGSize rechargeOtherSize = [self sizeWithText:@"给他人充值" font:[UIFont systemFontOfSize:15] maxSize:CGSizeMake(0, rechargeOtherH)];
     
+    CGSize rechargeSize = [self sizeWithText:@"充值" font:[UIFont systemFontOfSize:15] maxSize:CGSizeMake(0, rechargeOtherH)];
+    
+    CGSize sendSize = [self sizeWithText:@"赠送" font:[UIFont systemFontOfSize:15] maxSize:CGSizeMake(0, rechargeOtherH)];
+    
     CGFloat rechargeOtherW = rechargeOtherSize.width + 20;
     
-    CGFloat rechargeOtherX = _WindowViewWidth * 0.1;
+    CGFloat rechargeW = rechargeSize.width + 40;
+    
+    CGFloat sendW = sendSize.width + 40;
+    
+    CGFloat rechargeOtherX = (_WindowViewWidth - rechargeOtherW - rechargeW - sendW) * 0.25;
     
     CGFloat rechargeOtherY = IDHeight + 10;
     
     _rechargeOtherF = CGRectMake(rechargeOtherX, rechargeOtherY, rechargeOtherW, rechargeOtherH);
     
-
-    
-    CGFloat rechargeW = rechargeOtherW;
-    
-    CGFloat rechargeX = _WindowViewWidth * 0.9 - rechargeW;
+    CGFloat rechargeX = CGRectGetMaxX(_rechargeOtherF) + rechargeOtherX;
     
     CGFloat rechargeY = rechargeOtherY;
     
     _rechargeF = CGRectMake(rechargeX, rechargeY, rechargeW, rechargeOtherH);
+    
+    CGFloat sendX = CGRectGetMaxX(_rechargeF) + rechargeOtherX;
+    
+    _sendF = CGRectMake(sendX, rechargeY, sendW, rechargeOtherH);
     
     CGFloat contentX = 0;
     
@@ -174,7 +182,17 @@
     
     _content_imgF = CGRectMake(contentX, contentY, contentW, contentH);
     
-    _height = CGRectGetMaxY(_content_imgF);
+    CGFloat lineX = 0;
+    
+    CGFloat lineY = CGRectGetMaxY(_content_imgF);
+    
+    CGFloat lineW = _WindowViewWidth;
+    
+    CGFloat lineH = SectionHeight;
+    
+    _lineF = CGRectMake(lineX, lineY, lineW, lineH);
+    
+    _height = CGRectGetMaxY(_lineF);
     
 }
 

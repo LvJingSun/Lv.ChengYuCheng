@@ -22,6 +22,8 @@
 
 @property (nonatomic, weak) UILabel *delegateLab;
 
+@property (nonatomic, weak) UIButton *delegateBtn;
+
 @property (nonatomic, weak) UILabel *roomcard_titleLab;
 
 @property (nonatomic, weak) UILabel *money_titleLab;
@@ -38,15 +40,15 @@
 
 @property (nonatomic, weak) UILabel *bindLineLab;
 
-//@property (nonatomic, weak) RH_RadioView *money_typeView;
-//
-//@property (nonatomic, weak) RH_RadioView *roomcard_typeView;
-
 @property (nonatomic, weak) UIButton *rechargeOtherBtn;
 
 @property (nonatomic, weak) UIButton *rechargeBtn;
 
+@property (nonatomic, weak) UIButton *sendBtn;
+
 @property (nonatomic, weak) UIImageView *contentImg;
+
+@property (nonatomic, weak) UILabel *sectionLineLab;
 
 @end
 
@@ -109,6 +111,12 @@
         delegate.textColor = [UIColor orangeColor];
         
         [self addSubview:delegate];
+        
+        UIButton *delegateBtn = [[UIButton alloc] init];
+        
+        self.delegateBtn = delegateBtn;
+        
+        [self addSubview:delegateBtn];
         
         UILabel *r_title = [[UILabel alloc] init];
         
@@ -220,11 +228,35 @@
         
         [self addSubview:recharge];
         
+        UIButton *send = [[UIButton alloc] init];
+        
+        self.sendBtn = send;
+        
+        send.backgroundColor = FSB_StyleCOLOR;
+        
+        send.layer.masksToBounds = YES;
+        
+        send.layer.cornerRadius = 3;
+        
+        send.titleLabel.font = [UIFont systemFontOfSize:15];
+        
+        [send setTitleColor:[UIColor whiteColor] forState:0];
+        
+        [self addSubview:send];
+        
         UIImageView *content = [[UIImageView alloc] init];
         
         self.contentImg = content;
         
         [self addSubview:content];
+        
+        UILabel *sectionline = [[UILabel alloc] init];
+        
+        self.sectionLineLab = sectionline;
+        
+        sectionline.backgroundColor = FSB_ViewBGCOLOR;
+        
+        [self addSubview:sectionline];
         
     }
     
@@ -252,6 +284,8 @@
     
     self.delegateLab.frame = self.frameModel.delegateF;
     
+    self.delegateBtn.frame = self.frameModel.delegateF;
+    
     self.roomcard_titleLab.frame = self.frameModel.roomcard_titleF;
     
     self.roomcardLab.frame = self.frameModel.roomcardF;
@@ -272,23 +306,11 @@
     
     self.rechargeBtn.frame = self.frameModel.rechargeF;
     
+    self.sendBtn.frame = self.frameModel.sendF;
+    
     self.contentImg.frame = self.frameModel.content_imgF;
     
-//    RH_RadioView *moneyView = [[RH_RadioView alloc] initWithFrame:self.frameModel.money_typeF];
-//
-//    self.money_typeView = moneyView;
-//
-//    moneyView.title.font = [UIFont systemFontOfSize:15];
-//
-//    [self addSubview:moneyView];
-//
-//    RH_RadioView *roomcardView = [[RH_RadioView alloc] initWithFrame:self.frameModel.roomcard_typeF];
-//
-//    self.roomcard_typeView = roomcardView;
-//
-//    roomcardView.title.font = [UIFont systemFontOfSize:15];
-//
-//    [self addSubview:roomcardView];
+    self.sectionLineLab.frame = self.frameModel.lineF;
     
 }
 
@@ -303,6 +325,8 @@
     self.nameLab.text = model.name;
     
     self.delegateLab.text = model.delegate;
+    
+    [self.delegateBtn addTarget:self action:@selector(delegateClick) forControlEvents:UIControlEventTouchUpInside];
     
     self.roomcard_titleLab.text = @"房卡";
     
@@ -326,59 +350,41 @@
         
     }
     
-//    self.money_typeView.title.text = @"元宝";
-//    
-//    self.roomcard_typeView.title.text = @"房卡";
-//    
-//    [self.money_typeView.btn addTarget:self action:@selector(YBClick) forControlEvents:UIControlEventTouchUpInside];
-//    
-//    [self.roomcard_typeView.btn addTarget:self action:@selector(FKClick) forControlEvents:UIControlEventTouchUpInside];
-//    
-//    if ([model.Recharge_Type isEqualToString:@"1"]) {
-//        
-//        [self.money_typeView.btn setImage:[UIImage imageNamed:@"checkblueyes.png"] forState:0];
-//        
-//        [self.roomcard_typeView.btn setImage:[UIImage imageNamed:@"checkblueno.png"] forState:0];
-//        
-//    }else if ([model.Recharge_Type isEqualToString:@"2"]) {
-//        
-//        [self.money_typeView.btn setImage:[UIImage imageNamed:@"checkblueno.png"] forState:0];
-//        
-//        [self.roomcard_typeView.btn setImage:[UIImage imageNamed:@"checkblueyes.png"] forState:0];
-//        
-//    }
-    
     [self.rechargeOtherBtn setTitle:@"给他人充值" forState:0];
     
     [self.rechargeOtherBtn addTarget:self action:@selector(ToOtherClick) forControlEvents:UIControlEventTouchUpInside];
     
-    [self.rechargeBtn setTitle:@"给自己充值" forState:0];
+    [self.rechargeBtn setTitle:@"充值" forState:0];
     
     [self.rechargeBtn addTarget:self action:@selector(ToMeClick) forControlEvents:UIControlEventTouchUpInside];
+    
+    [self.sendBtn setTitle:@"赠送" forState:0];
+    
+    [self.sendBtn addTarget:self action:@selector(SendClick) forControlEvents:UIControlEventTouchUpInside];
     
     [self.contentImg setImageWithURL:[NSURL URLWithString:model.Content_Img]];
     
 }
 
-//- (void)YBClick {
-//
-//    if (self.YB_Block) {
-//
-//        self.YB_Block();
-//
-//    }
-//
-//}
-//
-//- (void)FKClick {
-//
-//    if (self.FK_Block) {
-//
-//        self.FK_Block();
-//
-//    }
-//
-//}
+- (void)delegateClick {
+    
+    if (self.delegate_Block) {
+        
+        self.delegate_Block();
+        
+    }
+    
+}
+
+- (void)SendClick {
+
+    if (self.Send_Block) {
+
+        self.Send_Block();
+
+    }
+
+}
 
 - (void)ToOtherClick {
     
