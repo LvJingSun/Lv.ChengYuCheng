@@ -13,6 +13,7 @@
 #import "BuyDelegateCell.h"
 #import "WXApi.h"
 #import "payRequsestHandler.h"
+#import <AlipaySDK/AlipaySDK.h>
 
 @interface Buy_DelegateViewController () <UITableViewDelegate,UITableViewDataSource,UIAlertViewDelegate> {
     
@@ -218,12 +219,108 @@
         }else if ([frame.buyModel.payStatus isEqualToString:@"3"]) {
             
             //支付宝支付
+            [self CreatAliPayOrder];
             
         }
         
     };
     
     return cell;
+    
+}
+
+- (void)CreatAliPayOrder {
+    
+    BuyDelegateFrame *frame = self.dataArray[0];
+    
+    AppHttpClient *http = [AppHttpClient sharedHuLa];
+    
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         [CommonUtil getValueByKey:MEMBER_ID],@"memberId",
+                         frame.buyModel.categoryId,@"categoryId",
+                         frame.buyModel.timeStatus,@"count",
+                         frame.buyModel.price,@"priceAmount",
+                         self.type,@"type",
+                         nil];
+    
+    NSLog(@"%@",dic);
+    
+    [SVProgressHUD show];
+    
+    [http HuLarequest:@"Recharge_ALiPay.ashx" parameters:dic success:^(NSJSONSerialization *json) {
+        
+        if ([[json valueForKey:@"status"] boolValue]) {
+            
+            [SVProgressHUD dismiss];
+            
+            [self AliPayWithString:[NSString stringWithFormat:@"%@",[json valueForKey:@"msg"]]];
+            
+        }else {
+            
+            [SVProgressHUD showErrorWithStatus:[json valueForKey:@"msg"]];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+        [SVProgressHUD showErrorWithStatus:@"生成支付宝订单失败，请稍后再试！"];
+        
+    }];
+    
+}
+
+//调起支付宝进行支付
+- (void)AliPayWithString:(NSString *)string {
+    
+    NSString *appScheme = @"huihuiAliPay";
+    
+    [[AlipaySDK defaultService] payOrder:string fromScheme:appScheme callback:^(NSDictionary *resultDic) {
+        
+        NSString *code = resultDic[@"resultStatus"];
+        
+        if ([code isEqualToString:@"9000"]) {
+            
+            //支付成功
+            [SVProgressHUD showSuccessWithStatus:@"充值成功"];
+            
+            [self.navigationController popViewControllerAnimated:YES];
+            
+        }else if ([code isEqualToString:@"4000"]) {
+            
+            //支付失败
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"支付失败，请稍后再试!" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            
+            [alert show];
+            
+        }else if ([code isEqualToString:@"6001"]) {
+            
+            //取消支付
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"你已取消支付!" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            
+            [alert show];
+            
+        }else if ([code isEqualToString:@"6002"]) {
+            
+            //网络连接失败
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"网络连接失败，请稍后再试!" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            
+            [alert show];
+            
+        }else if ([code isEqualToString:@"8000"]) {
+            
+            //订单处理中
+            [SVProgressHUD showSuccessWithStatus:@"订单处理中"];
+            
+            [self.navigationController popViewControllerAnimated:YES];
+            
+        }else {
+            
+            //其他情况
+            [SVProgressHUD showErrorWithStatus:@"充值失败，请稍后再试！"];
+            
+        }
+        
+    }];
     
 }
 

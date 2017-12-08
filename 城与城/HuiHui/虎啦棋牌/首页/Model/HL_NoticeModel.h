@@ -14,7 +14,11 @@
 
 @property (nonatomic, copy) NSString *notice1;
 
+@property (nonatomic, copy) NSString *notice1ID;
+
 @property (nonatomic, copy) NSString *notice2;
+
+@property (nonatomic, copy) NSString *notice2ID;
 
 @property (nonatomic, copy) NSString *imgUrl;
 

@@ -12,7 +12,11 @@
 #import "GameTranFrame.h"
 #import "GameTranCell.h"
 
-@interface GameTranViewController () <UITableViewDelegate,UITableViewDataSource>
+@interface GameTranViewController () <UITableViewDelegate,UITableViewDataSource> {
+    
+    NSInteger pageIndex;
+    
+}
 
 @property (nonatomic, strong) NSArray *dataArray;
 
@@ -22,37 +26,11 @@
 
 @implementation GameTranViewController
 
--(NSArray *)dataArray {
-    
-    if (_dataArray == nil) {
-        
-        GameTranModel *model = [[GameTranModel alloc] init];
-        
-        model.type = @"元宝充值";
-        
-        model.count = @"+300";
-        
-        model.date = @"2017/12/07";
-        
-        GameTranFrame *frame = [[GameTranFrame alloc] init];
-        
-        frame.tranModel = model;
-        
-        NSMutableArray *mut = [NSMutableArray array];
-        
-        [mut addObject:frame];
-        
-        _dataArray = mut;
-        
-    }
-    
-    return _dataArray;
-    
-}
-
 - (void)viewDidLoad {
     
     [super viewDidLoad];
+    
+    pageIndex = 1;
 
     [self setTitle:@"记录"];
     
@@ -61,6 +39,133 @@
     self.view.backgroundColor = FSB_ViewBGCOLOR;
     
     [self allocWithTableview];
+    
+    [self requestForData];
+    
+}
+
+- (void)requestForData {
+    
+    AppHttpClient *http = [AppHttpClient sharedHuLa];
+    
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         [CommonUtil getValueByKey:MEMBER_ID],@"memberId",
+                         [NSString stringWithFormat:@"%ld",(long)pageIndex],@"pageIndex",
+                         nil];
+    
+    [SVProgressHUD showWithStatus:@"加载中..."];
+    
+    [http HuLarequest:@"GetRechargeRecord.ashx" parameters:dic success:^(NSJSONSerialization *json) {
+        
+        if ([[json valueForKey:@"status"] boolValue]) {
+            
+            NSArray *array = [json valueForKey:@"rechargeRecordList"];
+            
+            if (pageIndex == 1) {
+                
+                if (array.count != 0) {
+                    
+                    NSMutableArray *mut = [NSMutableArray array];
+                    
+                    for (NSDictionary *dic in array) {
+                        
+                        GameTranModel *model = [[GameTranModel alloc] init];
+                        
+                        model.type = [NSString stringWithFormat:@"%@",dic[@"rechargeType"]];
+                        
+                        model.count = [NSString stringWithFormat:@"%@",dic[@"rechargeAmount"]];
+                        
+                        model.date = [NSString stringWithFormat:@"%@",dic[@"createDate"]];
+                        
+                        model.recordID = [NSString stringWithFormat:@"%@",dic[@"rechargeRecordId"]];
+                        
+                        model.remark = [NSString stringWithFormat:@"%@",dic[@"remark"]];
+                        
+                        GameTranFrame *frame = [[GameTranFrame alloc] init];
+                        
+                        frame.tranModel = model;
+                        
+                        [mut addObject:frame];
+                        
+                    }
+                    
+                    self.dataArray = mut;
+                    
+                }else {
+                    
+                    self.dataArray = array;
+                    
+                }
+                
+            }else {
+                
+                if (array.count != 0) {
+                    
+                    NSMutableArray *temp = [NSMutableArray arrayWithArray:self.dataArray];
+                    
+                    for (NSDictionary *dic in array) {
+                        
+                        GameTranModel *model = [[GameTranModel alloc] init];
+                        
+                        model.type = [NSString stringWithFormat:@"%@",dic[@"rechargeType"]];
+                        
+                        model.count = [NSString stringWithFormat:@"%@",dic[@"rechargeAmount"]];
+                        
+                        model.date = [NSString stringWithFormat:@"%@",dic[@"createDate"]];
+                        
+                        model.recordID = [NSString stringWithFormat:@"%@",dic[@"rechargeRecordId"]];
+                        
+                        model.remark = [NSString stringWithFormat:@"%@",dic[@"remark"]];
+                        
+                        GameTranFrame *frame = [[GameTranFrame alloc] init];
+                        
+                        frame.tranModel = model;
+                        
+                        [temp addObject:frame];
+                        
+                    }
+                    
+                    self.dataArray = temp;
+                    
+                }
+                
+            }
+            
+            [SVProgressHUD dismiss];
+            
+            [self headAndFootEndRefreshing];
+            
+            [self.tableview reloadData];
+            
+        }else {
+            
+            if (pageIndex > 1) {
+                
+                pageIndex --;
+                
+            }
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+            [self headAndFootEndRefreshing];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+        if (pageIndex > 1) {
+            
+            pageIndex --;
+            
+        }
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+        [self headAndFootEndRefreshing];
+        
+    }];
     
 }
 
@@ -78,7 +183,31 @@
     
     tableview.backgroundColor = FSB_ViewBGCOLOR;
     
+    tableview.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        pageIndex = 1;
+        
+        [self requestForData];
+        
+    }];
+    
+    tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        
+        pageIndex ++;
+        
+        [self requestForData];
+        
+    }];
+    
     [self.view addSubview:tableview];
+    
+}
+
+- (void)headAndFootEndRefreshing {
+    
+    [self.tableview.mj_header endRefreshing];
+    
+    [self.tableview.mj_footer endRefreshing];
     
 }
 

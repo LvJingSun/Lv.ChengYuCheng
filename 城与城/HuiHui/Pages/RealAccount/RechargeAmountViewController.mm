@@ -139,11 +139,11 @@
     
     CGFloat amount = [amountStr floatValue];
     
-//    if (amount < 1) {
-//
-//        [SVProgressHUD showErrorWithStatus:@"充值金额不能小于1"];
-//        return;
-//    }
+    if (amount < 1) {
+
+        [SVProgressHUD showErrorWithStatus:@"充值金额不能小于1"];
+        return;
+    }
     
     [self recharge];
     

@@ -379,7 +379,7 @@
     
     self.ZFB_TitleLab.text = @"支付宝支付";
     
-    self.zfbIcon.image = [UIImage imageNamed:@""];
+    self.zfbIcon.image = [UIImage imageNamed:@"HL_AliPay.jpeg"];
     
     if ([model.payStatus isEqualToString:@"1"]) {
         

@@ -41,8 +41,6 @@
         
         icon.layer.cornerRadius = iconW * 0.5;
         
-        icon.backgroundColor = [UIColor lightGrayColor];
-        
         [self addSubview:icon];
         
         CGFloat nameX = CGRectGetMaxX(icon.frame) + _WindowViewWidth * 0.05;

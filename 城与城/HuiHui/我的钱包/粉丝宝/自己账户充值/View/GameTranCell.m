@@ -123,7 +123,7 @@
     
     GameTranModel *model = self.frameModel.tranModel;
     
-    self.typeLab.text = model.type;
+    self.typeLab.text = model.remark;
     
     self.countLab.text = model.count;
     

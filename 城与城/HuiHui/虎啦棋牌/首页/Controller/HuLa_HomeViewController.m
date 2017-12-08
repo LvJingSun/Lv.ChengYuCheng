@@ -135,131 +135,110 @@
     
 }
 
--(NSArray *)hornArray {
+//请求游戏下载数据、通知信息、小喇叭信息
+- (void)requestForMoreGames {
     
-    if (_hornArray == nil) {
-        
-        HL_HornTextModel *model1 = [[HL_HornTextModel alloc] init];
-        
-        model1.textStr = @"红烧吕小布充值了300游戏币";
-        
-        HL_HornTextModel *model2 = [[HL_HornTextModel alloc] init];
-        
-        model2.textStr = @"绝世大魔王充值了50游戏币";
-        
-        NSMutableArray *temp = [NSMutableArray array];
-        
-        [temp addObject:model1];
-        
-        [temp addObject:model2];
-        
-        HL_ScrollHornModel *scrModel = [[HL_ScrollHornModel alloc] init];
-        
-        scrModel.hornTextArray = temp;
-        
-        HL_ScrollHornFrame *frame = [[HL_ScrollHornFrame alloc] init];
-        
-        frame.scrollHornModel = scrModel;
-        
-        NSMutableArray *mut = [NSMutableArray array];
-        
-        [mut addObject:frame];
-        
-        _hornArray = mut;
-        
-    }
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         [CommonUtil getValueByKey:MEMBER_ID],@"memberId",
+                         nil];
     
-    return _hornArray;
+    AppHttpClient *http = [AppHttpClient sharedHuLa];
     
-}
-
--(NSArray *)noticeArray {
-    
-    if (_noticeArray == nil) {
+    [http HuLarequest:@"GetHLInfo.ashx" parameters:dic success:^(NSJSONSerialization *json) {
         
-        HL_NoticeModel *model = [[HL_NoticeModel alloc] init];
+        if ([[NSString stringWithFormat:@"%@",[json valueForKey:@"status"]] boolValue]) {
+            
+            NSArray *gameArr = [json valueForKey:@"gameList"];
+            
+            NSMutableArray *gameMut = [NSMutableArray array];
+            
+            for (NSDictionary *gameDic in gameArr) {
+                
+                HL_GameDownLoadModel *gameModel = [[HL_GameDownLoadModel alloc] init];
+                
+                gameModel.gameName = [NSString stringWithFormat:@"%@",gameDic[@"name"]];
+                
+                gameModel.downloadCount = [NSString stringWithFormat:@"%@",gameDic[@"downloadCount"]];
+                
+                gameModel.iconUrl = [NSString stringWithFormat:@"%@",gameDic[@"icon"]];
+                
+                HL_GameDownLoadFrame *frame = [[HL_GameDownLoadFrame alloc] init];
+                
+                frame.gameModel = gameModel;
+                
+                [gameMut addObject:frame];
+                
+            }
+            
+            self.gameArray = gameMut;
+            
+            
+            NSArray *noticeArray = [json valueForKey:@"noticeList"];
+            
+            HL_NoticeModel *noticemodel = [[HL_NoticeModel alloc] init];
+            
+            noticemodel.title = @"今日通知";
+            
+            noticemodel.notice1 = [NSString stringWithFormat:@"%@",((NSDictionary *)noticeArray[0])[@"noticeTitle"]];
+            
+            noticemodel.notice1ID = [NSString stringWithFormat:@"%@",((NSDictionary *)noticeArray[0])[@"noticeId"]];
+            
+            noticemodel.notice2 = [NSString stringWithFormat:@"%@",((NSDictionary *)noticeArray[1])[@"noticeTitle"]];
+            
+            noticemodel.notice2ID = [NSString stringWithFormat:@"%@",((NSDictionary *)noticeArray[1])[@"noticeId"]];
+            
+            HL_NoticeFrame *noticeframe = [[HL_NoticeFrame alloc] init];
+            
+            noticeframe.noticeModel = noticemodel;
+            
+            NSMutableArray *noticemut = [NSMutableArray array];
+            
+            [noticemut addObject:noticeframe];
+            
+            self.noticeArray = noticemut;
+            
+            
+            NSArray *hornArray = [json valueForKey:@"messageList"];
+            
+            NSMutableArray *horntemp = [NSMutableArray array];
+            
+            for (NSDictionary *hornDic in hornArray) {
+                
+                HL_HornTextModel *hornmodel = [[HL_HornTextModel alloc] init];
+                
+                hornmodel.textStr = [NSString stringWithFormat:@"%@",hornDic[@"message"]];
+                
+                [horntemp addObject:hornmodel];
+                
+            }
+            
+            HL_ScrollHornModel *scrModel = [[HL_ScrollHornModel alloc] init];
+            
+            scrModel.hornTextArray = horntemp;
+            
+            HL_ScrollHornFrame *scrframe = [[HL_ScrollHornFrame alloc] init];
+            
+            scrframe.scrollHornModel = scrModel;
+            
+            NSMutableArray *scrmut = [NSMutableArray array];
+            
+            [scrmut addObject:scrframe];
+            
+            self.hornArray = scrmut;
+            
+            [self.tableivew reloadData];
+            
+        }else {
+            
+            [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"%@",[json valueForKey:@"msg"]]];
+            
+        }
         
-        model.title = @"今日通知";
+    } failure:^(NSError *error) {
         
-        model.notice1 = @"通知通知通知通知";
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
         
-        model.notice2 = @"内容通知内容通知";
-        
-        HL_NoticeFrame *frame = [[HL_NoticeFrame alloc] init];
-        
-        frame.noticeModel = model;
-        
-        NSMutableArray *mut = [NSMutableArray array];
-        
-        [mut addObject:frame];
-        
-        _noticeArray = mut;
-        
-    }
-    
-    return _noticeArray;
-    
-}
-
--(NSArray *)gameArray {
-    
-    if (_gameArray == nil) {
-        
-        HL_GameDownLoadModel *model1 = [[HL_GameDownLoadModel alloc] init];
-        
-        model1.gameName = @"虎啦棋牌";
-        
-        model1.downloadCount = @"150";
-        
-        HL_GameDownLoadFrame *frame1 = [[HL_GameDownLoadFrame alloc] init];
-        
-        frame1.gameModel = model1;
-        
-        HL_GameDownLoadModel *model2 = [[HL_GameDownLoadModel alloc] init];
-        
-        model2.gameName = @"虎啦棋牌";
-        
-        model2.downloadCount = @"150";
-        
-        HL_GameDownLoadFrame *frame2 = [[HL_GameDownLoadFrame alloc] init];
-        
-        frame2.gameModel = model2;
-        
-        HL_GameDownLoadModel *model3 = [[HL_GameDownLoadModel alloc] init];
-        
-        model3.gameName = @"虎啦棋牌";
-        
-        model3.downloadCount = @"150";
-        
-        HL_GameDownLoadFrame *frame3 = [[HL_GameDownLoadFrame alloc] init];
-        
-        frame3.gameModel = model3;
-        
-        HL_GameDownLoadModel *model4 = [[HL_GameDownLoadModel alloc] init];
-        
-        model4.gameName = @"虎啦棋牌";
-        
-        model4.downloadCount = @"150";
-        
-        HL_GameDownLoadFrame *frame4 = [[HL_GameDownLoadFrame alloc] init];
-        
-        frame4.gameModel = model4;
-        
-        NSMutableArray *mut = [NSMutableArray array];
-        
-        [mut addObject:frame1];
-        
-        [mut addObject:frame2];
-        
-        [mut addObject:frame3];
-        
-        [mut addObject:frame4];
-        
-        _gameArray = mut;
-        
-    }
-    
-    return _gameArray;
+    }];
     
 }
 
@@ -579,6 +558,8 @@
 - (void)viewWillAppear:(BOOL)animated {
     
     [self requestForData];
+    
+    [self requestForMoreGames];
     
     [self requestForMoney];
     
@@ -1014,6 +995,12 @@
         
         cell.frameModel = frame;
         
+        cell.downloadBlock = ^{
+            
+            //更多游戏下载点击
+            
+        };
+        
         return cell;
         
     }else if (indexPath.section == 2) {
@@ -1024,6 +1011,18 @@
         HL_NoticeFrame *frame = self.noticeArray[indexPath.row];
         
         cell.frameModel = frame;
+        
+        cell.notice1Block = ^{
+            
+            //第一个通知点击 传frame.noticeModel.notice1ID
+            
+        };
+        
+        cell.notice2Block = ^{
+            
+            //第二个通知点击 传frame.noticeModel.notice2ID
+            
+        };
         
         return cell;
         
@@ -1328,6 +1327,18 @@
     }
     
     return 0;
+    
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    if (indexPath.section == 3) {
+        
+        //小喇叭点击
+        
+    }
     
 }
 
@@ -1703,12 +1714,6 @@
         self.alertView.noticeLab.text = @"查询失败，请稍后再试！";
         
     }];
-    
-}
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
 }
 

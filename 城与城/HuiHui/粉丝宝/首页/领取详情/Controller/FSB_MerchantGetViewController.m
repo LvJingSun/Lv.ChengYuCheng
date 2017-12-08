@@ -74,7 +74,7 @@
         
     }];
     
-    tableview.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+    tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
         
         pageIndex ++;
         
