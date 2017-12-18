@@ -10,7 +10,7 @@
 
 @interface GameRechargeModel : NSObject
 
-@property (nonatomic, copy) NSString *rechargeType;
+@property (nonatomic, copy) NSString *rechargeType; //1-元宝 2-房卡
 
 @property (nonatomic, copy) NSString *qipaiID;
 
@@ -24,7 +24,7 @@
 
 @property (nonatomic, copy) NSString *notice;
 
-@property (nonatomic, copy) NSString *viewType; //1-给自己充值 2-给他人充值
+@property (nonatomic, copy) NSString *viewType; //1-给自己充值 2-给他人充值 3-赠送
 
 - (instancetype)initWithDict:(NSDictionary *)dic;
 

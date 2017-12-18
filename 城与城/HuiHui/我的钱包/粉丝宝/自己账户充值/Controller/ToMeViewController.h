@@ -12,7 +12,7 @@
 
 @property (nonatomic, copy) NSString *gameID;
 
-@property (nonatomic, copy) NSString *viewType; //1-给自己充值 2-给他人充值
+@property (nonatomic, copy) NSString *viewType; //1-给自己充值 2-给他人充值 3-赠送
 
 
 @end

@@ -14,6 +14,8 @@
 #import "WXApi.h"
 #import "payRequsestHandler.h"
 #import <AlipaySDK/AlipaySDK.h>
+#import "HL_DelegateOrderViewController.h"
+#import "HL_DelegateOrderModel.h"
 
 @interface Buy_DelegateViewController () <UITableViewDelegate,UITableViewDataSource,UIAlertViewDelegate> {
     
@@ -204,24 +206,26 @@
     
     cell.sureBlock = ^{
         
-        if ([frame.buyModel.payStatus isEqualToString:@"1"]) {
-            
-            //城与城支付
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:[NSString stringWithFormat:@"购买%@年代理资格，共计%@元，是否支付？",frame.buyModel.timeStatus,frame.buyModel.allCount] delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"支付", nil];
-            
-            [alert show];
-            
-        }else if ([frame.buyModel.payStatus isEqualToString:@"2"]) {
-            
-            //微信支付生成订单
-            [self creatOrder];
-            
-        }else if ([frame.buyModel.payStatus isEqualToString:@"3"]) {
-            
-            //支付宝支付
-            [self CreatAliPayOrder];
-            
-        }
+//        if ([frame.buyModel.payStatus isEqualToString:@"1"]) {
+//
+//            //城与城支付
+//            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:[NSString stringWithFormat:@"购买%@年代理资格，共计%@元，是否支付？",frame.buyModel.timeStatus,frame.buyModel.allCount] delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"支付", nil];
+//
+//            [alert show];
+//
+//        }else if ([frame.buyModel.payStatus isEqualToString:@"2"]) {
+//
+//            //微信支付生成订单
+//            [self creatOrder];
+//
+//        }else if ([frame.buyModel.payStatus isEqualToString:@"3"]) {
+//
+//            //支付宝支付
+//            [self CreatAliPayOrder];
+//
+//        }
+        
+        [self sureBuy];
         
     };
     
@@ -229,144 +233,53 @@
     
 }
 
-- (void)CreatAliPayOrder {
+//确认下单
+- (void)sureBuy {
     
     BuyDelegateFrame *frame = self.dataArray[0];
     
-    AppHttpClient *http = [AppHttpClient sharedHuLa];
-    
     NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
                          [CommonUtil getValueByKey:MEMBER_ID],@"memberId",
-                         frame.buyModel.categoryId,@"categoryId",
                          frame.buyModel.timeStatus,@"count",
-                         frame.buyModel.price,@"priceAmount",
+                         frame.buyModel.categoryId,@"categoryId",
                          self.type,@"type",
                          nil];
     
     NSLog(@"%@",dic);
     
-    [SVProgressHUD show];
-    
-    [http HuLarequest:@"Recharge_ALiPay.ashx" parameters:dic success:^(NSJSONSerialization *json) {
-        
-        if ([[json valueForKey:@"status"] boolValue]) {
-            
-            [SVProgressHUD dismiss];
-            
-            [self AliPayWithString:[NSString stringWithFormat:@"%@",[json valueForKey:@"msg"]]];
-            
-        }else {
-            
-            [SVProgressHUD showErrorWithStatus:[json valueForKey:@"msg"]];
-            
-        }
-        
-    } failure:^(NSError *error) {
-        
-        [SVProgressHUD showErrorWithStatus:@"生成支付宝订单失败，请稍后再试！"];
-        
-    }];
-    
-}
-
-//调起支付宝进行支付
-- (void)AliPayWithString:(NSString *)string {
-    
-    NSString *appScheme = @"huihuiAliPay";
-    
-    [[AlipaySDK defaultService] payOrder:string fromScheme:appScheme callback:^(NSDictionary *resultDic) {
-        
-        NSString *code = resultDic[@"resultStatus"];
-        
-        if ([code isEqualToString:@"9000"]) {
-            
-            //支付成功
-            [SVProgressHUD showSuccessWithStatus:@"充值成功"];
-            
-            [self.navigationController popViewControllerAnimated:YES];
-            
-        }else if ([code isEqualToString:@"4000"]) {
-            
-            //支付失败
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"支付失败，请稍后再试!" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            
-            [alert show];
-            
-        }else if ([code isEqualToString:@"6001"]) {
-            
-            //取消支付
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"你已取消支付!" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            
-            [alert show];
-            
-        }else if ([code isEqualToString:@"6002"]) {
-            
-            //网络连接失败
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"网络连接失败，请稍后再试!" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            
-            [alert show];
-            
-        }else if ([code isEqualToString:@"8000"]) {
-            
-            //订单处理中
-            [SVProgressHUD showSuccessWithStatus:@"订单处理中"];
-            
-            [self.navigationController popViewControllerAnimated:YES];
-            
-        }else {
-            
-            //其他情况
-            [SVProgressHUD showErrorWithStatus:@"充值失败，请稍后再试！"];
-            
-        }
-        
-    }];
-    
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    
-    switch (buttonIndex) {
-        case 1:
-        {
-            
-            //城与城支付
-            [self cyc_pay];
-            
-        }
-            break;
-            
-        default:
-            break;
-    }
-    
-}
-
-- (void)cyc_pay {
-    
-    BuyDelegateFrame *frame = self.dataArray[0];
-    
-    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                         [CommonUtil getValueByKey:MEMBER_ID],@"MemberID",
-                         frame.buyModel.price,@"Amount",
-                         frame.buyModel.timeStatus,@"Count",
-                         frame.buyModel.categoryId,@"categoryId",
-                         self.type,@"type",
-                         nil];
-    
     AppHttpClient *httpclient = [AppHttpClient sharedHuLa];
     
     [SVProgressHUD show];
     
-    [httpclient HuLarequest:@"Recharge_cyc_1.ashx" parameters:dic success:^(NSJSONSerialization *json) {
+    [httpclient HuLarequest:@"Agent/AddOrder.ashx" parameters:dic success:^(NSJSONSerialization *json) {
         
         BOOL success = [[json valueForKey:@"status"] boolValue];
         
         if (success) {
             
-            [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"%@",[json valueForKey:@"msg"]]];
+            [SVProgressHUD dismiss];
             
-            [self.navigationController popViewControllerAnimated:YES];
+            HL_DelegateOrderModel *model = [[HL_DelegateOrderModel alloc] init];
+            
+            model.OrderID = [NSString stringWithFormat:@"%@",[json valueForKey:@"orderNumber"]];
+            
+            model.OrderTitle = [NSString stringWithFormat:@"%@",[json valueForKey:@"orderSubject"]];
+            
+            model.OriginalPrice = [NSString stringWithFormat:@"%@",[json valueForKey:@"originalUnitPrice"]];
+            
+            model.PresentPrice = [NSString stringWithFormat:@"%@",[json valueForKey:@"unitPrice"]];
+            
+            model.Count = [NSString stringWithFormat:@"%@",[json valueForKey:@"count"]];
+            
+            model.Discount = [NSString stringWithFormat:@"%@",[json valueForKey:@"dkPrice"]];
+            
+            model.Total = [NSString stringWithFormat:@"%@",[json valueForKey:@"orderPrice"]];
+            
+            HL_DelegateOrderViewController *vc = [[HL_DelegateOrderViewController alloc] init];
+            
+            vc.model = model;
+            
+            [self.navigationController pushViewController:vc animated:YES];
             
         }else {
             
@@ -376,138 +289,95 @@
         
     } failure:^(NSError *error) {
         
-        [SVProgressHUD showSuccessWithStatus:@"购买失败，请稍后重试"];
+        [SVProgressHUD showSuccessWithStatus:@"确认订单失败，请稍后重试"];
         
     }];
     
 }
 
-- (void)creatOrder {
-    
-    BuyDelegateFrame *frame = self.dataArray[0];
-    
-    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                         [CommonUtil getValueByKey:MEMBER_ID],@"MemberID",
-                         frame.buyModel.price,@"Amount",
-                         frame.buyModel.timeStatus,@"Count",
-                         frame.buyModel.categoryId,@"categoryId",
-                         self.type,@"type",
-                         nil];
-    
-    AppHttpClient *httpclient = [AppHttpClient sharedHuLa];
-    
-    [SVProgressHUD show];
-    
-    [httpclient HuLarequest:@"Recharge_weixin_Order_1.ashx" parameters:dic success:^(NSJSONSerialization *json) {
-        
-        BOOL success = [[json valueForKey:@"status"] boolValue];
-        
-        if (success) {
-            
-            //生成订单成功，跳转微信支付
-            orderID = [NSString stringWithFormat:@"%@",[json valueForKey:@"ordenumber"]];
-            
-            [self WeChatRechargeRequest];
-            
-            [SVProgressHUD dismiss];
-            
-        }else {
-            
-            [SVProgressHUD showSuccessWithStatus:[json valueForKey:@"msg"]];
-            
-        }
-        
-    } failure:^(NSError *error) {
-        
-        [SVProgressHUD showErrorWithStatus:@"生成订单失败，请稍后重试"];
-        
-    }];
-    
-}
-
-//微信充值
-- (void)WeChatRechargeRequest {
-    
-    BuyDelegateFrame *frame = self.dataArray[0];
-    
-    // 判断是否安装了微信
-    if ( [WXApi isWXAppInstalled] ) {
-        
-        // 点击去支付后将数据保存起来用于微信支付的赋值
-        [CommonUtil addValue:[NSString stringWithFormat:@"%@",@"购买代理"] andKey:WEIXIN_NAME];
-        [CommonUtil addValue:frame.buyModel.allCount andKey:WEIXIN_PRICE];
-        [CommonUtil addValue:orderID andKey:WEIXIN_OREDENO];
-        
-        // 表示是点单购买
-        [CommonUtil addValue:@"3" andKey:WEIXIN_PAYTYPE];
-        
-        
-        //创建支付签名对象
-        payRequsestHandler *req = [payRequsestHandler alloc];
-        //初始化支付签名对象
-        [req init:APP_ID mch_id:MCH_ID];
-        //设置密钥
-        [req setKey:PARTNER_ID];
-        
-        //}}}
-        
-        //获取到实际调起微信支付的参数后，在app端调起支付
-        NSMutableDictionary *dict = [req sendPay_demo];
-        
-        if(dict == nil){
-            //错误提示
-            NSString *debug = [req getDebugifo];
-            
-            [SVProgressHUD showErrorWithStatus:debug];
-            
-        }else{
-            
-            NSMutableString *stamp  = [dict objectForKey:@"timestamp"];
-            
-            //调起微信支付
-            PayReq* req             = [[PayReq alloc] init];
-            req.openID              = [dict objectForKey:@"appid"];
-            req.partnerId           = [dict objectForKey:@"partnerid"];
-            req.prepayId            = [dict objectForKey:@"prepayid"];
-            req.nonceStr            = [dict objectForKey:@"noncestr"];
-            req.timeStamp           = stamp.intValue;
-            req.package             = [dict objectForKey:@"package"];
-            req.sign                = [dict objectForKey:@"sign"];
-            
-            [WXApi sendReq:req];
-        }
-        
-    }else{
-        
-        // 微信没有安装
-        [SVProgressHUD showErrorWithStatus:@"您没有安装微信"];
-        
-    }
-    
-}
-
-//充值成功确认订单
-- (void)weixinpaySuccess {
-    
-    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                         [NSString stringWithFormat:@"%@",orderID],@"ordernumber",
-                         nil];
-    
-    AppHttpClient *http = [AppHttpClient sharedHuLa];
-    
-    [http HuLarequest:@"Recharge_weixin_Order_OK_1.ashx" parameters:dic success:^(NSJSONSerialization *json) {
-        
-        if ([[json valueForKey:@"status"] boolValue]) {
-            
-            [self.navigationController popViewControllerAnimated:YES];
-            
-        }
-        
-    } failure:^(NSError *error) {
-        
-    }];
-    
-}
+////微信充值
+//- (void)WeChatRechargeRequest {
+//
+//    BuyDelegateFrame *frame = self.dataArray[0];
+//
+//    // 判断是否安装了微信
+//    if ( [WXApi isWXAppInstalled] ) {
+//
+//        // 点击去支付后将数据保存起来用于微信支付的赋值
+//        [CommonUtil addValue:[NSString stringWithFormat:@"%@",@"购买代理"] andKey:WEIXIN_NAME];
+//        [CommonUtil addValue:frame.buyModel.allCount andKey:WEIXIN_PRICE];
+//        [CommonUtil addValue:orderID andKey:WEIXIN_OREDENO];
+//
+//        // 表示是点单购买
+//        [CommonUtil addValue:@"3" andKey:WEIXIN_PAYTYPE];
+//
+//
+//        //创建支付签名对象
+//        payRequsestHandler *req = [payRequsestHandler alloc];
+//        //初始化支付签名对象
+//        [req init:APP_ID mch_id:MCH_ID];
+//        //设置密钥
+//        [req setKey:PARTNER_ID];
+//
+//        //}}}
+//
+//        //获取到实际调起微信支付的参数后，在app端调起支付
+//        NSMutableDictionary *dict = [req sendPay_demo];
+//
+//        if(dict == nil){
+//            //错误提示
+//            NSString *debug = [req getDebugifo];
+//
+//            [SVProgressHUD showErrorWithStatus:debug];
+//
+//        }else{
+//
+//            NSMutableString *stamp  = [dict objectForKey:@"timestamp"];
+//
+//            //调起微信支付
+//            PayReq* req             = [[PayReq alloc] init];
+//            req.openID              = [dict objectForKey:@"appid"];
+//            req.partnerId           = [dict objectForKey:@"partnerid"];
+//            req.prepayId            = [dict objectForKey:@"prepayid"];
+//            req.nonceStr            = [dict objectForKey:@"noncestr"];
+//            req.timeStamp           = stamp.intValue;
+//            req.package             = [dict objectForKey:@"package"];
+//            req.sign                = [dict objectForKey:@"sign"];
+//
+//            [WXApi sendReq:req];
+//        }
+//
+//    }else{
+//
+//        // 微信没有安装
+//        [SVProgressHUD showErrorWithStatus:@"您没有安装微信"];
+//
+//    }
+//
+//}
+//
+////充值成功确认订单
+//- (void)weixinpaySuccess {
+//
+//    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+//                         [NSString stringWithFormat:@"%@",orderID],@"ordernumber",
+//                         nil];
+//
+//    AppHttpClient *http = [AppHttpClient sharedHuLa];
+//
+//    [http HuLarequest:@"Recharge_weixin_Order_OK_1.ashx" parameters:dic success:^(NSJSONSerialization *json) {
+//
+//        if ([[json valueForKey:@"status"] boolValue]) {
+//
+//            [self.navigationController popViewControllerAnimated:YES];
+//
+//        }
+//
+//    } failure:^(NSError *error) {
+//
+//    }];
+//
+//}
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     

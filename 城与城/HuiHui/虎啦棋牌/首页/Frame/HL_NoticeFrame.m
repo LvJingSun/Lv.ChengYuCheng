@@ -70,11 +70,11 @@
     
     CGFloat imgX = _WindowViewWidth * 0.65;
     
-    CGFloat imgH = 60;
+    CGFloat imgW = _WindowViewWidth * 0.3;
+    
+    CGFloat imgH = imgW * 0.625;
     
     CGFloat imgY = (_height - imgH) * 0.5;
-    
-    CGFloat imgW = _WindowViewWidth * 0.3;
     
     _imgF = CGRectMake(imgX, imgY, imgW, imgH);
     

@@ -177,6 +177,10 @@
 		0422648B18F4F1C70037C86F /* ForgetPasswordViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0422648918F4F1C70037C86F /* ForgetPasswordViewController.xib */; };
 		0422681D1FA2F79200E9448E /* GameRechargeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 0422681C1FA2F79200E9448E /* GameRechargeModel.m */; };
 		042268201FA2F8B700E9448E /* GameRechargeFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 0422681F1FA2F8B700E9448E /* GameRechargeFrame.m */; };
+		042377961FE252C00028C9C9 /* HL_DelegateOrderModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 042377951FE252C00028C9C9 /* HL_DelegateOrderModel.m */; };
+		042377991FE254160028C9C9 /* HL_DelegateOrderFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 042377981FE254160028C9C9 /* HL_DelegateOrderFrame.m */; };
+		0423779C1FE25CDC0028C9C9 /* HL_DelegateOrderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0423779B1FE25CDC0028C9C9 /* HL_DelegateOrderCell.m */; };
+		0423779F1FE264480028C9C9 /* HL_DelegateOrderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0423779E1FE264480028C9C9 /* HL_DelegateOrderViewController.m */; };
 		0423FEB9185EB422009D87E0 /* ImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 0423FEB5185EB421009D87E0 /* ImageCache.m */; };
 		0423FEBA185EB422009D87E0 /* MD5.m in Sources */ = {isa = PBXBuildFile; fileRef = 0423FEB7185EB422009D87E0 /* MD5.m */; };
 		0423FED2185ED946009D87E0 /* AgreementViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0423FEBE185ED946009D87E0 /* AgreementViewController.m */; };
@@ -807,6 +811,8 @@
 		048540031B3419C000F90D85 /* HH_MenuOrderListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 048540011B3419C000F90D85 /* HH_MenuOrderListViewController.m */; };
 		048540041B3419C000F90D85 /* HH_MenuOrderListViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 048540021B3419C000F90D85 /* HH_MenuOrderListViewController.xib */; };
 		0486B89C1F73993A00182782 /* GreenLifeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0486B89B1F73993A00182782 /* GreenLifeViewController.m */; };
+		0486BA5D1FE36A6C003B7A46 /* HL_PayTypeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0486BA5C1FE36A6C003B7A46 /* HL_PayTypeView.m */; };
+		0486BA601FE37955003B7A46 /* HL_PayMoneyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0486BA5F1FE37955003B7A46 /* HL_PayMoneyView.m */; };
 		04880E5D1DB068640046C6C0 /* CardInfoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04880E5C1DB068640046C6C0 /* CardInfoController.m */; };
 		04881B991ED7C59600B554AA /* game.png in Resources */ = {isa = PBXBuildFile; fileRef = 04881B971ED7C59600B554AA /* game.png */; };
 		04881B9A1ED7C59600B554AA /* game@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 04881B981ED7C59600B554AA /* game@2x.png */; };
@@ -1013,6 +1019,16 @@
 		04A70EF41AB13CC400374F6D /* Sec_webViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04A70EF21AB13CC400374F6D /* Sec_webViewController.xib */; };
 		04A70EF81AB13E0E00374F6D /* Hotel_webViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A70EF61AB13E0D00374F6D /* Hotel_webViewController.m */; };
 		04A70EF91AB13E0E00374F6D /* Hotel_webViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04A70EF71AB13E0D00374F6D /* Hotel_webViewController.xib */; };
+		04A7FC611FE7574C00B257F7 /* HL_NoDataCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FC601FE7574C00B257F7 /* HL_NoDataCell.m */; };
+		04A7FC961FE7A59100B257F7 /* HL_PromoterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FC8B1FE7A59000B257F7 /* HL_PromoterViewController.m */; };
+		04A7FC971FE7A59100B257F7 /* HL_PromoterFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FC8E1FE7A59000B257F7 /* HL_PromoterFrame.m */; };
+		04A7FC981FE7A59100B257F7 /* HL_PromoterModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FC911FE7A59000B257F7 /* HL_PromoterModel.m */; };
+		04A7FC991FE7A59100B257F7 /* HL_PromoterCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FC951FE7A59000B257F7 /* HL_PromoterCell.m */; };
+		04A7FCA21FE7A7E300B257F7 /* HL_PromoterDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FCA11FE7A7E300B257F7 /* HL_PromoterDetailViewController.m */; };
+		04A7FCA51FE7A83600B257F7 /* HL_Promoter_DetailModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FCA41FE7A83600B257F7 /* HL_Promoter_DetailModel.m */; };
+		04A7FCA81FE7A90900B257F7 /* HL_PromoterDetailHeadView.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FCA71FE7A90900B257F7 /* HL_PromoterDetailHeadView.m */; };
+		04A7FCAB1FE7ADCF00B257F7 /* HL_Promoter_DetailFrame.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FCAA1FE7ADCF00B257F7 /* HL_Promoter_DetailFrame.m */; };
+		04A7FCAE1FE7B25700B257F7 /* HL_Promoter_DetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A7FCAD1FE7B25700B257F7 /* HL_Promoter_DetailCell.m */; };
 		04A80615187A7DB900BC34E5 /* ResultCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A80614187A7DB800BC34E5 /* ResultCell.m */; };
 		04A80617187A7DDA00BC34E5 /* ResultCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 04A80616187A7DD900BC34E5 /* ResultCell.xib */; };
 		04A8061B187A7EAC00BC34E5 /* ResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04A80619187A7EAA00BC34E5 /* ResultViewController.m */; };
@@ -3051,6 +3067,14 @@
 		0422681C1FA2F79200E9448E /* GameRechargeModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameRechargeModel.m; sourceTree = "<group>"; };
 		0422681E1FA2F8B700E9448E /* GameRechargeFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameRechargeFrame.h; sourceTree = "<group>"; };
 		0422681F1FA2F8B700E9448E /* GameRechargeFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameRechargeFrame.m; sourceTree = "<group>"; };
+		042377941FE252C00028C9C9 /* HL_DelegateOrderModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_DelegateOrderModel.h; sourceTree = "<group>"; };
+		042377951FE252C00028C9C9 /* HL_DelegateOrderModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_DelegateOrderModel.m; sourceTree = "<group>"; };
+		042377971FE254160028C9C9 /* HL_DelegateOrderFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_DelegateOrderFrame.h; sourceTree = "<group>"; };
+		042377981FE254160028C9C9 /* HL_DelegateOrderFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_DelegateOrderFrame.m; sourceTree = "<group>"; };
+		0423779A1FE25CDC0028C9C9 /* HL_DelegateOrderCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_DelegateOrderCell.h; sourceTree = "<group>"; };
+		0423779B1FE25CDC0028C9C9 /* HL_DelegateOrderCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_DelegateOrderCell.m; sourceTree = "<group>"; };
+		0423779D1FE264480028C9C9 /* HL_DelegateOrderViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_DelegateOrderViewController.h; sourceTree = "<group>"; };
+		0423779E1FE264480028C9C9 /* HL_DelegateOrderViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_DelegateOrderViewController.m; sourceTree = "<group>"; };
 		0423FEB4185EB421009D87E0 /* ImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageCache.h; sourceTree = "<group>"; };
 		0423FEB5185EB421009D87E0 /* ImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageCache.m; sourceTree = "<group>"; };
 		0423FEB6185EB422009D87E0 /* MD5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MD5.h; sourceTree = "<group>"; };
@@ -4047,6 +4071,10 @@
 		048540021B3419C000F90D85 /* HH_MenuOrderListViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HH_MenuOrderListViewController.xib; sourceTree = "<group>"; };
 		0486B89A1F73993A00182782 /* GreenLifeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GreenLifeViewController.h; sourceTree = "<group>"; };
 		0486B89B1F73993A00182782 /* GreenLifeViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GreenLifeViewController.m; sourceTree = "<group>"; };
+		0486BA5B1FE36A6C003B7A46 /* HL_PayTypeView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_PayTypeView.h; sourceTree = "<group>"; };
+		0486BA5C1FE36A6C003B7A46 /* HL_PayTypeView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_PayTypeView.m; sourceTree = "<group>"; };
+		0486BA5E1FE37955003B7A46 /* HL_PayMoneyView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_PayMoneyView.h; sourceTree = "<group>"; };
+		0486BA5F1FE37955003B7A46 /* HL_PayMoneyView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_PayMoneyView.m; sourceTree = "<group>"; };
 		04880E5B1DB068640046C6C0 /* CardInfoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardInfoController.h; sourceTree = "<group>"; };
 		04880E5C1DB068640046C6C0 /* CardInfoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CardInfoController.m; sourceTree = "<group>"; };
 		04881B971ED7C59600B554AA /* game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = game.png; sourceTree = "<group>"; };
@@ -4383,6 +4411,26 @@
 		04A70EF51AB13E0D00374F6D /* Hotel_webViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Hotel_webViewController.h; sourceTree = "<group>"; };
 		04A70EF61AB13E0D00374F6D /* Hotel_webViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Hotel_webViewController.m; sourceTree = "<group>"; };
 		04A70EF71AB13E0D00374F6D /* Hotel_webViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Hotel_webViewController.xib; sourceTree = "<group>"; };
+		04A7FC5F1FE7574C00B257F7 /* HL_NoDataCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_NoDataCell.h; sourceTree = "<group>"; };
+		04A7FC601FE7574C00B257F7 /* HL_NoDataCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_NoDataCell.m; sourceTree = "<group>"; };
+		04A7FC8A1FE7A59000B257F7 /* HL_PromoterViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HL_PromoterViewController.h; sourceTree = "<group>"; };
+		04A7FC8B1FE7A59000B257F7 /* HL_PromoterViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HL_PromoterViewController.m; sourceTree = "<group>"; };
+		04A7FC8D1FE7A59000B257F7 /* HL_PromoterFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HL_PromoterFrame.h; sourceTree = "<group>"; };
+		04A7FC8E1FE7A59000B257F7 /* HL_PromoterFrame.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HL_PromoterFrame.m; sourceTree = "<group>"; };
+		04A7FC901FE7A59000B257F7 /* HL_PromoterModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HL_PromoterModel.h; sourceTree = "<group>"; };
+		04A7FC911FE7A59000B257F7 /* HL_PromoterModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HL_PromoterModel.m; sourceTree = "<group>"; };
+		04A7FC941FE7A59000B257F7 /* HL_PromoterCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HL_PromoterCell.h; sourceTree = "<group>"; };
+		04A7FC951FE7A59000B257F7 /* HL_PromoterCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HL_PromoterCell.m; sourceTree = "<group>"; };
+		04A7FCA01FE7A7E300B257F7 /* HL_PromoterDetailViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_PromoterDetailViewController.h; sourceTree = "<group>"; };
+		04A7FCA11FE7A7E300B257F7 /* HL_PromoterDetailViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_PromoterDetailViewController.m; sourceTree = "<group>"; };
+		04A7FCA31FE7A83600B257F7 /* HL_Promoter_DetailModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_Promoter_DetailModel.h; sourceTree = "<group>"; };
+		04A7FCA41FE7A83600B257F7 /* HL_Promoter_DetailModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_Promoter_DetailModel.m; sourceTree = "<group>"; };
+		04A7FCA61FE7A90900B257F7 /* HL_PromoterDetailHeadView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_PromoterDetailHeadView.h; sourceTree = "<group>"; };
+		04A7FCA71FE7A90900B257F7 /* HL_PromoterDetailHeadView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_PromoterDetailHeadView.m; sourceTree = "<group>"; };
+		04A7FCA91FE7ADCF00B257F7 /* HL_Promoter_DetailFrame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_Promoter_DetailFrame.h; sourceTree = "<group>"; };
+		04A7FCAA1FE7ADCF00B257F7 /* HL_Promoter_DetailFrame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_Promoter_DetailFrame.m; sourceTree = "<group>"; };
+		04A7FCAC1FE7B25700B257F7 /* HL_Promoter_DetailCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HL_Promoter_DetailCell.h; sourceTree = "<group>"; };
+		04A7FCAD1FE7B25700B257F7 /* HL_Promoter_DetailCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HL_Promoter_DetailCell.m; sourceTree = "<group>"; };
 		04A80613187A7DB700BC34E5 /* ResultCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResultCell.h; sourceTree = "<group>"; };
 		04A80614187A7DB800BC34E5 /* ResultCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResultCell.m; sourceTree = "<group>"; };
 		04A80616187A7DD900BC34E5 /* ResultCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ResultCell.xib; sourceTree = "<group>"; };
@@ -7152,6 +7200,7 @@
 				041ED6411FAB0B680089E110 /* 我的团队 */,
 				041ED64D1FAB0B690089E110 /* 我的佣金 */,
 				04D252971FD91EC300616C81 /* 我的资料 */,
+				04A7FC871FE7A59000B257F7 /* 推广员 */,
 			);
 			path = "虎啦棋牌";
 			sourceTree = "<group>";
@@ -7235,6 +7284,8 @@
 				04FB4B8F1FB02C6100289020 /* HL_HomeSectionView.m */,
 				041E4FC31FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.h */,
 				041E4FC41FD8D05C00A78C86 /* HL_HomeMoreGameSectionView.m */,
+				04A7FC5F1FE7574C00B257F7 /* HL_NoDataCell.h */,
+				04A7FC601FE7574C00B257F7 /* HL_NoDataCell.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -7257,6 +7308,8 @@
 				047460241FAC10F0001A08FD /* H_BecomeDelegateFrame.m */,
 				04CE4E7E1FBC0CEC001723A8 /* BuyDelegateFrame.h */,
 				04CE4E7F1FBC0CEC001723A8 /* BuyDelegateFrame.m */,
+				042377971FE254160028C9C9 /* HL_DelegateOrderFrame.h */,
+				042377981FE254160028C9C9 /* HL_DelegateOrderFrame.m */,
 			);
 			path = Frame;
 			sourceTree = "<group>";
@@ -7268,6 +7321,8 @@
 				0474601E1FAC0CAE001A08FD /* H_BecomeDelegateModel.m */,
 				04CE4E7B1FBBE9F7001723A8 /* BuyDelegateModel.h */,
 				04CE4E7C1FBBE9F7001723A8 /* BuyDelegateModel.m */,
+				042377941FE252C00028C9C9 /* HL_DelegateOrderModel.h */,
+				042377951FE252C00028C9C9 /* HL_DelegateOrderModel.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -7281,6 +7336,12 @@
 				04CE4E751FBBC944001723A8 /* H_BecomeDelegateAlert.m */,
 				04CE4E811FBC3B36001723A8 /* BuyDelegateCell.h */,
 				04CE4E821FBC3B36001723A8 /* BuyDelegateCell.m */,
+				0423779A1FE25CDC0028C9C9 /* HL_DelegateOrderCell.h */,
+				0423779B1FE25CDC0028C9C9 /* HL_DelegateOrderCell.m */,
+				0486BA5B1FE36A6C003B7A46 /* HL_PayTypeView.h */,
+				0486BA5C1FE36A6C003B7A46 /* HL_PayTypeView.m */,
+				0486BA5E1FE37955003B7A46 /* HL_PayMoneyView.h */,
+				0486BA5F1FE37955003B7A46 /* HL_PayMoneyView.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -10320,6 +10381,119 @@
 			path = invite;
 			sourceTree = "<group>";
 		};
+		04A7FC871FE7A59000B257F7 /* 推广员 */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FC881FE7A59000B257F7 /* 推广员列表 */,
+				04A7FC9A1FE7A79B00B257F7 /* 推广员详情 */,
+			);
+			path = "推广员";
+			sourceTree = "<group>";
+		};
+		04A7FC881FE7A59000B257F7 /* 推广员列表 */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FC891FE7A59000B257F7 /* Controller */,
+				04A7FC8C1FE7A59000B257F7 /* Frame */,
+				04A7FC8F1FE7A59000B257F7 /* Model */,
+				04A7FC931FE7A59000B257F7 /* View */,
+			);
+			path = "推广员列表";
+			sourceTree = "<group>";
+		};
+		04A7FC891FE7A59000B257F7 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FC8A1FE7A59000B257F7 /* HL_PromoterViewController.h */,
+				04A7FC8B1FE7A59000B257F7 /* HL_PromoterViewController.m */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		04A7FC8C1FE7A59000B257F7 /* Frame */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FC8D1FE7A59000B257F7 /* HL_PromoterFrame.h */,
+				04A7FC8E1FE7A59000B257F7 /* HL_PromoterFrame.m */,
+			);
+			path = Frame;
+			sourceTree = "<group>";
+		};
+		04A7FC8F1FE7A59000B257F7 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FC901FE7A59000B257F7 /* HL_PromoterModel.h */,
+				04A7FC911FE7A59000B257F7 /* HL_PromoterModel.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		04A7FC931FE7A59000B257F7 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FC941FE7A59000B257F7 /* HL_PromoterCell.h */,
+				04A7FC951FE7A59000B257F7 /* HL_PromoterCell.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		04A7FC9A1FE7A79B00B257F7 /* 推广员详情 */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FC9B1FE7A79B00B257F7 /* Controller */,
+				04A7FC9C1FE7A79B00B257F7 /* Frame */,
+				04A7FC9D1FE7A79B00B257F7 /* Model */,
+				04A7FC9E1FE7A79B00B257F7 /* Other */,
+				04A7FC9F1FE7A79B00B257F7 /* View */,
+			);
+			path = "推广员详情";
+			sourceTree = "<group>";
+		};
+		04A7FC9B1FE7A79B00B257F7 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FCA01FE7A7E300B257F7 /* HL_PromoterDetailViewController.h */,
+				04A7FCA11FE7A7E300B257F7 /* HL_PromoterDetailViewController.m */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
+		04A7FC9C1FE7A79B00B257F7 /* Frame */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FCA91FE7ADCF00B257F7 /* HL_Promoter_DetailFrame.h */,
+				04A7FCAA1FE7ADCF00B257F7 /* HL_Promoter_DetailFrame.m */,
+			);
+			path = Frame;
+			sourceTree = "<group>";
+		};
+		04A7FC9D1FE7A79B00B257F7 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FCA31FE7A83600B257F7 /* HL_Promoter_DetailModel.h */,
+				04A7FCA41FE7A83600B257F7 /* HL_Promoter_DetailModel.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		04A7FC9E1FE7A79B00B257F7 /* Other */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Other;
+			sourceTree = "<group>";
+		};
+		04A7FC9F1FE7A79B00B257F7 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				04A7FCA61FE7A90900B257F7 /* HL_PromoterDetailHeadView.h */,
+				04A7FCA71FE7A90900B257F7 /* HL_PromoterDetailHeadView.m */,
+				04A7FCAC1FE7B25700B257F7 /* HL_Promoter_DetailCell.h */,
+				04A7FCAD1FE7B25700B257F7 /* HL_Promoter_DetailCell.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		04AD439A18EBB45B007C8A9F /* StyleColour */ = {
 			isa = PBXGroup;
 			children = (
@@ -11320,6 +11494,8 @@
 			children = (
 				04CE4E781FBBE9AD001723A8 /* Buy_DelegateViewController.h */,
 				04CE4E791FBBE9AD001723A8 /* Buy_DelegateViewController.m */,
+				0423779D1FE264480028C9C9 /* HL_DelegateOrderViewController.h */,
+				0423779E1FE264480028C9C9 /* HL_DelegateOrderViewController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -17173,6 +17349,7 @@
 				0448DADF1B3272B000774EC2 /* BCloundMenuCell.m in Sources */,
 				7F7BCD4018D41FDE00B184CC /* ProductDetailViewController.m in Sources */,
 				045D195D1F28286900A98D4C /* FSB_GameViewController.m in Sources */,
+				0486BA601FE37955003B7A46 /* HL_PayMoneyView.m in Sources */,
 				0426723A1F5E51DB006C0D49 /* MenuBtnModel.m in Sources */,
 				04375F411F6A1FF60004DD7E /* FSB_TranDetailCell.m in Sources */,
 				04C4E6991D7584AD0039F94F /* YYWeakProxy.m in Sources */,
@@ -17276,6 +17453,7 @@
 				042C8FCD1F3468EA0083FDCF /* RH_NoMemberShipViewController.m in Sources */,
 				045B2EE7183B059200F811E4 /* AFURLConnectionOperation.m in Sources */,
 				04792A7C1ECAE11900456436 /* FSB_ProfitCell.m in Sources */,
+				04A7FC981FE7A59100B257F7 /* HL_PromoterModel.m in Sources */,
 				04E4BD9E1F3AAB3200CAC7F7 /* Home_MemberShipFrame.m in Sources */,
 				04A3F7C01FAC55D000F39BF1 /* H_MyMoneyFrame.m in Sources */,
 				04D2051A1A007E1F007E8072 /* HH_PartyListViewController.m in Sources */,
@@ -17295,6 +17473,7 @@
 				7F0EF2971AEE301400881E6A /* InvitationManager.m in Sources */,
 				04375F561F6A4D460004DD7E /* Wallet_GAMERechargeViewController.m in Sources */,
 				7FF31E8B1A1DCFAE00435690 /* XHMessageTextView.m in Sources */,
+				04A7FCA51FE7A83600B257F7 /* HL_Promoter_DetailModel.m in Sources */,
 				7FF31DF21A1DCFAE00435690 /* TTGlobalUICommon.m in Sources */,
 				7FF31DE81A1DCFAE00435690 /* PSTGridLayoutItem.m in Sources */,
 				04772BA61EE8F24B009EA3D4 /* Car_ListFrame.m in Sources */,
@@ -17303,6 +17482,7 @@
 				7F7BCD3A18D41FDE00B184CC /* PanicShopListViewController.m in Sources */,
 				045B2EE9183B059200F811E4 /* UIImageView+AFNetworking.m in Sources */,
 				049CE8291F8F122E0027C977 /* M_Record_Cell.m in Sources */,
+				04A7FCA81FE7A90900B257F7 /* HL_PromoterDetailHeadView.m in Sources */,
 				04B022E91FBD698B00F77F35 /* R_PersonFrame.m in Sources */,
 				040F21D518F395BE0092392B /* ActivitySaleViewController.m in Sources */,
 				0481A35A1EEA851200270EE2 /* RH_InsuranceInPutFrame.m in Sources */,
@@ -17360,6 +17540,7 @@
 				04792A7F1ECAE11900456436 /* FSB_ConsumptionFrame.m in Sources */,
 				04FE79EB183C44AA006071D3 /* MoreCell.m in Sources */,
 				04FB3B701DF4F2CC00B9558A /* MoneyListViewController.m in Sources */,
+				04A7FC971FE7A59100B257F7 /* HL_PromoterFrame.m in Sources */,
 				043CF4131F14593D00DD0875 /* FSB_HomeImgScroll.m in Sources */,
 				04FE79ED183C44AA006071D3 /* MoreViewController.m in Sources */,
 				7F7BCD4818D41FDE00B184CC /* SaleProductListViewController.m in Sources */,
@@ -17418,6 +17599,7 @@
 				04318D2A1B6B515600E0D7B7 /* CustomRuleView.m in Sources */,
 				0440EF8D1A79E4A500947040 /* SceneryOutListViewController.m in Sources */,
 				0435AF001A7B786F00C516AE /* SceneryOrderDetailViewController.m in Sources */,
+				04A7FCAB1FE7ADCF00B257F7 /* HL_Promoter_DetailFrame.m in Sources */,
 				045D19631F28286900A98D4C /* GameCenterModel.m in Sources */,
 				0486B89C1F73993A00182782 /* GreenLifeViewController.m in Sources */,
 				042268201FA2F8B700E9448E /* GameRechargeFrame.m in Sources */,
@@ -17492,6 +17674,7 @@
 				045D19621F28286900A98D4C /* GameBtnCellModel.m in Sources */,
 				04FE7A2F183C8FF5006071D3 /* split.c in Sources */,
 				049CAA611F709FAF00270AD6 /* GoldGetOutViewController.m in Sources */,
+				04A7FC611FE7574C00B257F7 /* HL_NoDataCell.m in Sources */,
 				04F6B3861E8CC35D0008B975 /* Add_FriendsCell.m in Sources */,
 				04EEE3F91F68CB180098A1CE /* GetOutSuccessViewController.m in Sources */,
 				0449F2AB1F67809400367C71 /* GetOut_TranFrame.m in Sources */,
@@ -17552,6 +17735,7 @@
 				7F7930251AC945EF00A82019 /* BlocksTableViewCell.m in Sources */,
 				0498CBE51F667BB100C15DC8 /* GoldBrokenLineCell.m in Sources */,
 				04FE7A8B183C9B9E006071D3 /* SettingViewController.m in Sources */,
+				042377961FE252C00028C9C9 /* HL_DelegateOrderModel.m in Sources */,
 				043FCB0D1B12CA5900838A1D /* ApplicationPayViewController.m in Sources */,
 				0449F2721F676C8200367C71 /* FSB_TranModel.m in Sources */,
 				044209601ADDFCBA00BFEA0B /* HH_AdvertViewController.m in Sources */,
@@ -17589,6 +17773,7 @@
 				7FF31E471A1DCFAE00435690 /* MessageModelManager.m in Sources */,
 				047509821E8DEB0800DAE3C0 /* T_ContactsViewController.m in Sources */,
 				045080081A2EECF700675128 /* CalendarViewController.m in Sources */,
+				04A7FCA21FE7A7E300B257F7 /* HL_PromoterDetailViewController.m in Sources */,
 				044C5FF01ACA92DF007DEACC /* FanliListCell.m in Sources */,
 				7F96D2B3196502DA00FE44CD /* WwebpreviewViewController.m in Sources */,
 				040F21D718F395BE0092392B /* LaunchActivityViewController.m in Sources */,
@@ -17597,6 +17782,7 @@
 				7FF31DE71A1DCFAE00435690 /* PSTGridLayoutInfo.m in Sources */,
 				7F7BCD1718D41FDE00B184CC /* MHImagePickerMutilSelector.m in Sources */,
 				7FF31E5F1A1DCFAE00435690 /* ApplyFriendCell.m in Sources */,
+				042377991FE254160028C9C9 /* HL_DelegateOrderFrame.m in Sources */,
 				04D252AB1FD92C1200616C81 /* HL_MyInfoFrame.m in Sources */,
 				0464B6D41E67AA0C00BAC949 /* XWAlterview.m in Sources */,
 				04CA74641A358DB500125C90 /* FlightCityHelper.m in Sources */,
@@ -17893,6 +18079,7 @@
 				7F1AF86819D7B2390098624A /* TFHpple.m in Sources */,
 				04792A6E1ECAE11900456436 /* FSB_QuotaCell.m in Sources */,
 				048B1F67184F1416005422A5 /* QuestionViewController.m in Sources */,
+				04A7FCAE1FE7B25700B257F7 /* HL_Promoter_DetailCell.m in Sources */,
 				043186F01BD391830036BF3C /* MenuEvaluationViewController.m in Sources */,
 				7FF31FC81A1DDC8500435690 /* MKAnnotationView+WebCache.m in Sources */,
 				7F7BCD4218D41FDE00B184CC /* ProductListViewController.m in Sources */,
@@ -17912,6 +18099,7 @@
 				04AD43C818EBB45B007C8A9F /* HSV.c in Sources */,
 				0494E7B7185056E700B01631 /* CouponListViewController.m in Sources */,
 				04375F5C1F6A50860004DD7E /* GAME_RechargeCell.m in Sources */,
+				0423779F1FE264480028C9C9 /* HL_DelegateOrderViewController.m in Sources */,
 				04721B9B1EE77D590001873B /* OilSubsidyViewController.m in Sources */,
 				B8F39C601CB000C800140E68 /* PinYinForObjc.m in Sources */,
 				7F56D7BA1BB247D900D421DC /* CPSTakeOrderTableViewCell.m in Sources */,
@@ -17985,6 +18173,7 @@
 				04CB7E031A5E28050081D0F9 /* Fl_orderDetailViewController.m in Sources */,
 				0427F2601D937AF5001B3327 /* ZJTitleView.m in Sources */,
 				04B72EA31A27125E006B7C76 /* MLNavigationController.m in Sources */,
+				0486BA5D1FE36A6C003B7A46 /* HL_PayTypeView.m in Sources */,
 				7F5CC0481A84B4FB00C89A63 /* AHchoseadressViewController.m in Sources */,
 				B8F39C5C1CB000C800140E68 /* ChineseToPinyinResource.m in Sources */,
 				0474601F1FAC0CAE001A08FD /* H_BecomeDelegateModel.m in Sources */,
@@ -18080,6 +18269,7 @@
 				040F21D918F395BE0092392B /* LaunchPartyViewController.m in Sources */,
 				0434E2891ECD9A2D00DD4A9A /* BillAlertView.m in Sources */,
 				045044BF1B3021DA00924BF6 /* CardMenuOrderCell.m in Sources */,
+				0423779C1FE25CDC0028C9C9 /* HL_DelegateOrderCell.m in Sources */,
 				049B08D518FD028000FA8667 /* SBJsonStreamWriterAccumulator.m in Sources */,
 				04772BB31EE91E6E009EA3D4 /* RH_AddBtnView.m in Sources */,
 				7F1AF86A19D7B2390098624A /* XPathQuery.m in Sources */,
@@ -18093,6 +18283,7 @@
 				7F7930201AC9419F00A82019 /* BblockslistViewController.m in Sources */,
 				0498CBE11F667BB100C15DC8 /* GameGoldNavViewController.m in Sources */,
 				0435AEFB1A7B6E4900C516AE /* SceneryOrderListCell.m in Sources */,
+				04A7FC991FE7A59100B257F7 /* HL_PromoterCell.m in Sources */,
 				04375F471F6A2FF10004DD7E /* YCB_TranDetailFrame.m in Sources */,
 				040E0C2D1D4EEC3F00FBB72F /* HuaHuaViewCell.m in Sources */,
 				0474D5581EC2A07F00CD199C /* T_S_FriendFrame.m in Sources */,
@@ -18132,6 +18323,7 @@
 				7FF31DFB1A1DCFAE00435690 /* ChatListViewController.m in Sources */,
 				049CC2ED1E80C81F0052E6D1 /* T_BtnView.m in Sources */,
 				0477C43B1E83778100845822 /* I_Friend.m in Sources */,
+				04A7FC961FE7A59100B257F7 /* HL_PromoterViewController.m in Sources */,
 				0427F25F1D937AF5001B3327 /* ZJSegmentStyle.m in Sources */,
 				7F1292DE1961950600C10353 /* RecordAudio.m in Sources */,
 				0476F77E1EF0D2EE00F5A7DD /* RH_CarBrandCell.m in Sources */,

@@ -59,6 +59,8 @@
 #import <TencentOpenAPI/QQApiInterface.h>
 #import <MessageUI/MessageUI.h>
 
+#import "HL_NoDataCell.h"
+
 @interface HuLa_HomeViewController () <UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate,QQApiInterfaceDelegate,TencentSessionDelegate,MFMessageComposeViewControllerDelegate> {
     
     TencentOAuth *tencentOAuth;
@@ -97,44 +99,6 @@
 
 @implementation HuLa_HomeViewController
 
--(NSArray *)myteamHeadArray {
-    
-    if (_myteamHeadArray == nil) {
-        
-        H_MyTeamHeadModel *model = [[H_MyTeamHeadModel alloc] init];
-        
-        model.title1 = @"全部推荐(人数)";
-        
-        model.content1 = @"0人";
-        
-        model.title2 = @"直接推荐(人数)";
-        
-        model.content2 = @"0人";
-        
-        model.title3 = @"间接推荐(人数)";
-        
-        model.content3 = @"0人";
-        
-        model.title4 = @"三级推荐(人数)";
-        
-        model.content4 = @"0人";
-        
-        H_MyTeamHeadFrame *frame = [[H_MyTeamHeadFrame alloc] init];
-        
-        frame.headModel = model;
-        
-        NSMutableArray *mut = [NSMutableArray array];
-        
-        [mut addObject:frame];
-        
-        _myteamHeadArray = mut;
-        
-    }
-    
-    return _myteamHeadArray;
-    
-}
-
 //请求游戏下载数据、通知信息、小喇叭信息
 - (void)requestForMoreGames {
     
@@ -162,6 +126,10 @@
                 
                 gameModel.iconUrl = [NSString stringWithFormat:@"%@",gameDic[@"icon"]];
                 
+                gameModel.ID = [NSString stringWithFormat:@"%@",gameDic[@"id"]];
+                
+                gameModel.downloadAddress = [NSString stringWithFormat:@"%@",gameDic[@"downloadAddress"]];
+                
                 HL_GameDownLoadFrame *frame = [[HL_GameDownLoadFrame alloc] init];
                 
                 frame.gameModel = gameModel;
@@ -186,6 +154,8 @@
             noticemodel.notice2 = [NSString stringWithFormat:@"%@",((NSDictionary *)noticeArray[1])[@"noticeTitle"]];
             
             noticemodel.notice2ID = [NSString stringWithFormat:@"%@",((NSDictionary *)noticeArray[1])[@"noticeId"]];
+            
+            noticemodel.imgUrl = @"HL_公告.png";
             
             HL_NoticeFrame *noticeframe = [[HL_NoticeFrame alloc] init];
             
@@ -215,6 +185,8 @@
             HL_ScrollHornModel *scrModel = [[HL_ScrollHornModel alloc] init];
             
             scrModel.hornTextArray = horntemp;
+            
+            scrModel.hornImgUrl = @"HL_喇叭.png";
             
             HL_ScrollHornFrame *scrframe = [[HL_ScrollHornFrame alloc] init];
             
@@ -311,27 +283,55 @@
     
     AppHttpClient *http = [AppHttpClient sharedHuLa];
     
-    [http HuLarequest:@"GetMyteam.ashx" parameters:dic success:^(NSJSONSerialization *json) {
+    [http HuLarequest:@"GetMyTeam_1.ashx" parameters:dic success:^(NSJSONSerialization *json) {
         
         BOOL success = [[json valueForKey:@"status"] boolValue];
         
         if (success) {
             
+            H_MyTeamHeadModel *headmodel = [[H_MyTeamHeadModel alloc] init];
+            
+            headmodel.title1 = @"全部推荐(人数)";
+            
+            headmodel.content1 = [NSString stringWithFormat:@"%@",[json valueForKey:@"quanbu"]];
+            
+            headmodel.title2 = @"直接推荐(人数)";
+            
+            headmodel.content2 = [NSString stringWithFormat:@"%@",[json valueForKey:@"zhijie"]];
+            
+            headmodel.title3 = @"间接推荐(人数)";
+            
+            headmodel.content3 = [NSString stringWithFormat:@"%@",[json valueForKey:@"jianjie"]];
+            
+            headmodel.title4 = @"三级推荐(人数)";
+            
+            headmodel.content4 = [NSString stringWithFormat:@"%@",[json valueForKey:@"sanji"]];
+            
+            H_MyTeamHeadFrame *headframe = [[H_MyTeamHeadFrame alloc] init];
+            
+            headframe.headModel = headmodel;
+            
+            NSMutableArray *temp = [NSMutableArray array];
+            
+            [temp addObject:headframe];
+            
+            self.myteamHeadArray = temp;
+            
             NSMutableArray *mut = [NSMutableArray array];
             
-            NSArray *arr = [json valueForKey:@"lm"];
+            NSArray *arr = [json valueForKey:@"ailist"];
             
             for (NSDictionary *dd in arr) {
                 
                 H_MyTeamModel *model = [[H_MyTeamModel alloc] init];
                 
-                model.name = [NSString stringWithFormat:@"%@",dd[@"Name"]];
+                model.name = [NSString stringWithFormat:@"%@",dd[@"name"]];
                 
                 model.level = [NSString stringWithFormat:@"%@",dd[@"daili"]];
                 
                 model.delegateCount = [NSString stringWithFormat:@"%@",dd[@"daili_num"]];
                 
-                model.memberCount = [NSString stringWithFormat:@"%@",dd[@"huiyuan_num"]];
+                model.memberCount = [NSString stringWithFormat:@"%@",dd[@"total_shouyi"]];
                 
                 H_MyTeamFrame *frame = [[H_MyTeamFrame alloc] init];
                 
@@ -623,26 +623,54 @@
         if (selectIndex == 1) {
             
             //成为代理
-            
-            return self.becomeArray.count;
+            if (self.becomeArray.count == 0) {
+                
+                return 1;
+                
+            }else {
+                
+                return self.becomeArray.count;
+                
+            }
             
         }else if (selectIndex == 2) {
             
             //推荐代理
-            
-            return self.tuijianArray.count;
+            if (self.tuijianArray.count == 0) {
+                
+                return 1;
+                
+            }else {
+                
+                return self.tuijianArray.count;
+                
+            }
             
         }else if (selectIndex == 3) {
             
             //我的团队
-            
-            return self.myteamArray.count + self.myteamHeadArray.count;
+            if (self.myteamArray.count == 0) {
+                
+                return self.myteamHeadArray.count + 1;
+                
+            }else {
+                
+                return self.myteamArray.count + self.myteamHeadArray.count;
+                
+            }
             
         }else if (selectIndex == 4) {
             
             //我的佣金
-            
-            return self.mymoneyArray.count + 1;
+            if (self.mymoneyArray.count == 0) {
+                
+                return 2;
+                
+            }else {
+                
+                return self.mymoneyArray.count + 1;
+                
+            }
             
         }
         
@@ -954,6 +982,8 @@
             
             ToMeViewController *vc = [[ToMeViewController alloc] init];
             
+            vc.viewType = @"2";
+            
             [self.navigationController pushViewController:vc animated:YES];
             
         };
@@ -961,12 +991,13 @@
         cell.ToMe_Block = ^{
             
             //充值点击
-            
             if (frame.hulaModel.isBind) {
                 
                 ToMeViewController *vc = [[ToMeViewController alloc] init];
                 
                 vc.gameID = frame.hulaModel.gameID;
+                
+                vc.viewType = @"1";
                 
                 [self.navigationController pushViewController:vc animated:YES];
                 
@@ -981,6 +1012,19 @@
         cell.Send_Block = ^{
             
             //赠送点击
+            if (frame.hulaModel.isBind) {
+                
+                ToMeViewController *vc = [[ToMeViewController alloc] init];
+                
+                vc.viewType = @"3";
+                
+                [self.navigationController pushViewController:vc animated:YES];
+                
+            }else {
+                
+                [SVProgressHUD showErrorWithStatus:@"请先绑定棋牌游戏ID"];
+                
+            }
             
         };
         
@@ -998,6 +1042,7 @@
         cell.downloadBlock = ^{
             
             //更多游戏下载点击
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:frame.gameModel.downloadAddress]];
             
         };
         
@@ -1041,128 +1086,148 @@
         
         if (selectIndex == 1) {
             
-            H_BecomeDelegateCell *cell = [[H_BecomeDelegateCell alloc] init];
-            
-            H_BecomeDelegateFrame *frame = self.becomeArray[indexPath.row];
-            
-            cell.frameModel = frame;
-            
-            cell.lookBlock = ^{
+            if (self.becomeArray.count == 0) {
                 
-                H_BecomeDelegateAlert *alert = [[H_BecomeDelegateAlert alloc] initWithContent:frame.model.Remark];
+                HL_NoDataCell *cell = [[HL_NoDataCell alloc] init];
                 
-                [alert showInView:[UIApplication sharedApplication].keyWindow];
+                return cell;
                 
-            };
-            
-            cell.buyBlock = ^{
+            }else {
                 
-                Buy_DelegateViewController *vc = [[Buy_DelegateViewController alloc] init];
+                H_BecomeDelegateCell *cell = [[H_BecomeDelegateCell alloc] init];
                 
-                if ([frame.model.btnStatus isEqualToString:@"2"]) {
-                    
-                    vc.price = frame.model.price;
-                    
-                    vc.categoryId = frame.model.CategoryId;
-                    
-                    vc.type = @"2";
-                    
-                }else if ([frame.model.btnStatus isEqualToString:@"3"]) {
-                    
-                    vc.price = frame.model.price;
-                    
-                    vc.categoryId = frame.model.CategoryId;
-                    
-                    vc.type = @"3";
-                    
-                    vc.difference = frame.model.MatchingPrice;
-                    
-                }else {
-                    
-                    vc.price = frame.model.price;
-                    
-                    vc.categoryId = frame.model.CategoryId;
+                H_BecomeDelegateFrame *frame = self.becomeArray[indexPath.row];
                 
-                    vc.type = @"1";
+                cell.frameModel = frame;
+                
+                cell.lookBlock = ^{
                     
-                }
+                    H_BecomeDelegateAlert *alert = [[H_BecomeDelegateAlert alloc] initWithContent:frame.model.Remark];
+                    
+                    [alert showInView:[UIApplication sharedApplication].keyWindow];
+                    
+                };
                 
-                [self.navigationController pushViewController:vc animated:YES];
+                cell.buyBlock = ^{
+                    
+                    Buy_DelegateViewController *vc = [[Buy_DelegateViewController alloc] init];
+                    
+                    if ([frame.model.btnStatus isEqualToString:@"2"]) {
+                        
+                        vc.price = frame.model.price;
+                        
+                        vc.categoryId = frame.model.CategoryId;
+                        
+                        vc.type = @"2";
+                        
+                    }else if ([frame.model.btnStatus isEqualToString:@"3"]) {
+                        
+                        vc.price = frame.model.price;
+                        
+                        vc.categoryId = frame.model.CategoryId;
+                        
+                        vc.type = @"3";
+                        
+                        vc.difference = frame.model.MatchingPrice;
+                        
+                    }else {
+                        
+                        vc.price = frame.model.price;
+                        
+                        vc.categoryId = frame.model.CategoryId;
+                        
+                        vc.type = @"1";
+                        
+                    }
+                    
+                    [self.navigationController pushViewController:vc animated:YES];
+                    
+                };
                 
-            };
-            
-            return cell;
+                return cell;
+                
+            }
             
         }else if (selectIndex == 2) {
             
-            H_TuiJianCell *cell = [[H_TuiJianCell alloc] init];
-            
-            H_TuiJianFrame *frame = self.tuijianArray[indexPath.row];
-            
-            cell.frameModel = frame;
-            
-            cell.shareBlock = ^{
+            if (self.tuijianArray.count == 0) {
                 
-                //分享邀请码
-                TuiJian_ShareView *share = [[TuiJian_ShareView alloc] initWithFrame:CGRectMake(0, 0, _WindowViewWidth, _WindowViewHeight)];
+                HL_NoDataCell *cell = [[HL_NoDataCell alloc] init];
                 
-                share.QQ_Block = ^{
+                return cell;
+                
+            }else {
+                
+                H_TuiJianCell *cell = [[H_TuiJianCell alloc] init];
+                
+                H_TuiJianFrame *frame = self.tuijianArray[indexPath.row];
+                
+                cell.frameModel = frame;
+                
+                cell.shareBlock = ^{
                     
-                    [self qqShare];
+                    //分享邀请码
+                    TuiJian_ShareView *share = [[TuiJian_ShareView alloc] initWithFrame:CGRectMake(0, 0, _WindowViewWidth, _WindowViewHeight)];
+                    
+                    share.QQ_Block = ^{
+                        
+                        [self qqShare];
+                        
+                    };
+                    
+                    share.QZone_Block = ^{
+                        
+                        [self qqzoneShare];
+                        
+                    };
+                    
+                    share.WX_Block = ^{
+                        
+                        // 微信分享
+                        [self checkIsVaildweixinType:1002];
+                        
+                    };
+                    
+                    share.WXFriends_Block = ^{
+                        
+                        // 朋友圈分享
+                        [self checkIsVaildweixinType:1003];
+                        
+                    };
+                    
+                    [share showInView:[UIApplication sharedApplication].keyWindow];
                     
                 };
                 
-                share.QZone_Block = ^{
+                cell.copyBlock = ^{
                     
-                    [self qqzoneShare];
+                    //复制二维码
+                    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
                     
-                };
-                
-                share.WX_Block = ^{
+                    pasteboard.string = [NSString stringWithFormat:@"%@",frame.model.MemberInviteCode];
                     
-                    // 微信分享
-                    [self checkIsVaildweixinType:1002];
+                    [SVProgressHUD showSuccessWithStatus:@"内容已经复制到粘贴板"];
                     
                 };
                 
-                share.WXFriends_Block = ^{
+                cell.mailBlock = ^{
                     
-                    // 朋友圈分享
-                    [self checkIsVaildweixinType:1003];
+                    //发短信
+                    MFMessageComposeViewController *picker = [[MFMessageComposeViewController alloc] init];
+                    
+                    picker.messageComposeDelegate = self;
+                    
+                    picker.body = [NSString stringWithFormat:@"%@",frame.model.mail];
+                    
+                    picker.recipients = [NSArray arrayWithObject:@" "];
+                    
+                    [self presentViewController:picker animated:YES completion:nil];
                     
                 };
                 
-                [share showInView:[UIApplication sharedApplication].keyWindow];
+                return cell;
                 
-            };
-            
-            cell.copyBlock = ^{
-                
-                //复制二维码
-                UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-                
-                pasteboard.string = [NSString stringWithFormat:@"%@",frame.model.MemberInviteCode];
-                
-                [SVProgressHUD showSuccessWithStatus:@"内容已经复制到粘贴板"];
-                
-            };
-            
-            cell.mailBlock = ^{
-                
-                //发短信
-                MFMessageComposeViewController *picker = [[MFMessageComposeViewController alloc] init];
-                
-                picker.messageComposeDelegate = self;
-                
-                picker.body = [NSString stringWithFormat:@"%@",frame.model.mail];
-                
-                picker.recipients = [NSArray arrayWithObject:@" "];
-                
-                [self presentViewController:picker animated:YES completion:nil];
-                
-            };
-            
-            return cell;
+            }
             
         }else if (selectIndex == 3) {
             
@@ -1178,13 +1243,23 @@
                 
             }else {
                 
-                H_MyTeamCell *cell = [[H_MyTeamCell alloc] init];
-                
-                H_MyTeamFrame *frame = self.myteamArray[indexPath.row - 1];
-                
-                cell.frameModel = frame;
-                
-                return cell;
+                if (self.myteamArray.count == 0) {
+                    
+                    HL_NoDataCell *cell = [[HL_NoDataCell alloc] init];
+                    
+                    return cell;
+                    
+                }else {
+                    
+                    H_MyTeamCell *cell = [[H_MyTeamCell alloc] init];
+                    
+                    H_MyTeamFrame *frame = self.myteamArray[indexPath.row - 1];
+                    
+                    cell.frameModel = frame;
+                    
+                    return cell;
+                    
+                }
                 
             }
             
@@ -1229,13 +1304,23 @@
                 
             }else {
                 
-                H_MyMoneyCell *cell = [[H_MyMoneyCell alloc] init];
-                
-                H_MyMoneyFrame *frame = self.mymoneyArray[indexPath.row - 1];
-                
-                cell.frameModel = frame;
-                
-                return cell;
+                if (self.mymoneyArray.count == 0) {
+                    
+                    HL_NoDataCell *cell = [[HL_NoDataCell alloc] init];
+                    
+                    return cell;
+                    
+                }else {
+                    
+                    H_MyMoneyCell *cell = [[H_MyMoneyCell alloc] init];
+                    
+                    H_MyMoneyFrame *frame = self.mymoneyArray[indexPath.row - 1];
+                    
+                    cell.frameModel = frame;
+                    
+                    return cell;
+                    
+                }
                 
             }
             
@@ -1280,15 +1365,35 @@
         
         if (selectIndex == 1) {
             
-            H_BecomeDelegateFrame *frame = self.becomeArray[indexPath.row];
-            
-            return frame.height;
+            if (self.becomeArray.count == 0) {
+                
+                HL_NoDataCell *cell = [[HL_NoDataCell alloc] init];
+                
+                return cell.height;
+                
+            }else {
+                
+                H_BecomeDelegateFrame *frame = self.becomeArray[indexPath.row];
+                
+                return frame.height;
+                
+            }
             
         }else if (selectIndex == 2) {
             
-            H_TuiJianFrame *frame = self.tuijianArray[indexPath.row];
-            
-            return frame.height;
+            if (self.tuijianArray.count == 0) {
+                
+                HL_NoDataCell *cell = [[HL_NoDataCell alloc] init];
+                
+                return cell.height;
+                
+            }else {
+                
+                H_TuiJianFrame *frame = self.tuijianArray[indexPath.row];
+                
+                return frame.height;
+                
+            }
             
         }else if (selectIndex == 3) {
             
@@ -1300,10 +1405,20 @@
                 
             }else {
                 
-                H_MyTeamFrame *frame = self.myteamArray[indexPath.row - 1];
-                
-                return frame.height;
-                
+                if (self.myteamArray.count == 0) {
+                    
+                    HL_NoDataCell *cell = [[HL_NoDataCell alloc] init];
+                    
+                    return cell.height;
+                    
+                }else {
+                    
+                    H_MyTeamFrame *frame = self.myteamArray[indexPath.row - 1];
+                    
+                    return frame.height;
+                    
+                }
+
             }
             
         }else if (selectIndex == 4) {
@@ -1316,9 +1431,19 @@
                 
             }else {
                 
-                H_MyMoneyFrame *frame = self.mymoneyArray[indexPath.row - 1];
-                
-                return frame.height;
+                if (self.mymoneyArray.count == 0) {
+                    
+                    HL_NoDataCell *cell = [[HL_NoDataCell alloc] init];
+                    
+                    return cell.height;
+                    
+                }else {
+                    
+                    H_MyMoneyFrame *frame = self.mymoneyArray[indexPath.row - 1];
+                    
+                    return frame.height;
+                    
+                }
                 
             }
             

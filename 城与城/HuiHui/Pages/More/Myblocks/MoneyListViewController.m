@@ -47,7 +47,9 @@
     
     [self initWithTableview];
     
-    m_pageIndex = 1;recordType = @"All";
+    m_pageIndex = 1;
+    
+    recordType = @"All";
     
     [self loadAllDataWithPageIndex:m_pageIndex];
 

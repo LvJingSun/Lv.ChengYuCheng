@@ -110,7 +110,7 @@
         
         self.shouyiLab = member;
         
-        member.text = @"会员人数";
+        member.text = @"总收益";
         
         member.textColor = [UIColor whiteColor];
         
@@ -180,31 +180,32 @@
     
     self.oneView.title = model.title1;
     
-    self.oneView.content = model.content1;
+    self.oneView.content = [NSString stringWithFormat:@"%@人",model.content1];
     
     self.twoView.title = model.title2;
     
-    self.twoView.content = model.content2;
+    self.twoView.content = [NSString stringWithFormat:@"%@人",model.content2];
     
     self.threeView.title = model.title3;
     
-    self.threeView.content = model.content3;
+    self.threeView.content = [NSString stringWithFormat:@"%@人",model.content3];
     
     self.fourView.title = model.title4;
     
-    self.fourView.content = model.content4;
+    self.fourView.content = [NSString stringWithFormat:@"%@人",model.content4];
     
 }
 
 - (void)awakeFromNib {
+    
     [super awakeFromNib];
-    // Initialization code
+
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    
     [super setSelected:selected animated:animated];
 
-    // Configure the view for the selected state
 }
 
 @end

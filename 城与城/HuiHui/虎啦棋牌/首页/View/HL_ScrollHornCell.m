@@ -53,7 +53,7 @@
         
         self.hornImg = hornimg;
         
-        hornimg.backgroundColor = [UIColor lightGrayColor];
+//        hornimg.backgroundColor = [UIColor lightGrayColor];
         
         [self addSubview:hornimg];
         
@@ -99,7 +99,7 @@
     
     HL_ScrollHornModel *model = self.frameModel.scrollHornModel;
     
-    [self.hornImg setImageWithURL:[NSURL URLWithString:model.hornImgUrl]];
+    self.hornImg.image = [UIImage imageNamed:model.hornImgUrl];
     
     self.textView.model = model.hornTextArray[0];
     

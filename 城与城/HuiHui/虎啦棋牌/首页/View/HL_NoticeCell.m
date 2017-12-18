@@ -111,7 +111,7 @@
         
         self.img = img;
         
-        img.backgroundColor = [UIColor lightGrayColor];
+//        img.backgroundColor = [UIColor lightGrayColor];
         
         [self addSubview:img];
         
@@ -169,7 +169,7 @@
     
     self.notice2Lab.text = model.notice2;
     
-    [self.img setImageWithURL:[NSURL URLWithString:model.imgUrl]];
+    self.img.image = [UIImage imageNamed:model.imgUrl];
     
     [self.notice1Btn addTarget:self action:@selector(notice1Click) forControlEvents:UIControlEventTouchUpInside];
     

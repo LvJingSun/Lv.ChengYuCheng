@@ -10,6 +10,10 @@
 
 @interface HL_GameDownLoadModel : NSObject
 
+@property (nonatomic, copy) NSString *ID;
+
+@property (nonatomic, copy) NSString *downloadAddress;
+
 @property (nonatomic, copy) NSString *iconUrl;
 
 @property (nonatomic, copy) NSString *gameName;

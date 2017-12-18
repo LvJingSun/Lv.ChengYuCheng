@@ -20,13 +20,13 @@
     
     CGFloat imgY = 5;
     
-    CGFloat imgW = 30;
+    CGFloat imgH = 30;
     
-    CGFloat imgH = imgW;
+    CGFloat imgW = imgH * 1.5;
     
     _hornImgF = CGRectMake(imgX, imgY, imgW, imgH);
     
-    CGFloat hornViewX = CGRectGetMaxX(_hornImgF) + imgX;
+    CGFloat hornViewX = CGRectGetMaxX(_hornImgF) + imgX * 0.5;
     
     CGFloat hornViewY = imgY;
     

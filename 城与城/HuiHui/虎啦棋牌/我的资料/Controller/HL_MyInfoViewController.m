@@ -13,6 +13,7 @@
 #import "HL_MyInfoFrame.h"
 #import "HL_MyInfoCell.h"
 #import "GameTranViewController.h"
+#import "HL_PromoterViewController.h"
 
 @interface HL_MyInfoViewController ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -56,7 +57,7 @@
         
         if ([[json valueForKey:@"status"] boolValue]) {
             
-            self.headview.type = @"1";
+            self.headview.type = [NSString stringWithFormat:@"%@",[json valueForKey:@"isBindGame"]];
             
             [self.headview.iconImg setImageWithURL:[NSURL URLWithString:[json valueForKey:@"headPic"]]];
             
@@ -140,6 +141,8 @@
             
             model6.title = @"APP下载";
             
+            model6.url = [NSString stringWithFormat:@"%@",[json valueForKey:@"downloadAddress"]];
+            
             HL_MyInfoFrame *frame6 = [[HL_MyInfoFrame alloc] init];
             
             frame6.infoModel = model6;
@@ -155,6 +158,16 @@
             frame7.infoModel = model7;
             
             [mut addObject:frame7];
+            
+            HL_MyInfoModel *model8 = [[HL_MyInfoModel alloc] init];
+            
+            model8.title = @"查看推广会员";
+            
+            HL_MyInfoFrame *frame8 = [[HL_MyInfoFrame alloc] init];
+            
+            frame8.infoModel = model8;
+            
+            [mut addObject:frame8];
             
             self.dataArray = mut;
             
@@ -236,6 +249,20 @@
         
         //账户流水
         GameTranViewController *vc = [[GameTranViewController alloc] init];
+        
+        [self.navigationController pushViewController:vc animated:YES];
+        
+    }else if (indexPath.row == 5) {
+        
+        //APP下载
+        HL_MyInfoFrame *frame = self.dataArray[indexPath.row];
+        
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:frame.infoModel.url]];
+        
+    }else if (indexPath.row == 7) {
+        
+        //推广员
+        HL_PromoterViewController *vc = [[HL_PromoterViewController alloc] init];
         
         [self.navigationController pushViewController:vc animated:YES];
         

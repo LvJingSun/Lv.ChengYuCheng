@@ -197,7 +197,31 @@
     
     UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth * 0.35, self.frameModel.countF.size.height)];
     
-    title.text = @"充值元宝:";
+    if ([self.frameModel.tranmodel.viewType isEqualToString:@"3"]) {
+        
+        if ([self.frameModel.tranmodel.rechargeType isEqualToString:@"1"]) {
+            
+            title.text = @"赠送元宝:";
+            
+        }else if ([self.frameModel.tranmodel.rechargeType isEqualToString:@"2"]) {
+            
+            title.text = @"赠送房卡:";
+            
+        }
+        
+    }else {
+        
+        if ([self.frameModel.tranmodel.rechargeType isEqualToString:@"1"]) {
+            
+            title.text = @"充值元宝:";
+            
+        }else if ([self.frameModel.tranmodel.rechargeType isEqualToString:@"2"]) {
+            
+            title.text = @"充值房卡:";
+            
+        }
+        
+    }
     
     title.textAlignment = NSTextAlignmentCenter;
     
@@ -287,7 +311,15 @@
     
     [self.sureBtn setBackgroundColor:FSB_StyleCOLOR];
     
-    [self.sureBtn setTitle:@"确认充值" forState:0];
+    if ([model.viewType isEqualToString:@"3"]) {
+        
+        [self.sureBtn setTitle:@"确认赠送" forState:0];
+        
+    }else {
+        
+        [self.sureBtn setTitle:@"确认充值" forState:0];
+        
+    }
     
     [self.sureBtn setTitleColor:[UIColor whiteColor] forState:0];
     

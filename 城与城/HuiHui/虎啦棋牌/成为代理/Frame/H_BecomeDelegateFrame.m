@@ -40,7 +40,7 @@
     
     CGFloat originalH = 15;
     
-    CGSize size = [self sizeWithText:model.OriginalPrice font:[UIFont systemFontOfSize:13] maxSize:CGSizeMake(0, originalH)];
+    CGSize size = [self sizeWithText:[NSString stringWithFormat:@"%@/年",model.OriginalPrice] font:[UIFont systemFontOfSize:13] maxSize:CGSizeMake(0, originalH)];
     
     CGFloat originalX = priceX + (priceW - size.width) * 0.5;
     

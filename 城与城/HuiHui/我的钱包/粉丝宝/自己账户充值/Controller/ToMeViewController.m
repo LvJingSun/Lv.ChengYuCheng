@@ -54,6 +54,8 @@
         
         model.notice = @"联城账户余额转到游戏账户不收取手续费";
         
+        model.viewType = self.viewType;
+        
         GameRechargeFrame *frame = [[GameRechargeFrame alloc] init];
         
         frame.tranmodel = model;
@@ -73,8 +75,20 @@
 - (void)viewDidLoad {
     
     [super viewDidLoad];
-
-    [self setTitle:@"棋牌游戏充值"];
+    
+    if ([self.viewType isEqualToString:@"1"]) {
+        
+        [self setTitle:@"棋牌游戏充值"];
+        
+    }else if ([self.viewType isEqualToString:@"2"]) {
+        
+        [self setTitle:@"给他人充值"];
+        
+    }else if ([self.viewType isEqualToString:@"3"]) {
+        
+        [self setTitle:@"赠送"];
+        
+    }
     
     [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
     
@@ -88,41 +102,42 @@
     
     if (![self isNULLString:self.gameID]) {
         
-        NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             self.gameID,@"gameid",
-                             nil];
-        
-        AppHttpClient *httpclient = [AppHttpClient sharedHuLa];
-        
-        [httpclient HuLarequest:@"Bind_TestingNickName.ashx" parameters:dic success:^(NSJSONSerialization *json) {
-            
-            [SVProgressHUD dismiss];
-            
-            BOOL success = [[json valueForKey:@"status"] boolValue];
-            
-            if (success) {
-                
-                GameRechargeFrame *frame = self.dataArray[0];
-                
-                frame.tranmodel.qipaiNick = [NSString stringWithFormat:@"%@",[json valueForKey:@"NickName"]];
-                
-                frame.tranmodel.viewType = @"1";
-                
-                [self.tableview reloadData];
-                
-            }else {
-                
-                
-                
-            }
-            
-        } failure:^(NSError *error) {
-            
-            
-            
-        }];
+        [self requestForMyNick];
         
     }
+    
+}
+
+//给自己充值，检测游戏昵称
+- (void)requestForMyNick {
+    
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         self.gameID,@"gameid",
+                         nil];
+    
+    AppHttpClient *httpclient = [AppHttpClient sharedHuLa];
+    
+    [httpclient HuLarequest:@"Bind_TestingNickName.ashx" parameters:dic success:^(NSJSONSerialization *json) {
+        
+        [SVProgressHUD dismiss];
+        
+        BOOL success = [[json valueForKey:@"status"] boolValue];
+        
+        if (success) {
+            
+            GameRechargeFrame *frame = self.dataArray[0];
+            
+            frame.tranmodel.qipaiNick = [NSString stringWithFormat:@"%@",[json valueForKey:@"NickName"]];
+            
+            [self.tableview reloadData];
+            
+        }else {
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+    }];
     
 }
 

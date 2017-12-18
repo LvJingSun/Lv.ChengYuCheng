@@ -71,7 +71,7 @@
                         
                         GameTranModel *model = [[GameTranModel alloc] init];
                         
-                        model.type = [NSString stringWithFormat:@"%@",dic[@"rechargeType"]];
+                        model.rechargeType = [NSString stringWithFormat:@"%@",dic[@"rechargeType"]];
                         
                         model.count = [NSString stringWithFormat:@"%@",dic[@"rechargeAmount"]];
                         
@@ -80,6 +80,10 @@
                         model.recordID = [NSString stringWithFormat:@"%@",dic[@"rechargeRecordId"]];
                         
                         model.remark = [NSString stringWithFormat:@"%@",dic[@"remark"]];
+                        
+                        model.type = [NSString stringWithFormat:@"%@",dic[@"type"]];
+                        
+                        model.typeName = [NSString stringWithFormat:@"%@",dic[@"rechargeTypeName"]];
                         
                         GameTranFrame *frame = [[GameTranFrame alloc] init];
                         
@@ -107,7 +111,7 @@
                         
                         GameTranModel *model = [[GameTranModel alloc] init];
                         
-                        model.type = [NSString stringWithFormat:@"%@",dic[@"rechargeType"]];
+                        model.rechargeType = [NSString stringWithFormat:@"%@",dic[@"rechargeType"]];
                         
                         model.count = [NSString stringWithFormat:@"%@",dic[@"rechargeAmount"]];
                         
@@ -116,6 +120,10 @@
                         model.recordID = [NSString stringWithFormat:@"%@",dic[@"rechargeRecordId"]];
                         
                         model.remark = [NSString stringWithFormat:@"%@",dic[@"remark"]];
+                        
+                        model.type = [NSString stringWithFormat:@"%@",dic[@"type"]];
+                        
+                        model.typeName = [NSString stringWithFormat:@"%@",dic[@"rechargeTypeName"]];
                         
                         GameTranFrame *frame = [[GameTranFrame alloc] init];
                         

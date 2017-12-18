@@ -16,4 +16,6 @@
 
 @property (nonatomic, copy) NSString *type; //0-橙色 1-黑色
 
+@property (nonatomic, copy) NSString *url;
+
 @end
