@@ -38,7 +38,7 @@
 
 #import "HH_menuToHomeViewController.h"
 
-
+#import "HL_PromoterViewController.h"
 @interface MLNavigationController ()
 {
     CGPoint startTouch;
@@ -116,7 +116,6 @@
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 // override the push method
@@ -138,7 +137,7 @@
     viewController.hidesBottomBarWhenPushed = YES;
     
     // 判断如果是地图页面的话删除手势
-    if ([viewController isKindOfClass:[MapViewController class]] || [viewController isKindOfClass:[BBMapViewController class]]|| [viewController isKindOfClass:[CtripHBMapViewController class]] || [viewController isKindOfClass:[DPbuyViewController class]] || [viewController isKindOfClass:[SceneryMapViewController class]] || [viewController isKindOfClass:[SceneryOrderformViewController class]] || [viewController isKindOfClass:[TrainwebViewController class]] || [viewController isKindOfClass:[Fl_webViewController class]] || [viewController isKindOfClass:[Sec_webViewController class]] || [viewController isKindOfClass:[Hotel_webViewController class]] || [viewController isKindOfClass:[HH_menuToHomeViewController class]]) {
+    if ([viewController isKindOfClass:[MapViewController class]] || [viewController isKindOfClass:[BBMapViewController class]]|| [viewController isKindOfClass:[CtripHBMapViewController class]] || [viewController isKindOfClass:[DPbuyViewController class]] || [viewController isKindOfClass:[SceneryMapViewController class]] || [viewController isKindOfClass:[SceneryOrderformViewController class]] || [viewController isKindOfClass:[TrainwebViewController class]] || [viewController isKindOfClass:[Fl_webViewController class]] || [viewController isKindOfClass:[Sec_webViewController class]] || [viewController isKindOfClass:[Hotel_webViewController class]] || [viewController isKindOfClass:[HH_menuToHomeViewController class]] || [viewController isKindOfClass:[HL_PromoterViewController class]]) {
         
         self.isMoveGesture = NO;
         

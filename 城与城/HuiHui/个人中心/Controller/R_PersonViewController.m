@@ -32,6 +32,8 @@
 #import "New_MyWalletViewController.h"
 #import "PersonalViewController.h"
 
+#import "GameCenterHomeNewViewController.h"
+
 @interface R_PersonViewController () <UITableViewDelegate,UITableViewDataSource>
 
 @property (nonatomic, weak) UITableView *tableview;
@@ -62,19 +64,19 @@
         
         frame1.personModel = model1;
         
-        R_PersonModel *model3 = [[R_PersonModel alloc] init];
-        
-        model3.title = @"虎啦棋牌";
-        
-        model3.iconUrl = @"P_虎啦";
-        
-        R_PersonFrame *frame3 = [[R_PersonFrame alloc] init];
-        
-        frame3.personModel = model3;
+//        R_PersonModel *model3 = [[R_PersonModel alloc] init];
+//
+//        model3.title = @"虎啦棋牌";
+//
+//        model3.iconUrl = @"P_虎啦";
+//
+//        R_PersonFrame *frame3 = [[R_PersonFrame alloc] init];
+//
+//        frame3.personModel = model3;
         
         R_PersonModel *model4 = [[R_PersonModel alloc] init];
         
-        model4.title = @"联城小游戏";
+        model4.title = @"游戏大厅";
         
         model4.iconUrl = @"P_联城游戏";
         
@@ -86,7 +88,7 @@
         
         [mut addObject:frame1];
         
-        [mut addObject:frame3];
+//        [mut addObject:frame3];
         
         [mut addObject:frame4];
         
@@ -366,19 +368,16 @@
             
         }else if (indexPath.row == 1) {
             
-            //虎啦棋牌
-            HuLa_HomeViewController *vc = [[HuLa_HomeViewController alloc] init];
+            //小游戏
+//            FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//
+//            FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+//
+//            [self presentViewController:gameNav animated:YES completion:nil];
+            
+            GameCenterHomeNewViewController *vc = [[GameCenterHomeNewViewController alloc] init];
             
             [self.navigationController pushViewController:vc animated:YES];
-            
-        }else if (indexPath.row == 2) {
-            
-            //小游戏
-            FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
-            
-            FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
-            
-            [self presentViewController:gameNav animated:YES completion:nil];
             
         }
         

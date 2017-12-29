@@ -17,7 +17,7 @@
 
 @property (nonatomic, assign) CGRect countF;
 
-@property (nonatomic, assign) CGRect statusF;
+//@property (nonatomic, assign) CGRect statusF;
 
 @property (nonatomic, assign) CGRect sourceF;
 

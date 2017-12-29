@@ -16,13 +16,13 @@
 
 @property (nonatomic, weak) UILabel *IDLab;
 
-@property (nonatomic, weak) UIButton *bingBtn;
-
-@property (nonatomic, weak) UILabel *roomcard;
-
-@property (nonatomic, weak) UILabel *yuanbao;
-
-@property (nonatomic, copy) NSString *type; //0-未绑定 1-已绑定
+//@property (nonatomic, weak) UIButton *bingBtn;
+//
+//@property (nonatomic, weak) UILabel *roomcard;
+//
+//@property (nonatomic, weak) UILabel *yuanbao;
+//
+//@property (nonatomic, copy) NSString *type; //0-未绑定 1-已绑定
 
 @property (nonatomic, assign) CGFloat height;
 

@@ -17,14 +17,15 @@
 #import "RH_HomeViewController.h"
 #import "RH_NavViewController.h"
 #import "RH_NoMemberShipViewController.h"
-#import "FSB_GameViewController.h"
-#import "FSB_GameNAVController.h"
+//#import "FSB_GameViewController.h"
+//#import "FSB_GameNAVController.h"
 #import "TrainwebViewController.h"
 #import "Fl_webViewController.h"
 #import "Hotel_webViewController.h"
 #import "Sec_webViewController.h"
 #import "FSB_NewHomeViewController.h"
 #import "GreenLifeViewController.h"
+#import "GameCenterHomeNewViewController.h"
 
 @interface Home_FenLeiViewController ()<UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UICollectionViewDelegate>
 
@@ -252,11 +253,15 @@ static NSString *const footerId = @"footerId";
         }else if ([frame.fenleiModel.Type isEqualToString:@"5"]) {
             
             //游戏
-            FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//            FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//
+//            FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+//
+//            [self presentViewController:gameNav animated:YES completion:nil];
             
-            FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+            GameCenterHomeNewViewController *vc = [[GameCenterHomeNewViewController alloc] init];
             
-            [self presentViewController:gameNav animated:YES completion:nil];
+            [self.navigationController pushViewController:vc animated:YES];
             
         }else if ([frame.fenleiModel.Type isEqualToString:@"6"]) {
             
@@ -345,11 +350,15 @@ static NSString *const footerId = @"footerId";
         }else if ([frame.fenleiModel.Type isEqualToString:@"5"]) {
             
             //游戏
-            FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//            FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//
+//            FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+//
+//            [self presentViewController:gameNav animated:YES completion:nil];
             
-            FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+            GameCenterHomeNewViewController *vc = [[GameCenterHomeNewViewController alloc] init];
             
-            [self presentViewController:gameNav animated:YES completion:nil];
+            [self.navigationController pushViewController:vc animated:YES];
             
         }else if ([frame.fenleiModel.Type isEqualToString:@"6"]) {
             

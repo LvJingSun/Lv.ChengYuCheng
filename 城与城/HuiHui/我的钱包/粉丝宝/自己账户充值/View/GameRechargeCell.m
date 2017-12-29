@@ -15,19 +15,19 @@
 
 @interface GameRechargeCell ()
 
-@property (nonatomic, weak) UILabel *nickLab;
+
 
 @property (nonatomic, weak) UIButton *qipaiNoticeBtn;
 
-@property (nonatomic, weak) RH_RadioView *YB_View;
-
-@property (nonatomic, weak) RH_RadioView *FK_View;
+//@property (nonatomic, weak) RH_RadioView *YB_View;
+//
+//@property (nonatomic, weak) RH_RadioView *FK_View;
 
 @property (nonatomic, weak) UITextField *countField;
 
 @property (nonatomic, weak) UIButton *sureBtn;
 
-@property (nonatomic, weak) UILabel *noticeLab;
+
 
 @end
 
@@ -85,7 +85,7 @@
         
         self.qipaiNoticeBtn = IDbtn;
         
-        [IDbtn setTitle:@"虎啦棋牌ID获取???" forState:0];
+        [IDbtn setTitle:@"游戏ID获取???" forState:0];
         
         [IDbtn addTarget:self action:@selector(noticeClick) forControlEvents:UIControlEventTouchUpInside];
         
@@ -165,7 +165,7 @@
     
     UILabel *IDtitle = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth * 0.35, self.frameModel.qipaiIDF.size.height)];
     
-    IDtitle.text = @"输入棋牌ID";
+    IDtitle.text = @"输入游戏ID";
     
     IDtitle.textAlignment = NSTextAlignmentCenter;
     
@@ -181,47 +181,11 @@
     
     self.qipaiNoticeBtn.frame = self.frameModel.qipaiNoticeF;
     
-    RH_RadioView *ybview = [[RH_RadioView alloc] initWithFrame:self.frameModel.YBF];
-    
-    self.YB_View = ybview;
-    
-    [self addSubview:ybview];
-    
-    RH_RadioView *fkview = [[RH_RadioView alloc] initWithFrame:self.frameModel.FKF];
-    
-    self.FK_View = fkview;
-    
-    [self addSubview:fkview];
-    
     self.countField.frame = self.frameModel.countF;
     
     UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth * 0.35, self.frameModel.countF.size.height)];
     
-    if ([self.frameModel.tranmodel.viewType isEqualToString:@"3"]) {
-        
-        if ([self.frameModel.tranmodel.rechargeType isEqualToString:@"1"]) {
-            
-            title.text = @"赠送元宝:";
-            
-        }else if ([self.frameModel.tranmodel.rechargeType isEqualToString:@"2"]) {
-            
-            title.text = @"赠送房卡:";
-            
-        }
-        
-    }else {
-        
-        if ([self.frameModel.tranmodel.rechargeType isEqualToString:@"1"]) {
-            
-            title.text = @"充值元宝:";
-            
-        }else if ([self.frameModel.tranmodel.rechargeType isEqualToString:@"2"]) {
-            
-            title.text = @"充值房卡:";
-            
-        }
-        
-    }
+    title.text = [NSString stringWithFormat:@"赠送%@",self.frameModel.tranmodel.rechargeType];
     
     title.textAlignment = NSTextAlignmentCenter;
     
@@ -269,28 +233,6 @@
         
     }
     
-    self.YB_View.title.text = @"元宝";
-    
-    self.FK_View.title.text = @"房卡";
-    
-    if ([model.rechargeType isEqualToString:@"1"]) {
-        
-        [self.YB_View.btn setImage:[UIImage imageNamed:@"checkblueyes.png"] forState:0];
-        
-        [self.FK_View.btn setImage:[UIImage imageNamed:@"checkblueno.png"] forState:0];
-        
-    }else if ([model.rechargeType isEqualToString:@"2"]) {
-        
-        [self.YB_View.btn setImage:[UIImage imageNamed:@"checkblueno.png"] forState:0];
-        
-        [self.FK_View.btn setImage:[UIImage imageNamed:@"checkblueyes.png"] forState:0];
-        
-    }
-    
-    [self.YB_View.btn addTarget:self action:@selector(ybClick) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.FK_View.btn addTarget:self action:@selector(fkClick) forControlEvents:UIControlEventTouchUpInside];
-    
     if (![self isNULLString:model.xiane]) {
         
         self.countField.placeholder = [NSString stringWithFormat:@"本次最多可充值%.2f元",[model.xiane floatValue]];
@@ -322,26 +264,6 @@
     }
     
     [self.sureBtn setTitleColor:[UIColor whiteColor] forState:0];
-    
-}
-
-- (void)ybClick {
-    
-    if (self.ybBlock) {
-        
-        self.ybBlock();
-        
-    }
-    
-}
-
-- (void)fkClick {
-    
-    if (self.fkBlock) {
-        
-        self.fkBlock();
-        
-    }
     
 }
 

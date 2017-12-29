@@ -13,6 +13,8 @@
 #import "HL_DelegateOrderCell.h"
 #import "HL_PayMoneyView.h"
 #import <AlipaySDK/AlipaySDK.h>
+#import "WXApiObject.h"
+#import "WXApi.h"
 
 @interface HL_DelegateOrderViewController () <UITableViewDelegate,UITableViewDataSource>
 
@@ -55,6 +57,9 @@
     self.title = @"确认订单";
     
     [self allocWithTableview];
+    
+    // 添加微信支付成功的通知
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(weixinpaySuccess) name:@"MenuPaySuccessKey" object:nil];
     
 }
 
@@ -103,6 +108,7 @@
     }else if ([frame.orderModel.payType isEqualToString:@"2"]) {
         
         //微信支付
+        [self creatWX_Order];
         
     }else if ([frame.orderModel.payType isEqualToString:@"3"]) {
         
@@ -110,6 +116,67 @@
         [self payByCYC];
         
     }
+    
+}
+
+//请求微信拼接字符串
+- (void)creatWX_Order {
+    
+    HL_DelegateOrderFrame *frame = self.orderInfoArray[0];
+    
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         [CommonUtil getValueByKey:MEMBER_ID],@"memberId",
+                         frame.orderModel.OrderID,@"orderNumber",
+                         nil];
+    
+    [SVProgressHUD show];
+    
+    AppHttpClient *http = [AppHttpClient sharedHuLa];
+    
+    [http HuLarequest:@"Agent/Pay_WeChatPay.ashx" parameters:dic success:^(NSJSONSerialization *json) {
+        
+        if ([[NSString stringWithFormat:@"%@",[json valueForKey:@"status"]] boolValue]) {
+            
+            [SVProgressHUD dismiss];
+            
+            NSDictionary *dd = [json valueForKey:@"strJson"];
+            
+            PayReq *req = [[PayReq alloc] init];
+            
+            req.openID = [NSString stringWithFormat:@"%@",dd[@"appId"]];
+            
+            req.partnerId = [NSString stringWithFormat:@"%@",dd[@"paternerId"]];
+            
+            req.prepayId = [NSString stringWithFormat:@"%@",dd[@"prepayId"]];
+            
+            req.nonceStr = [NSString stringWithFormat:@"%@",dd[@"nonceStr"]];
+            
+            req.timeStamp = [[NSString stringWithFormat:@"%@",dd[@"timeStamp"]] intValue];
+            
+            req.package = [NSString stringWithFormat:@"%@",dd[@"package"]];
+            
+            req.sign = [NSString stringWithFormat:@"%@",dd[@"sign"]];
+            
+            [WXApi sendReq:req];
+            
+        }else {
+            
+            [SVProgressHUD showErrorWithStatus:[NSString stringWithFormat:@"%@",[json valueForKey:@"msg"]]];
+            
+        }
+        
+    } failure:^(NSError *error) {
+        
+        [SVProgressHUD showErrorWithStatus:@"生成微信订单失败，请稍后再试！"];
+        
+    }];
+    
+}
+
+//微信支付成功回调
+- (void)weixinpaySuccess {
+    
+    [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
     
 }
 
@@ -165,7 +232,7 @@
             //支付成功
             [SVProgressHUD showSuccessWithStatus:@"充值成功"];
             
-            [self.navigationController popViewControllerAnimated:YES];
+            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
             
         }else if ([code isEqualToString:@"4000"]) {
             
@@ -193,7 +260,7 @@
             //订单处理中
             [SVProgressHUD showSuccessWithStatus:@"订单处理中"];
             
-            [self.navigationController popViewControllerAnimated:YES];
+            [self.navigationController popToViewController:[self.navigationController.viewControllers objectAtIndex:1] animated:YES];
             
         }else {
             

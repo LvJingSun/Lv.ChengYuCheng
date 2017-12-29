@@ -30,31 +30,27 @@
     
     _IDF = CGRectMake(CGRectGetMaxX(_nameF), nameY, nameW, nameH);
     
-    CGSize countSize = [self sizeWithText:model.count font:[UIFont systemFontOfSize:15] maxSize:CGSizeMake(0, nameH)];
+//    CGSize countSize = [self sizeWithText:model.count font:[UIFont systemFontOfSize:15] maxSize:CGSizeMake(0, nameH)];
     
-    CGFloat countX = _WindowViewWidth * 0.5;
+    CGFloat countX = CGRectGetMaxX(_IDF);
     
-    CGFloat countW = countSize.width;
+    _countF = CGRectMake(countX, nameY, nameW, nameH);
     
-    _countF = CGRectMake(countX, nameY, countW, nameH);
+//    CGSize statusSize = [self sizeWithText:@"已提取" font:[UIFont systemFontOfSize:14] maxSize:CGSizeMake(0, 25)];
+//
+//    CGFloat statusX = CGRectGetMaxX(_countF) + 5;
+//
+//    CGFloat statusY = 7.5;
+//
+//    CGFloat statusW = statusSize.width;
+//
+//    CGFloat statusH = 25;
+//
+//    _statusF = CGRectMake(statusX, statusY, statusW, statusH);
     
-    CGSize statusSize = [self sizeWithText:@"已提取" font:[UIFont systemFontOfSize:14] maxSize:CGSizeMake(0, 25)];
+    CGFloat sourceX = CGRectGetMaxX(_countF);
     
-    CGFloat statusX = CGRectGetMaxX(_countF) + 5;
-    
-    CGFloat statusY = 7.5;
-    
-    CGFloat statusW = statusSize.width;
-    
-    CGFloat statusH = 25;
-    
-    _statusF = CGRectMake(statusX, statusY, statusW, statusH);
-    
-    CGFloat sourceX = _WindowViewWidth * 0.8;
-    
-    CGFloat sourceW = _WindowViewWidth * 0.2;
-    
-    _sourceF = CGRectMake(sourceX, nameY, sourceW, nameH);
+    _sourceF = CGRectMake(sourceX, nameY, nameW, nameH);
     
     _lineF = CGRectMake(0, CGRectGetMaxY(_nameF), _WindowViewWidth, 1);
     

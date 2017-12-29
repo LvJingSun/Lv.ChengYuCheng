@@ -23,6 +23,10 @@
 
 @property (nonatomic, weak) UITextField *qipaiIDField;
 
+@property (nonatomic, weak) UILabel *noticeLab;
+
+@property (nonatomic, weak) UILabel *nickLab;
+
 @property (nonatomic, strong) GameRechargeFrame *frameModel;
 
 @property (nonatomic, strong) id<GameRechargeDelegate> delegate;
@@ -31,8 +35,8 @@
 
 @property (nonatomic, copy) dispatch_block_t noticeBlock;
 
-@property (nonatomic, copy) dispatch_block_t ybBlock;
-
-@property (nonatomic, copy) dispatch_block_t fkBlock;
+//@property (nonatomic, copy) dispatch_block_t ybBlock;
+//
+//@property (nonatomic, copy) dispatch_block_t fkBlock;
 
 @end

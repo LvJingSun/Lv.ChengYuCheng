@@ -712,6 +712,8 @@
                            key,   @"key",
                            [NSString stringWithFormat:@"%ld", (long)pageIndex],@"pageIndex",
                            nil];
+    NSLog(@"++++%@",param);
+    
     [SVProgressHUD showWithStatus:@"数据加载中"];
     [httpClient request:@"MemberWithdrawalsRecord_1.ashx" parameters:param success:^(NSJSONSerialization* json) {
         BOOL success = [[json valueForKey:@"status"] boolValue];

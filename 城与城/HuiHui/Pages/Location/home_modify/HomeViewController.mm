@@ -76,8 +76,9 @@
 
 #import "GameWebViewController.h"
 
-#import "FSB_GameNAVController.h"
-#import "FSB_GameViewController.h"
+//#import "FSB_GameNAVController.h"
+//#import "FSB_GameViewController.h"
+#import "GameCenterHomeNewViewController.h"
 
 #import "AboutmeViewController.h"
 
@@ -1189,11 +1190,15 @@ static const CGFloat kDefaultPlayLocationInterval = 600.0;
         
         //游戏大厅
         //游戏
-        FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//        FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//
+//        FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+//
+//        [self presentViewController:gameNav animated:YES completion:nil];
         
-        FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+        GameCenterHomeNewViewController *vc = [[GameCenterHomeNewViewController alloc] init];
         
-        [self presentViewController:gameNav animated:YES completion:nil];
+        [self.navigationController pushViewController:vc animated:YES];
         
     }else if ([type isEqualToString:@"6"]) {
         
@@ -1492,11 +1497,15 @@ static const CGFloat kDefaultPlayLocationInterval = 600.0;
                 }else if ([frame.pushmodel.ClassifyType isEqualToString:@"0"]) {
                     
                     //进入游戏大厅
-                    FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//                    FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//
+//                    FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+//
+//                    [self presentViewController:gameNav animated:YES completion:nil];
                     
-                    FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+                    GameCenterHomeNewViewController *vc = [[GameCenterHomeNewViewController alloc] init];
                     
-                    [self presentViewController:gameNav animated:YES completion:nil];
+                    [self.navigationController pushViewController:vc animated:YES];
                     
                 }
                 
@@ -1525,11 +1534,15 @@ static const CGFloat kDefaultPlayLocationInterval = 600.0;
                 }else if ([frame.pushmodel.ClassifyType isEqualToString:@"2"]) {
                     
                     //进入游戏大厅
-                    FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//                    FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//
+//                    FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+//
+//                    [self presentViewController:gameNav animated:YES completion:nil];
                     
-                    FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+                    GameCenterHomeNewViewController *vc = [[GameCenterHomeNewViewController alloc] init];
                     
-                    [self presentViewController:gameNav animated:YES completion:nil];
+                    [self.navigationController pushViewController:vc animated:YES];
                     
                 }
                 
@@ -1699,11 +1712,15 @@ static const CGFloat kDefaultPlayLocationInterval = 600.0;
             
             //跳游戏
             //进入游戏大厅
-            FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//            FSB_GameViewController *vc = [[FSB_GameViewController alloc] init];
+//
+//            FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+//
+//            [self presentViewController:gameNav animated:YES completion:nil];
             
-            FSB_GameNAVController *gameNav = [[FSB_GameNAVController alloc] initWithRootViewController:vc];
+            GameCenterHomeNewViewController *vc = [[GameCenterHomeNewViewController alloc] init];
             
-            [self presentViewController:gameNav animated:YES completion:nil];
+            [self.navigationController pushViewController:vc animated:YES];
             
         }
         

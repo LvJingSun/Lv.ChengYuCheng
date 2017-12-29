@@ -176,23 +176,87 @@
 
 - (void)setContent {
     
-    H_MyTeamHeadModel *model = self.frameModel.headModel;
+//    H_MyTeamHeadModel *model = self.frameModel.headModel;
+//    
+//    self.oneView.title = model.title1;
+//    
+//    self.oneView.content = [NSString stringWithFormat:@"%@人",model.content1];
+//    
+//    self.oneView.clickBlock = ^{
+//        
+//        [self oneClick];
+//        
+//    };
+//    
+//    self.twoView.title = model.title2;
+//    
+//    self.twoView.content = [NSString stringWithFormat:@"%@人",model.content2];
+//    
+//    self.twoView.clickBlock = ^{
+//        
+//        [self twoClick];
+//        
+//    };
+//    
+//    self.threeView.title = model.title3;
+//    
+//    self.threeView.content = [NSString stringWithFormat:@"%@人",model.content3];
+//    
+//    self.threeView.clickBlock = ^{
+//        
+//        [self threeClick];
+//        
+//    };
+//    
+//    self.fourView.title = model.title4;
+//    
+//    self.fourView.content = [NSString stringWithFormat:@"%@人",model.content4];
+//    
+//    self.fourView.clickBlock = ^{
+//        
+//        [self fourClick];
+//        
+//    };
     
-    self.oneView.title = model.title1;
+}
+
+- (void)oneClick {
     
-    self.oneView.content = [NSString stringWithFormat:@"%@人",model.content1];
+    if (self.oneBlock) {
+        
+        self.oneBlock();
+        
+    }
     
-    self.twoView.title = model.title2;
+}
+
+- (void)twoClick {
     
-    self.twoView.content = [NSString stringWithFormat:@"%@人",model.content2];
+    if (self.twoBlock) {
+        
+        self.twoBlock();
+        
+    }
     
-    self.threeView.title = model.title3;
+}
+
+- (void)threeClick {
     
-    self.threeView.content = [NSString stringWithFormat:@"%@人",model.content3];
+    if (self.threeBlock) {
+        
+        self.threeBlock();
+        
+    }
     
-    self.fourView.title = model.title4;
+}
+
+- (void)fourClick {
     
-    self.fourView.content = [NSString stringWithFormat:@"%@人",model.content4];
+    if (self.fourBlock) {
+        
+        self.fourBlock();
+        
+    }
     
 }
 

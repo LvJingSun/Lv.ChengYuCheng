@@ -25,9 +25,7 @@
 
 @property (nonatomic, weak) UIImageView *img;
 
-@property (nonatomic, weak) UIButton *notice1Btn;
-
-@property (nonatomic, weak) UIButton *notice2Btn;
+@property (nonatomic, weak) UIButton *clickBtn;
 
 @end
 
@@ -85,12 +83,6 @@
         
         [self addSubview:notice1];
         
-        UIButton *notice1Btn = [[UIButton alloc] init];
-        
-        self.notice1Btn = notice1Btn;
-        
-        [self addSubview:notice1Btn];
-        
         UILabel *notice2 = [[UILabel alloc] init];
         
         self.notice2Lab = notice2;
@@ -100,12 +92,6 @@
         notice2.font = [UIFont systemFontOfSize:14];
         
         [self addSubview:notice2];
-        
-        UIButton *notice2Btn = [[UIButton alloc] init];
-        
-        self.notice2Btn = notice2Btn;
-        
-        [self addSubview:notice2Btn];
         
         UIImageView *img = [[UIImageView alloc] init];
         
@@ -122,6 +108,12 @@
         boline.backgroundColor = FSB_ViewBGCOLOR;
         
         [self addSubview:boline];
+        
+        UIButton *clickBtn = [[UIButton alloc] init];
+        
+        self.clickBtn = clickBtn;
+        
+        [self addSubview:clickBtn];
         
     }
     
@@ -147,11 +139,9 @@
     
     self.notice1Lab.frame = self.frameModel.notice1F;
     
-    self.notice1Btn.frame = self.frameModel.notice1F;
+    self.clickBtn.frame = self.frameModel.clickF;
     
     self.notice2Lab.frame = self.frameModel.notice2F;
-    
-    self.notice2Btn.frame = self.frameModel.notice2F;
     
     self.img.frame = self.frameModel.imgF;
     
@@ -171,27 +161,15 @@
     
     self.img.image = [UIImage imageNamed:model.imgUrl];
     
-    [self.notice1Btn addTarget:self action:@selector(notice1Click) forControlEvents:UIControlEventTouchUpInside];
-    
-    [self.notice2Btn addTarget:self action:@selector(notice2Click) forControlEvents:UIControlEventTouchUpInside];
+    [self.clickBtn addTarget:self action:@selector(clickClick) forControlEvents:UIControlEventTouchUpInside];
     
 }
 
-- (void)notice1Click {
+- (void)clickClick {
     
-    if (self.notice1Block) {
+    if (self.clickBlock) {
         
-        self.notice1Block();
-        
-    }
-    
-}
-
-- (void)notice2Click {
-    
-    if (self.notice2Block) {
-        
-        self.notice2Block();
+        self.clickBlock();
         
     }
     

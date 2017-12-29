@@ -15,8 +15,6 @@
 
 @property (nonatomic, strong) HL_NoticeFrame *frameModel;
 
-@property (nonatomic, copy) dispatch_block_t notice1Block;
-
-@property (nonatomic, copy) dispatch_block_t notice2Block;
+@property (nonatomic, copy) dispatch_block_t clickBlock;
 
 @end

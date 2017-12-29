@@ -51,7 +51,7 @@
         
         self.selectionStyle = UITableViewCellSelectionStyleNone;
         
-        self.backgroundColor = FSB_ViewBGCOLOR;
+        self.backgroundColor = [UIColor whiteColor];
         
         UILabel *title = [[UILabel alloc] init];
         
@@ -163,7 +163,7 @@
     
     self.originalPriceLab.text = [NSString stringWithFormat:@"%@/年",model.OriginalPrice];
     
-    [self.lookBtn setTitle:@"查看" forState:0];
+    [self.lookBtn setTitle:@"详情" forState:0];
     
     [self.lookBtn addTarget:self action:@selector(lookClick) forControlEvents:UIControlEventTouchUpInside];
     

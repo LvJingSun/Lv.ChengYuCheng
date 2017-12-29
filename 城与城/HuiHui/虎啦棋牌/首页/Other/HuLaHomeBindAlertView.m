@@ -63,6 +63,8 @@
             
             self.IDfield = IDfield;
             
+            [IDfield addTarget:self action:@selector(countChange:) forControlEvents:UIControlEventEditingChanged];
+            
             IDfield.font = [UIFont systemFontOfSize:16];
             
             IDfield.layer.masksToBounds = YES;
@@ -131,6 +133,16 @@
     }
     
     return self;
+    
+}
+
+- (void)countChange:(UITextField *)field {
+    
+    if ([self.delegate respondsToSelector:@selector(GameIDFieldChange:)]) {
+        
+        [self.delegate GameIDFieldChange:field];
+        
+    }
     
 }
 

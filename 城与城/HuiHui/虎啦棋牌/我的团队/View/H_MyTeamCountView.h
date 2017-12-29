@@ -10,8 +10,10 @@
 
 @interface H_MyTeamCountView : UIView
 
-@property (nonatomic, copy) NSString *title;
+@property (nonatomic, weak) UILabel *titleLab;
 
-@property (nonatomic, copy) NSString *content;
+@property (nonatomic, weak) UILabel *contentLab;
+
+@property (nonatomic, copy) dispatch_block_t clickBlock;
 
 @end

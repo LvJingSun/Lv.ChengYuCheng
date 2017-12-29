@@ -10,9 +10,7 @@
 
 @interface H_MyTeamCountView ()
 
-@property (nonatomic, weak) UILabel *titleLab;
 
-@property (nonatomic, weak) UILabel *contentLab;
 
 @end
 
@@ -54,6 +52,8 @@
         
         UIButton *btn = [[UIButton alloc] initWithFrame:frame];
         
+        [btn addTarget:self action:@selector(btnClick) forControlEvents:UIControlEventTouchUpInside];
+        
         [self addSubview:btn];
         
     }
@@ -62,20 +62,30 @@
     
 }
 
--(void)setTitle:(NSString *)title {
-    
-    _title = title;
-    
-    self.titleLab.text = title;
-    
+- (void)btnClick {
+
+    if (self.clickBlock) {
+
+        self.clickBlock();
+
+    }
+
 }
 
--(void)setContent:(NSString *)content {
-    
-    _content = content;
-    
-    self.contentLab.text = content;
-    
-}
+//-(void)setTitle:(NSString *)title {
+//
+//    _title = title;
+//
+//    self.titleLab.text = title;
+//
+//}
+//
+//-(void)setContent:(NSString *)content {
+//
+//    _content = content;
+//
+//    self.contentLab.text = content;
+//
+//}
 
 @end

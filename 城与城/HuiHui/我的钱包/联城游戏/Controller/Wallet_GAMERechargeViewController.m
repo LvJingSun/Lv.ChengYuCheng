@@ -13,6 +13,8 @@
 #import "GAME_RechargeCell.h"
 #import "GetOutSuccessViewController.h"
 #import "LJConst.h"
+#import "HL_Recharge_Sure_OrderViewController.h"
+#import "HL_Recharge_Sure_OrderModel.h"
 
 @interface Wallet_GAMERechargeViewController ()<UITableViewDelegate,UITableViewDataSource,RechargeFieldDelegate>
 
@@ -77,7 +79,7 @@
             
             GetOut_TranModel *model = [[GetOut_TranModel alloc] init];
             
-            model.xiane = [NSString stringWithFormat:@"%@",[json valueForKey:@"Balance"]];
+            model.xiane = self.balance;
             
             model.notice = [NSString stringWithFormat:@"%@",[json valueForKey:@"Desc"]];
             
@@ -109,67 +111,63 @@
     
 }
 
-//充值
-- (void)GAMEMoneyGetOut {
+//下单
+- (void)creatOrder {
     
-    NSString *count;
+    GAME_RechargeFrame *frame = self.dataArray[0];
     
-    NSString *xiane;
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
+                         [CommonUtil getValueByKey:MEMBER_ID],@"memberId",
+                         frame.tranmodel.count,@"count",
+                         nil];
     
-    for (GAME_RechargeFrame *frame in self.dataArray) {
-        
-        count = frame.tranmodel.count;
-        
-        xiane = frame.tranmodel.xiane;
-        
-    }
+    AppHttpClient *httpclient = [AppHttpClient sharedHuLa];
     
-    if ([count floatValue] > [xiane floatValue]) {
+    [SVProgressHUD show];
+    
+    [httpclient HuLarequest:@"GameAccount/AddOrder.ashx" parameters:dic success:^(NSJSONSerialization *json) {
         
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"提示" message:[NSString stringWithFormat:@"你本次最多可充值%.2f元!",[xiane floatValue]] delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+        BOOL success = [[json valueForKey:@"status"] boolValue];
         
-        [alert show];
-        
-    }else {
-        
-        NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:
-                             [CommonUtil getValueByKey:MEMBER_ID],@"MemberID",
-                             count,@"Amount",
-                             nil];
-        
-        AppHttpClient *httpclient = [AppHttpClient sharedClient];
-        
-        [SVProgressHUD show];
-        
-        [httpclient request:@"MemAccountToGameYue.ashx" parameters:dic success:^(NSJSONSerialization *json) {
+        if (success) {
             
-            BOOL success = [[json valueForKey:@"status"] boolValue];
+            [SVProgressHUD dismiss];
             
-            if (success) {
-                
-                [SVProgressHUD showSuccessWithStatus:[NSString stringWithFormat:@"%@",[json valueForKey:@"msg"]]];
-                
-//                GetOutSuccessViewController *vc = [[GetOutSuccessViewController alloc] init];
-//
-//                [self.navigationController pushViewController:vc animated:YES];
-                
-                [self.navigationController popViewControllerAnimated:YES];
-                
-            }else {
-                
-                NSString *msg = [json valueForKey:@"msg"];
-                
-                [SVProgressHUD showErrorWithStatus:msg];
-                
-            }
+            HL_Recharge_Sure_OrderModel *model = [[HL_Recharge_Sure_OrderModel alloc] init];
             
-        } failure:^(NSError *error) {
+            model.OrderID = [NSString stringWithFormat:@"%@",[json valueForKey:@"orderNumber"]];
             
-            [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+            model.OrderTitle = [NSString stringWithFormat:@"%@",[json valueForKey:@"orderSubject"]];
             
-        }];
+            model.OriginalPrice = [NSString stringWithFormat:@"%@",[json valueForKey:@"originalUnitPrice"]];
+            
+            model.PresentPrice = [NSString stringWithFormat:@"%@",[json valueForKey:@"unitPrice"]];
+            
+            model.Count = [NSString stringWithFormat:@"%@",[json valueForKey:@"count"]];
+            
+            model.Discount = [NSString stringWithFormat:@"%@",[json valueForKey:@"dkPrice"]];
+            
+            model.Total = [NSString stringWithFormat:@"%@",[json valueForKey:@"orderPrice"]];
+            
+            HL_Recharge_Sure_OrderViewController *vc = [[HL_Recharge_Sure_OrderViewController alloc] init];
+            
+            vc.model = model;
+            
+            [self.navigationController pushViewController:vc animated:YES];
+            
+        }else {
+            
+            NSString *msg = [json valueForKey:@"msg"];
+            
+            [SVProgressHUD showErrorWithStatus:msg];
+            
+        }
         
-    }
+    } failure:^(NSError *error) {
+        
+        [SVProgressHUD showErrorWithStatus:[error localizedDescription]];
+        
+    }];
     
 }
 
@@ -209,16 +207,16 @@
     
     cell.sureBlock = ^{
         
-        if ([frame.tranmodel.count floatValue] > [frame.tranmodel.xiane floatValue]) {
+        if ([frame.tranmodel.count floatValue] <= 0) {
             
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:[NSString stringWithFormat:@"你最多可转出%@元!",frame.tranmodel.xiane] delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:[NSString stringWithFormat:@"请输入正确的充值金额"] delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
             
             [alert show];
             
         }else {
             
             //充值
-            [self GAMEMoneyGetOut];
+            [self creatOrder];
             
         }
         

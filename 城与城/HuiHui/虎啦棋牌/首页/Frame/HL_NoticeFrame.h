@@ -23,6 +23,8 @@
 
 @property (nonatomic, assign) CGRect bottomLineF;
 
+@property (nonatomic, assign) CGRect clickF;
+
 @property (nonatomic, assign) CGFloat height;
 
 @property (nonatomic, strong) HL_NoticeModel *noticeModel;

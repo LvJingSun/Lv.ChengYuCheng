@@ -17,9 +17,9 @@
 
 @property (nonatomic, assign) CGRect qipaiNoticeF;
 
-@property (nonatomic, assign) CGRect YBF;
-
-@property (nonatomic, assign) CGRect FKF;
+//@property (nonatomic, assign) CGRect YBF;
+//
+//@property (nonatomic, assign) CGRect FKF;
 
 @property (nonatomic, assign) CGRect countF;
 

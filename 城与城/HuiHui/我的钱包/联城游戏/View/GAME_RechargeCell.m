@@ -158,15 +158,17 @@
 
     GetOut_TranModel *model = self.frameModel.tranmodel;
     
-    self.titleLab.text = @"账户余额";
+    self.titleLab.text = @"当前余额";
     
     self.balanceLab.text = [NSString stringWithFormat:@"%.2f元",[model.xiane floatValue]];
     
-    if (![self isNULLString:model.xiane]) {
+//    if (![self isNULLString:model.xiane]) {
+    
+//        self.countField.placeholder = [NSString stringWithFormat:@"本次最多可充值%.2f元",[model.xiane floatValue]];
         
-        self.countField.placeholder = [NSString stringWithFormat:@"本次最多可充值%.2f元",[model.xiane floatValue]];
+        self.countField.placeholder = @"输入充值金额";
         
-    }
+//    }
     
     if ([self isNULLString:model.count]) {
         

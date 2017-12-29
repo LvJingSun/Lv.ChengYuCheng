@@ -12,6 +12,7 @@
 #import "HL_PromoterCell.h"
 #import "LJConst.h"
 #import "HL_PromoterDetailViewController.h"
+#import "HL_CommitPromoterViewController.h"
 
 @interface HL_PromoterViewController () <UITableViewDelegate,UITableViewDataSource>
 
@@ -39,9 +40,23 @@
         
         frame.promoterModel = model;
         
+        HL_PromoterModel *model2 = [[HL_PromoterModel alloc] init];
+        
+        model2.name = @"红烧吕小布";
+        
+        model2.delegate = @"粉丝代理(99/年)";
+        
+        model2.count = @"1年";
+        
+        HL_PromoterFrame *frame2 = [[HL_PromoterFrame alloc] init];
+        
+        frame2.promoterModel = model2;
+        
         NSMutableArray *mut = [NSMutableArray array];
         
         [mut addObject:frame];
+        
+        [mut addObject:frame2];
         
         _dataArray = mut;
         
@@ -60,8 +75,20 @@
     self.view.backgroundColor = FSB_ViewBGCOLOR;
     
     [self setLeftButtonWithNormalImage:@"arrow_WL.png" action:@selector(leftClicked)];
+    
+    [self setRightButtonWithTitle:@"添加" action:@selector(rightClicked)];
 
     [self allocWithTableview];
+    
+}
+
+- (void)rightClicked {
+    
+    HL_CommitPromoterViewController *vc = [[HL_CommitPromoterViewController alloc] init];
+    
+    vc.type = @"0";
+    
+    [self.navigationController pushViewController:vc animated:YES];
     
 }
 
@@ -116,6 +143,46 @@
     HL_PromoterDetailViewController *vc = [[HL_PromoterDetailViewController alloc] init];
     
     [self.navigationController pushViewController:vc animated:YES];
+    
+}
+
+-(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    return YES;
+    
+}
+
+-(NSArray<UITableViewRowAction *> *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UITableViewRowAction *deleteAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive title:@"删除" handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath) {
+        
+//        FSB_ListFrame *frame = self.array[indexPath.row];
+//
+//        cancleModel = frame.listModel;
+//
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"是否要撤销该笔交易？" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
+//
+//        [alert show];
+        
+        NSLog(@"删除");
+        
+    }];
+    
+    deleteAction.backgroundColor = [UIColor redColor];
+    
+    UITableViewRowAction *changeAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDestructive title:@"修改" handler:^(UITableViewRowAction * _Nonnull action, NSIndexPath * _Nonnull indexPath) {
+        
+        HL_CommitPromoterViewController *vc = [[HL_CommitPromoterViewController alloc] init];
+        
+        vc.type = @"1";
+        
+        [self.navigationController pushViewController:vc animated:YES];
+        
+    }];
+    
+    changeAction.backgroundColor = [UIColor purpleColor];
+    
+    return @[deleteAction,changeAction];
     
 }
 

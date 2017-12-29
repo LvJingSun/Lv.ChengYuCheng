@@ -26,7 +26,7 @@
     
     _qipaiIDF = CGRectMake(idX, idY, idW, idH);
     
-    CGSize qipaisize = [self sizeWithText:@"虎啦棋牌ID获取？？？" font:[UIFont systemFontOfSize:13] maxSize:CGSizeMake(0, 0)];
+    CGSize qipaisize = [self sizeWithText:@"游戏ID获取？？？" font:[UIFont systemFontOfSize:13] maxSize:CGSizeMake(0, 0)];
     
     CGFloat qipaiX = ScreenWidth * 0.968 - qipaisize.width;
     
@@ -48,29 +48,29 @@
     
     _qipaiNickF = CGRectMake(nickX, nickY, nickW, nickH);
     
-    CGFloat YBX = ScreenWidth * 0.1;
-    
-    CGFloat YBY = 20 + CGRectGetMaxY(_qipaiNoticeF);
-    
-    CGFloat YBW = ScreenWidth * 0.4;
-    
-    CGFloat YBH = 40;
-    
-    _YBF = CGRectMake(YBX, YBY, YBW, YBH);
-    
-    CGFloat FKX = CGRectGetMaxX(_YBF);
-    
-    CGFloat FKY = YBY;
-    
-    CGFloat FKW = YBW;
-    
-    CGFloat FKH = YBH;
-    
-    _FKF = CGRectMake(FKX, FKY, FKW, FKH);
+//    CGFloat YBX = ScreenWidth * 0.1;
+//
+//    CGFloat YBY = 20 + CGRectGetMaxY(_qipaiNoticeF);
+//
+//    CGFloat YBW = ScreenWidth * 0.4;
+//
+//    CGFloat YBH = 40;
+//
+//    _YBF = CGRectMake(YBX, YBY, YBW, YBH);
+//
+//    CGFloat FKX = CGRectGetMaxX(_YBF);
+//
+//    CGFloat FKY = YBY;
+//
+//    CGFloat FKW = YBW;
+//
+//    CGFloat FKH = YBH;
+//
+//    _FKF = CGRectMake(FKX, FKY, FKW, FKH);
     
     CGFloat countX = 0;
     
-    CGFloat countY = 20 + CGRectGetMaxY(_FKF);
+    CGFloat countY = 20 + CGRectGetMaxY(_qipaiNoticeF);
     
     CGFloat countW = ScreenWidth;
     

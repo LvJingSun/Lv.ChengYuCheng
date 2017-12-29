@@ -66,6 +66,8 @@
     
     _bottomLineF = CGRectMake(boX, boY, boW, boH);
     
+    _clickF = CGRectMake(titleX, CGRectGetMaxY(_upLineF), _WindowViewWidth - 2 * titleX, boY - CGRectGetMaxY(_upLineF));
+    
     _height = CGRectGetMaxY(_bottomLineF);
     
     CGFloat imgX = _WindowViewWidth * 0.65;

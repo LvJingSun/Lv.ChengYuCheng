@@ -168,11 +168,6 @@
         
    
 }
-        
-
- 
-
-
 
 - (void)leftClicked{
     

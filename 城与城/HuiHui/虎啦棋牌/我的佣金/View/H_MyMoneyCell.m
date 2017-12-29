@@ -19,7 +19,7 @@
 
 @property (nonatomic, weak) UILabel *countLab;
 
-@property (nonatomic, weak) UILabel *statusLab;
+//@property (nonatomic, weak) UILabel *statusLab;
 
 @property (nonatomic, weak) UILabel *sourceLab;
 
@@ -89,15 +89,15 @@
         
         [self addSubview:count];
         
-        UILabel *status = [[UILabel alloc] init];
-        
-        self.statusLab = status;
-        
-        status.textAlignment = NSTextAlignmentCenter;
-        
-        status.font = [UIFont systemFontOfSize:14];
-        
-        [self addSubview:status];
+//        UILabel *status = [[UILabel alloc] init];
+//
+//        self.statusLab = status;
+//
+//        status.textAlignment = NSTextAlignmentCenter;
+//
+//        status.font = [UIFont systemFontOfSize:14];
+//
+//        [self addSubview:status];
         
         UILabel *source = [[UILabel alloc] init];
         
@@ -143,7 +143,7 @@
     
     self.countLab.frame = self.frameModel.countF;
     
-    self.statusLab.frame = self.frameModel.statusF;
+//    self.statusLab.frame = self.frameModel.statusF;
     
     self.sourceLab.frame = self.frameModel.sourceF;
     
@@ -161,19 +161,19 @@
     
     self.countLab.text = model.count;
     
-    if ([model.status isEqualToString:@"1"]) {
-        
-        self.statusLab.text = @"未提取";
-        
-        self.statusLab.textColor = [UIColor darkGrayColor];
-
-    }else if ([model.status isEqualToString:@"2"]) {
-
-        self.statusLab.text = @"已提取";
-        
-        self.statusLab.textColor = FSB_StyleCOLOR;
-
-    }
+//    if ([model.status isEqualToString:@"1"]) {
+//        
+//        self.statusLab.text = @"未提取";
+//        
+//        self.statusLab.textColor = [UIColor darkGrayColor];
+//
+//    }else if ([model.status isEqualToString:@"2"]) {
+//
+//        self.statusLab.text = @"已提取";
+//        
+//        self.statusLab.textColor = FSB_StyleCOLOR;
+//
+//    }
     
     self.sourceLab.text = model.source;
     

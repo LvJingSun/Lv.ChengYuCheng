@@ -147,6 +147,28 @@
     
 }
 
+//- (void)layoutSubviews {
+//    
+//    for (UIView *subView in self.subviews) {
+//        
+//        if([subView isKindOfClass:NSClassFromString(@"UITableViewCellDeleteConfirmationView")]) {
+//            
+//            // 拿到subView之后再获取子控件
+//            
+//            // 因为上面删除按钮是第一个加的所以下标是0
+//            UIView *deleteView = subView.subviews[0];
+//            //改背景颜色
+//            deleteView.backgroundColor = [UIColor redColor];
+//            
+//            UIView *changeView = subView.subviews[1];
+//            
+//            changeView.backgroundColor = FSB_StyleCOLOR;
+//            
+//        }
+//    }
+//    
+//}
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code

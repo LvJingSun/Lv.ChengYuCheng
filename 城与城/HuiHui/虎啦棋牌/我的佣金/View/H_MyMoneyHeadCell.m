@@ -88,13 +88,13 @@
         
         name.font = [UIFont systemFontOfSize:17];
         
-        name.text = @"会员名";
+        name.text = @"用户昵称";
         
         [self addSubview:name];
         
         UILabel *level = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(name.frame), nameY, nameW, nameH)];
         
-        level.text = @"代理级别";
+        level.text = @"代理等级";
         
         level.textColor = FSB_StyleCOLOR;
         
@@ -106,7 +106,7 @@
         
         UILabel *delegate = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(level.frame), nameY, nameW, nameH)];
         
-        delegate.text = @"代理人数";
+        delegate.text = @"提成金额";
         
         delegate.textColor = FSB_StyleCOLOR;
         
@@ -118,7 +118,7 @@
         
         UILabel *member = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(delegate.frame), nameY, nameW, nameH)];
         
-        member.text = @"总收益";
+        member.text = @"来源";
         
         member.textColor = FSB_StyleCOLOR;
         

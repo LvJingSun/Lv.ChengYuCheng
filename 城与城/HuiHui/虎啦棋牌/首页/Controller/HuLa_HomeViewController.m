@@ -993,13 +993,13 @@
             //充值点击
             if (frame.hulaModel.isBind) {
                 
-                ToMeViewController *vc = [[ToMeViewController alloc] init];
-                
-                vc.gameID = frame.hulaModel.gameID;
-                
-                vc.viewType = @"1";
-                
-                [self.navigationController pushViewController:vc animated:YES];
+//                ToMeViewController *vc = [[ToMeViewController alloc] init];
+//
+//                vc.gameID = frame.hulaModel.gameID;
+//
+//                vc.viewType = @"1";
+//
+//                [self.navigationController pushViewController:vc animated:YES];
                 
             }else {
                 
@@ -1056,18 +1056,6 @@
         HL_NoticeFrame *frame = self.noticeArray[indexPath.row];
         
         cell.frameModel = frame;
-        
-        cell.notice1Block = ^{
-            
-            //第一个通知点击 传frame.noticeModel.notice1ID
-            
-        };
-        
-        cell.notice2Block = ^{
-            
-            //第二个通知点击 传frame.noticeModel.notice2ID
-            
-        };
         
         return cell;
         

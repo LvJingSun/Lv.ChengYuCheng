@@ -10,4 +10,6 @@
 
 @interface Wallet_GAMERechargeViewController : UIViewController
 
+@property (nonatomic, copy) NSString *balance;//当前余额
+
 @end

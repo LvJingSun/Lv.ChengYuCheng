@@ -15,4 +15,12 @@
 
 @property (nonatomic, strong) H_MyTeamHeadFrame *frameModel;
 
+@property (nonatomic, copy) dispatch_block_t oneBlock;
+
+@property (nonatomic, copy) dispatch_block_t twoBlock;
+
+@property (nonatomic, copy) dispatch_block_t threeBlock;
+
+@property (nonatomic, copy) dispatch_block_t fourBlock;
+
 @end
